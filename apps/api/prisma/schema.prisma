@@ -1,0 +1,212 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===========================
+// ZONAS Y MESAS
+// ===========================
+
+model Zone {
+  id          String   @id @default(cuid())
+  name        String   // "Zona Principal"
+  slug        String   @unique // "principal"
+  description String?
+  mapWidth    Int      @default(720) // Ancho del plano visual
+  mapHeight   Int      @default(520) // Alto del plano visual
+  furniture   Json?    // Array de elementos decorativos [{type, x, y, w, h, label}]
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  tables      Table[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Table {
+  id           String   @id @default(cuid())
+  code         String   // "M1", "B2", "S3", "T10"
+  label        String   // "Mesa 1", "Barra 2", "Sillón 3"
+  seats        Int
+  posX         Float    // Posición X en el plano
+  posY         Float    // Posición Y en el plano
+  width        Float    @default(80)
+  height       Float    @default(65)
+  shape        String   @default("rect") // "rect", "round", "long"
+  adjacentIds  String[] // Códigos de mesas adyacentes ["M2","M4"]
+  isActive     Boolean  @default(true)
+  zoneId       String
+  zone         Zone     @relation(fields: [zoneId], references: [id])
+  reservations ReservationTable[]
+
+  @@unique([zoneId, code])
+  @@index([zoneId])
+}
+
+// ===========================
+// RESERVAS
+// ===========================
+
+model Reservation {
+  id               String            @id @default(cuid())
+  date             DateTime          @db.Date
+  hour             String            // "12:00", "13:00"
+  people           Int
+  status           ReservationStatus @default(CONFIRMED)
+
+  // Cliente
+  customerName     String
+  customerEmail    String
+  customerPhone    String
+  eventType        String?           // "normal", "cumpleanos", "evento", "afterwork"
+  notes            String?
+
+  // Meta
+  isCombined       Boolean           @default(false)
+  isSpecialRequest Boolean           @default(false)
+  staffNotes       String?
+  cancelToken      String?           @unique // Token para cancelar sin auth
+
+  tables           ReservationTable[]
+  emails           EmailLog[]
+
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  cancelledAt      DateTime?
+
+  @@index([date, hour])
+  @@index([customerEmail])
+  @@index([cancelToken])
+}
+
+model ReservationTable {
+  reservationId String
+  tableId       String
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  table         Table       @relation(fields: [tableId], references: [id])
+
+  @@id([reservationId, tableId])
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  REJECTED
+  COMPLETED
+  NO_SHOW
+}
+
+// ===========================
+// EMAIL LOG
+// ===========================
+
+model EmailLog {
+  id            String       @id @default(cuid())
+  type          String       // "confirmation", "cancellation", "staff-notify", "special-request"
+  to            String
+  subject       String
+  sentAt        DateTime     @default(now())
+  status        String       @default("sent")
+  error         String?
+  reservationId String?
+  reservation   Reservation? @relation(fields: [reservationId], references: [id])
+}
+
+// ===========================
+// JUEGOS
+// ===========================
+
+model Game {
+  id          String  @id @default(cuid())
+  externalId  Int?    @unique // ID del JSON original
+  name        String
+  description String?
+  imageUrl    String?
+  playersMin  Int
+  playersMax  Int
+  playersBest Int?
+  durationMin Int
+  durationMax Int
+  ageMin      Int     @default(8)
+  difficulty  Int     @default(0) // 0-5
+  isAvailable Boolean @default(true)
+  location    String? // Ubicación en estantería
+
+  categories GameCategory[]
+  mechanics  GameMechanic[]
+  types      GameType[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+}
+
+model Category {
+  id    Int            @id
+  name  String
+  games GameCategory[]
+}
+
+model Mechanic {
+  id    Int            @id
+  name  String
+  games GameMechanic[]
+}
+
+model Type {
+  id    Int        @id
+  name  String
+  games GameType[]
+}
+
+model GameCategory {
+  gameId     String
+  categoryId Int
+  game       Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@id([gameId, categoryId])
+}
+
+model GameMechanic {
+  gameId     String
+  mechanicId Int
+  game       Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  mechanic   Mechanic @relation(fields: [mechanicId], references: [id])
+
+  @@id([gameId, mechanicId])
+}
+
+model GameType {
+  gameId String
+  typeId Int
+  game   Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  type   Type @relation(fields: [typeId], references: [id])
+
+  @@id([gameId, typeId])
+}
+
+// ===========================
+// USERS (Staff/Admin)
+// ===========================
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         UserRole @default(STAFF)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum UserRole {
+  ADMIN
+  STAFF
+}

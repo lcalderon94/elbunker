@@ -1,0 +1,19 @@
+{
+  "name": "el-bunker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "El Búnker Board Game Café - Monorepo",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:web": "cd apps/web && npm run dev",
+    "dev:api": "cd apps/api && npm run start:dev",
+    "build:web": "cd apps/web && npm run build",
+    "build:api": "cd apps/api && npm run build",
+    "db:setup": "cd apps/api && docker compose up -d && npx prisma migrate dev --name init && npm run db:seed",
+    "db:seed": "cd apps/api && npm run db:seed",
+    "install:all": "npm install && cd apps/web && npm install && cd ../api && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

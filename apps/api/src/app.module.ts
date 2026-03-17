@@ -5,6 +5,8 @@ import { ZonesModule } from './zones/zones.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { EmailModule } from './email/email.module';
 import { GamesModule } from './games/games.module';
+import { CustomerModule } from './customer/customer.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { GamesModule } from './games/games.module';
     ReservationsModule,
     EmailModule,
     GamesModule,
+    CustomerModule,
+    ChatModule,
   ],
   providers: [PrismaService],
   exports: [PrismaService],

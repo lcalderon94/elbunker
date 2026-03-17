@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import instruccionesImg from "../assets/instrucciones.png";
 
 // ============================================================
 // API SERVICE — Conexión con el backend NestJS
@@ -11,7 +10,6 @@ async function apiFetch(endpoint, options = {}) {
   const config = { headers: { 'Content-Type': 'application/json', ...options.headers }, ...options };
   const token = typeof localStorage !== 'undefined' ? localStorage.getItem('elbunker_token') : null;
   if (token) config.headers = { ...config.headers, Authorization: 'Bearer ' + token };
-
   try {
     const res = await fetch(url, config);
     const data = await res.json().catch(() => null);
@@ -19,14 +17,23 @@ async function apiFetch(endpoint, options = {}) {
     return data;
   } catch (err) {
     console.warn('[API]', endpoint, err.message);
-    return null; // Return null on failure → fallback to mock
+    return null;
   }
 }
 
 const api = {
+  customer: {
+    register: (data) => apiFetch('/customer/register', { method: 'POST', body: JSON.stringify(data) }),
+    login: (data) => apiFetch('/customer/login', { method: 'POST', body: JSON.stringify(data) }),
+    me: () => apiFetch('/customer/me'),
+    updateProfile: (data) => apiFetch('/customer/me', { method: 'PATCH', body: JSON.stringify(data) }),
+    changePassword: (data) => apiFetch('/customer/change-password', { method: 'POST', body: JSON.stringify(data) }),
+    reservations: () => apiFetch('/customer/reservations'),
+  },
+  chat: (message, history) => apiFetch('/chat', { method: 'POST', body: JSON.stringify({ message, history }) }),
   zones: {
     getAll: () => apiFetch('/zones'),
-    getAvailability: (slug, date, hour) => apiFetch(`/zones/${slug}/availability?date=${date}&hour=${hour}`),
+    getAvailability: (slug, date, hour) => apiFetch('/zones/' + slug + '/availability?date=' + date + '&hour=' + hour),
   },
   reservations: {
     create: (data) => apiFetch('/reservations', { method: 'POST', body: JSON.stringify(data) }),
@@ -34,15 +41,13 @@ const api = {
     cancel: (token, email) => apiFetch('/reservations/' + token, { method: 'DELETE', body: JSON.stringify({ email }) }),
   },
   games: {
-    search: (params) => { const q = new URLSearchParams(); Object.entries(params).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') q.set(k, v); }); return apiFetch('/games?' + q); },
+    search: (params) => { const q = new URLSearchParams(); Object.entries(params).forEach(([k,v]) => { if (v !== undefined && v !== null && v !== '') q.set(k, v); }); return apiFetch('/games?' + q); },
     getById: (id) => apiFetch('/games/' + id),
     getTypes: () => apiFetch('/games/types'),
   },
 };
 
-// ============================================================
-// API HOOKS — Cargan datos de la API, con fallback a mock si la API no está
-// ============================================================
+// API HOOKS
 function useApiZones(mockFloor) {
   const [zones, setZones] = useState(null);
   useEffect(() => {
@@ -50,14 +55,8 @@ function useApiZones(mockFloor) {
       if (!data) { setZones(mockFloor); return; }
       const map = {};
       data.forEach(z => {
-        map[z.slug] = {
-          name: z.name, w: z.mapWidth, h: z.mapHeight,
-          furniture: z.furniture || [],
-          tables: z.tables.map(t => ({
-            id: t.code, seats: t.seats, x: t.posX, y: t.posY,
-            w: t.width, h: t.height, shape: t.shape,
-            label: t.label, adj: t.adjacentIds,
-          })),
+        map[z.slug] = { name: z.name, w: z.mapWidth, h: z.mapHeight, furniture: z.furniture || [],
+          tables: z.tables.map(t => ({ id: t.code, seats: t.seats, x: t.posX, y: t.posY, w: t.width, h: t.height, shape: t.shape, label: t.label, adj: t.adjacentIds })),
         };
       });
       setZones(map);
@@ -66,16 +65,35 @@ function useApiZones(mockFloor) {
   return zones || mockFloor;
 }
 
-function useApiOccupied(zone, date, hour, mockFn) {
-  const [occupied, setOccupied] = useState([]);
+function useOccupiedAPI(zone, date, hour) {
+  const [occ, setOcc] = useState([]);
   useEffect(() => {
-    if (!zone || !date || !hour) { setOccupied([]); return; }
+    if (!zone || !date || !hour) { setOcc([]); return; }
     api.zones.getAvailability(zone, date, hour).then(data => {
-      if (!data) { setOccupied(mockFn(date, hour, zone)); return; }
-      setOccupied(data.tables.filter(t => t.isOccupied).map(t => t.code));
+      if (data) setOcc(data.tables.filter(t => t.isOccupied).map(t => t.code));
+      else setOcc(getOccupied(date, hour, zone));
     });
   }, [zone, date, hour]);
-  return occupied;
+  return occ;
+}
+
+// AUTH HOOK
+function useAuth() {
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('elbunker_token') : null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem('elbunker_token', token);
+      api.customer.me().then(data => {
+        if (data) setUser(data); else { setToken(null); localStorage.removeItem('elbunker_token'); }
+      }).finally(() => setLoading(false));
+    } else { localStorage.removeItem('elbunker_token'); setUser(null); setLoading(false); }
+  }, [token]);
+  const login = async (email, password) => { const res = await api.customer.login({ email, password }); if (res && res.token) { setToken(res.token); setUser(res.customer); return res; } throw new Error('Error de login'); };
+  const register = async (email, password, name, phone) => { const res = await api.customer.register({ email, password, name, phone }); if (res && res.token) { setToken(res.token); setUser(res.customer); return res; } throw new Error('Error de registro'); };
+  const logout = () => { setToken(null); setUser(null); };
+  return { user, token, loading, login, register, logout, isLoggedIn: !!user };
 }
 
 
@@ -147,52 +165,52 @@ const MENU = {
 };
 
 const GAMES = [
-  { id: 1, name: "Catan", type: "Estrategia", players: "3-4", duration: "75 min", diff: "Media", desc: "Coloniza la isla, comercia con tus rivales y construye el mejor asentamiento.", img: "warm" },
-  { id: 2, name: "Carcassonne", type: "Colocación", players: "2-5", duration: "45 min", diff: "Fácil", desc: "Coloca losetas, reclama ciudades y domina los campos medievales.", img: "cool" },
-  { id: 3, name: "Dixit", type: "Party", players: "3-8", duration: "30 min", diff: "Fácil", desc: "Deja volar tu imaginación con las ilustraciones más increíbles.", img: "coral" },
-  { id: 4, name: "Ticket to Ride", type: "Familiar", players: "2-5", duration: "60 min", diff: "Fácil", desc: "Construye rutas de tren y conecta ciudades por todo el mapa.", img: "green" },
-  { id: 5, name: "Azul", type: "Abstracto", players: "2-4", duration: "40 min", diff: "Media", desc: "Decora el palacio real con los mosaicos más bonitos y coloridos.", img: "cool" },
-  { id: 6, name: "Código Secreto", type: "Party", players: "4-8", duration: "20 min", diff: "Fácil", desc: "Pistas de una palabra para encontrar a tus espías.", img: "dark" },
-  { id: 7, name: "7 Wonders", type: "Estrategia", players: "3-7", duration: "30 min", diff: "Media", desc: "Construye una civilización y levanta una maravilla del mundo.", img: "warm" },
-  { id: 8, name: "Pandemic", type: "Cooperativo", players: "2-4", duration: "45 min", diff: "Media", desc: "Salva al mundo trabajando en equipo contra enfermedades mortales.", img: "coral" },
-  { id: 9, name: "Splendor", type: "Estrategia", players: "2-4", duration: "30 min", diff: "Fácil", desc: "Colecciona gemas preciosas y conviértete en el mejor comerciante.", img: "mixed" },
-  { id: 10, name: "King of Tokyo", type: "Party", players: "2-6", duration: "30 min", diff: "Fácil", desc: "Sé el monstruo más poderoso de la ciudad. ¡Conquista Tokio!", img: "green" },
-  { id: 11, name: "Wingspan", type: "Estrategia", players: "1-5", duration: "60 min", diff: "Media", desc: "Atrae las aves más valiosas a tu reserva natural.", img: "cool" },
-  { id: 12, name: "Dobble", type: "Party", players: "2-8", duration: "15 min", diff: "Fácil", desc: "Encuentra el símbolo que coincide. ¡Velocidad pura!", img: "warm" },
+  { id:1, name:"Catan", type:"Estrategia", players:"3-4", duration:"75 min", diff:"Media", desc:"Coloniza la isla, comercia con tus rivales y construye el mejor asentamiento.", img:"warm" },
+  { id:2, name:"Carcassonne", type:"Colocación", players:"2-5", duration:"45 min", diff:"Fácil", desc:"Coloca losetas, reclama ciudades y domina los campos medievales.", img:"cool" },
+  { id:3, name:"Dixit", type:"Party", players:"3-8", duration:"30 min", diff:"Fácil", desc:"Deja volar tu imaginación con las ilustraciones más increíbles.", img:"coral" },
+  { id:4, name:"Ticket to Ride", type:"Familiar", players:"2-5", duration:"60 min", diff:"Fácil", desc:"Construye rutas de tren y conecta ciudades por todo el mapa.", img:"green" },
+  { id:5, name:"Azul", type:"Abstracto", players:"2-4", duration:"40 min", diff:"Media", desc:"Decora el palacio real con los mosaicos más bonitos y coloridos.", img:"cool" },
+  { id:6, name:"Código Secreto", type:"Party", players:"4-8", duration:"20 min", diff:"Fácil", desc:"Pistas de una palabra para encontrar a tus espías.", img:"dark" },
+  { id:7, name:"7 Wonders", type:"Estrategia", players:"3-7", duration:"30 min", diff:"Media", desc:"Construye una civilización y levanta una maravilla del mundo.", img:"warm" },
+  { id:8, name:"Pandemic", type:"Cooperativo", players:"2-4", duration:"45 min", diff:"Media", desc:"Salva al mundo trabajando en equipo contra enfermedades mortales.", img:"coral" },
+  { id:9, name:"Splendor", type:"Estrategia", players:"2-4", duration:"30 min", diff:"Fácil", desc:"Colecciona gemas preciosas y conviértete en el mejor comerciante.", img:"mixed" },
+  { id:10, name:"King of Tokyo", type:"Party", players:"2-6", duration:"30 min", diff:"Fácil", desc:"Sé el monstruo más poderoso de la ciudad. ¡Conquista Tokio!", img:"green" },
+  { id:11, name:"Wingspan", type:"Estrategia", players:"1-5", duration:"60 min", diff:"Media", desc:"Atrae las aves más valiosas a tu reserva natural.", img:"cool" },
+  { id:12, name:"Dobble", type:"Party", players:"2-8", duration:"15 min", diff:"Fácil", desc:"Encuentra el símbolo que coincide. ¡Velocidad pura!", img:"warm" },
 ];
 
 const FAQ = [
-  { q: "¿Cómo funciona El Búnker?", a: "Reservas tu mesa, vienes con tu grupo, pides algo de nuestra carta, elegís un juego (o te ayudamos) y disfrutáis. Pagas un cover de 3,50€ por persona que incluye juegos ilimitados y sin límite de tiempo." },
-  { q: "¿Necesito saber jugar?", a: "¡Para nada! Nuestro equipo te explica cualquier juego en minutos. Tenemos desde los más sencillos hasta los más desafiantes." },
-  { q: "¿Puedo ir con niños?", a: "¡Por supuesto! Somos family friendly. Tenemos juegos para peques desde 4 años. Los menores deben ir acompañados de un adulto." },
-  { q: "¿Es necesario reservar?", a: "Recomendamos reservar, especialmente fines de semana. Pero si hay disponibilidad, también te recibimos sin reserva." },
-  { q: "¿Cuánto cuesta jugar?", a: "El cover es de 3,50€ por persona. Incluye acceso ilimitado a toda la colección, sin límite de tiempo. Comida y bebida aparte." },
-  { q: "¿Puedo solo venir a comer?", a: "¡Claro! Puedes estar solo comiendo o disfrutando de nuestros juegos por 3,50€. Tú decides." },
-  { q: "¿Puedo celebrar un cumpleaños?", a: "¡Sí! Tenemos packs especiales para cumples, afterworks y eventos privados. Contáctanos y lo montamos." },
-  { q: "¿Cuántos juegos tenéis?", a: "Más de 500 juegos y creciendo. Estrategia, party, cooperativos, familiares, para dos, temáticos..." },
+  { q:"¿Cómo funciona El Búnker?", a:"Reservas tu mesa, vienes con tu grupo, pides algo de nuestra carta, elegís un juego (o te ayudamos) y disfrutáis. Pagas un cover de 3,50€ por persona que incluye juegos ilimitados y sin límite de tiempo." },
+  { q:"¿Necesito saber jugar?", a:"¡Para nada! Nuestro equipo te explica cualquier juego en minutos. Tenemos desde los más sencillos hasta los más desafiantes." },
+  { q:"¿Puedo ir con niños?", a:"¡Por supuesto! Somos family friendly. Tenemos juegos para peques desde 4 años. Los menores deben ir acompañados de un adulto." },
+  { q:"¿Es necesario reservar?", a:"Recomendamos reservar, especialmente fines de semana. Pero si hay disponibilidad, también te recibimos sin reserva." },
+  { q:"¿Cuánto cuesta jugar?", a:"El cover es de 3,50€ por persona. Incluye acceso ilimitado a toda la colección, sin límite de tiempo. Comida y bebida aparte." },
+  { q:"¿Puedo solo venir a comer?", a:"¡Claro! Puedes estar solo comiendo o disfrutando de nuestros juegos por 3,50€. Tú decides." },
+  { q:"¿Puedo celebrar un cumpleaños?", a:"¡Sí! Tenemos packs especiales para cumples, afterworks y eventos privados. Contáctanos y lo montamos." },
+  { q:"¿Cuántos juegos tenéis?", a:"Más de 500 juegos y creciendo. Estrategia, party, cooperativos, familiares, para dos, temáticos..." },
 ];
 
 // ============================================================
 // SVG ICONS
 // ============================================================
 const I = {
-  dice: (s = 48, c = "#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="12" fill={c} /><circle cx="20" cy="20" r="5" fill="#FFD60A" /><circle cx="44" cy="20" r="5" fill="#FFD60A" /><circle cx="32" cy="32" r="5" fill="#FFD60A" /><circle cx="20" cy="44" r="5" fill="#FFD60A" /><circle cx="44" cy="44" r="5" fill="#FFD60A" /></svg>,
-  door: (s = 48, c = "#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><rect x="12" y="4" width="40" height="56" rx="4" fill={c} /><rect x="16" y="8" width="32" height="48" rx="2" fill="#FFD60A" opacity=".3" /><rect x="20" y="12" width="24" height="20" rx="2" fill="#FFD60A" opacity=".5" /><circle cx="40" cy="36" r="3" fill="#FFD60A" /><rect x="8" y="56" width="48" height="4" rx="2" fill={c} /></svg>,
-  coffee: (s = 48, c = "#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><path d="M12 24h32v24c0 6-6 12-12 12h-8c-6 0-12-6-12-12V24z" fill={c} /><path d="M44 28h6c4 0 6 4 6 8s-2 8-6 8h-6" stroke={c} strokeWidth="4" fill="none" /><path d="M20 8c0 0 2 6 0 12M28 6c0 0 2 6 0 12M36 8c0 0 2 6 0 12" stroke="#FFD60A" strokeWidth="3" strokeLinecap="round" /></svg>,
-  party: (s = 48, c = "#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><path d="M16 56L24 8h4l-6 48h-6z" fill="#FFD60A" /><path d="M24 8c12 0 20 8 20 16 0 4-4 8-10 8" fill={c} /><circle cx="44" cy="16" r="3" fill="#FF6B6B" /><circle cx="50" cy="24" r="2.5" fill="#FFD60A" /><circle cx="40" cy="10" r="2" fill="#00B4D8" /><circle cx="52" cy="18" r="2" fill="#A8E06C" /><path d="M8 20l4-4 4 4-4 4z" fill="#FF6B6B" /></svg>,
-  star: (s = 48, c = "#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><path d="M32 4l8.5 17.5L60 24l-14 13.5L49 58 32 49 15 58l3-20.5L4 24l19.5-2.5z" fill={c} /><path d="M32 14l5 10.5L48 26l-8 8 2 12-10-6-10 6 2-12-8-8 11-1.5z" fill="#FFD60A" /></svg>,
-  map: (s = 48, c = "#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><path d="M32 56s-20-16-20-28C12 16 21 8 32 8s20 8 20 20c0 12-20 28-20 28z" fill={c} /><circle cx="32" cy="26" r="8" fill="#FFD60A" /></svg>,
-  phone: (s = 48, c = "#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><rect x="16" y="4" width="32" height="56" rx="6" fill={c} /><rect x="20" y="12" width="24" height="36" rx="2" fill="#FFD60A" opacity=".3" /><circle cx="32" cy="54" r="3" fill="#FFD60A" /></svg>,
-  burger: (s = 48) => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><path d="M8 30h48c0-14-10-22-24-22S8 16 8 30z" fill="#E8A33C" /><rect x="6" y="30" width="52" height="6" rx="3" fill="#A8E06C" /><rect x="6" y="36" width="52" height="5" rx="2" fill="#FF6B6B" /><rect x="6" y="41" width="52" height="5" rx="2" fill="#FFD60A" /><path d="M8 46h48v4c0 3-3 6-6 6H14c-3 0-6-3-6-6v-4z" fill="#E8A33C" /></svg>,
-  cake: (s = 48, c = "#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><rect x="10" y="28" width="44" height="24" rx="4" fill={c} /><rect x="14" y="20" width="36" height="10" rx="4" fill="#FF6B6B" /><path d="M10 38h44" stroke="#FFD60A" strokeWidth="3" /><rect x="28" y="8" width="8" height="14" rx="2" fill="#FFD60A" /><ellipse cx="32" cy="6" rx="4" ry="3" fill="#FF6B6B" /></svg>,
-  people: (s = 48, c = "#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><circle cx="22" cy="18" r="8" fill={c} /><path d="M8 48c0-10 6-16 14-16s14 6 14 16" fill={c} /><circle cx="42" cy="18" r="8" fill="#FFD60A" /><path d="M28 48c0-10 6-16 14-16s14 6 14 16" fill="#FFD60A" /></svg>,
-  heart: (s = 48, c = "#FF6B6B") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><path d="M32 56S4 36 4 20C4 10 12 4 20 4c6 0 10 4 12 8 2-4 6-8 12-8 8 0 16 6 16 16 0 16-28 36-28 36z" fill={c} /></svg>,
-  clock: (s = 48, c = "#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="26" fill={c} /><circle cx="32" cy="32" r="22" fill="#FFD60A" opacity=".3" /><line x1="32" y1="32" x2="32" y2="16" stroke="#FFD60A" strokeWidth="4" strokeLinecap="round" /><line x1="32" y1="32" x2="44" y2="32" stroke="#FFD60A" strokeWidth="3" strokeLinecap="round" /><circle cx="32" cy="32" r="3" fill="#FFD60A" /></svg>,
-  hotdog: (s = 48) => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><ellipse cx="32" cy="36" rx="24" ry="12" fill="#E8A33C" /><ellipse cx="32" cy="32" rx="20" ry="8" fill="#D84315" /><path d="M14 28c6 4 12-2 18 2s12-2 18 2" stroke="#FFD60A" strokeWidth="3" fill="none" /><path d="M16 32c5 3 10-2 16 2s10-2 16 2" stroke="#A8E06C" strokeWidth="2" fill="none" /></svg>,
-  beer: (s = 48) => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><rect x="14" y="16" width="28" height="40" rx="4" fill="#FFD60A" opacity=".7" /><rect x="14" y="16" width="28" height="12" rx="4" fill="#FFF" opacity=".5" /><path d="M42 24h8c4 0 6 4 6 8s-2 8-6 8h-8" stroke="#E8A33C" strokeWidth="3" fill="none" /><rect x="14" y="12" width="28" height="6" rx="3" fill="#E8A33C" /></svg>,
-  bottle: (s = 48) => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><rect x="24" y="4" width="16" height="8" rx="2" fill="#8B5E3C" /><rect x="20" y="12" width="24" height="44" rx="6" fill="#C62828" /><rect x="24" y="20" width="16" height="16" rx="8" fill="#FFD60A" opacity=".3" /><circle cx="32" cy="28" r="6" fill="#FFD60A" opacity=".5" /></svg>,
-  mail: (s = 22) => <svg width={s} height={s} viewBox="0 0 22 22"><rect x="1" y="4" width="20" height="14" rx="3" fill="#1A1A2E" /><path d="M1 7l10 6 10-6" stroke="#FFD60A" strokeWidth="2" fill="none" /></svg>,
-  gamepad: (s = 48, c = "#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><path d="M8 28C8 20 14 14 22 14h20c8 0 14 6 14 14v4c0 10-6 18-14 22H22C14 50 8 42 8 32v-4z" fill={c} /><rect x="18" y="24" width="4" height="14" rx="2" fill="#FFD60A" /><rect x="13" y="29" width="14" height="4" rx="2" fill="#FFD60A" /><circle cx="44" cy="26" r="3.5" fill="#FFD60A" /><circle cx="44" cy="36" r="3.5" fill="#FFD60A" /></svg>,
+  dice: (s=48,c="#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="12" fill={c}/><circle cx="20" cy="20" r="5" fill="#FFD60A"/><circle cx="44" cy="20" r="5" fill="#FFD60A"/><circle cx="32" cy="32" r="5" fill="#FFD60A"/><circle cx="20" cy="44" r="5" fill="#FFD60A"/><circle cx="44" cy="44" r="5" fill="#FFD60A"/></svg>,
+  door: (s=48,c="#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><rect x="12" y="4" width="40" height="56" rx="4" fill={c}/><rect x="16" y="8" width="32" height="48" rx="2" fill="#FFD60A" opacity=".3"/><rect x="20" y="12" width="24" height="20" rx="2" fill="#FFD60A" opacity=".5"/><circle cx="40" cy="36" r="3" fill="#FFD60A"/><rect x="8" y="56" width="48" height="4" rx="2" fill={c}/></svg>,
+  coffee: (s=48,c="#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><path d="M12 24h32v24c0 6-6 12-12 12h-8c-6 0-12-6-12-12V24z" fill={c}/><path d="M44 28h6c4 0 6 4 6 8s-2 8-6 8h-6" stroke={c} strokeWidth="4" fill="none"/><path d="M20 8c0 0 2 6 0 12M28 6c0 0 2 6 0 12M36 8c0 0 2 6 0 12" stroke="#FFD60A" strokeWidth="3" strokeLinecap="round"/></svg>,
+  party: (s=48,c="#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><path d="M16 56L24 8h4l-6 48h-6z" fill="#FFD60A"/><path d="M24 8c12 0 20 8 20 16 0 4-4 8-10 8" fill={c}/><circle cx="44" cy="16" r="3" fill="#FF6B6B"/><circle cx="50" cy="24" r="2.5" fill="#FFD60A"/><circle cx="40" cy="10" r="2" fill="#00B4D8"/><circle cx="52" cy="18" r="2" fill="#A8E06C"/><path d="M8 20l4-4 4 4-4 4z" fill="#FF6B6B"/></svg>,
+  star: (s=48,c="#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><path d="M32 4l8.5 17.5L60 24l-14 13.5L49 58 32 49 15 58l3-20.5L4 24l19.5-2.5z" fill={c}/><path d="M32 14l5 10.5L48 26l-8 8 2 12-10-6-10 6 2-12-8-8 11-1.5z" fill="#FFD60A"/></svg>,
+  map: (s=48,c="#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><path d="M32 56s-20-16-20-28C12 16 21 8 32 8s20 8 20 20c0 12-20 28-20 28z" fill={c}/><circle cx="32" cy="26" r="8" fill="#FFD60A"/></svg>,
+  phone: (s=48,c="#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><rect x="16" y="4" width="32" height="56" rx="6" fill={c}/><rect x="20" y="12" width="24" height="36" rx="2" fill="#FFD60A" opacity=".3"/><circle cx="32" cy="54" r="3" fill="#FFD60A"/></svg>,
+  burger: (s=48) => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><path d="M8 30h48c0-14-10-22-24-22S8 16 8 30z" fill="#E8A33C"/><rect x="6" y="30" width="52" height="6" rx="3" fill="#A8E06C"/><rect x="6" y="36" width="52" height="5" rx="2" fill="#FF6B6B"/><rect x="6" y="41" width="52" height="5" rx="2" fill="#FFD60A"/><path d="M8 46h48v4c0 3-3 6-6 6H14c-3 0-6-3-6-6v-4z" fill="#E8A33C"/></svg>,
+  cake: (s=48,c="#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><rect x="10" y="28" width="44" height="24" rx="4" fill={c}/><rect x="14" y="20" width="36" height="10" rx="4" fill="#FF6B6B"/><path d="M10 38h44" stroke="#FFD60A" strokeWidth="3"/><rect x="28" y="8" width="8" height="14" rx="2" fill="#FFD60A"/><ellipse cx="32" cy="6" rx="4" ry="3" fill="#FF6B6B"/></svg>,
+  people: (s=48,c="#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><circle cx="22" cy="18" r="8" fill={c}/><path d="M8 48c0-10 6-16 14-16s14 6 14 16" fill={c}/><circle cx="42" cy="18" r="8" fill="#FFD60A"/><path d="M28 48c0-10 6-16 14-16s14 6 14 16" fill="#FFD60A"/></svg>,
+  heart: (s=48,c="#FF6B6B") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><path d="M32 56S4 36 4 20C4 10 12 4 20 4c6 0 10 4 12 8 2-4 6-8 12-8 8 0 16 6 16 16 0 16-28 36-28 36z" fill={c}/></svg>,
+  clock: (s=48,c="#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="26" fill={c}/><circle cx="32" cy="32" r="22" fill="#FFD60A" opacity=".3"/><line x1="32" y1="32" x2="32" y2="16" stroke="#FFD60A" strokeWidth="4" strokeLinecap="round"/><line x1="32" y1="32" x2="44" y2="32" stroke="#FFD60A" strokeWidth="3" strokeLinecap="round"/><circle cx="32" cy="32" r="3" fill="#FFD60A"/></svg>,
+  hotdog: (s=48) => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><ellipse cx="32" cy="36" rx="24" ry="12" fill="#E8A33C"/><ellipse cx="32" cy="32" rx="20" ry="8" fill="#D84315"/><path d="M14 28c6 4 12-2 18 2s12-2 18 2" stroke="#FFD60A" strokeWidth="3" fill="none"/><path d="M16 32c5 3 10-2 16 2s10-2 16 2" stroke="#A8E06C" strokeWidth="2" fill="none"/></svg>,
+  beer: (s=48) => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><rect x="14" y="16" width="28" height="40" rx="4" fill="#FFD60A" opacity=".7"/><rect x="14" y="16" width="28" height="12" rx="4" fill="#FFF" opacity=".5"/><path d="M42 24h8c4 0 6 4 6 8s-2 8-6 8h-8" stroke="#E8A33C" strokeWidth="3" fill="none"/><rect x="14" y="12" width="28" height="6" rx="3" fill="#E8A33C"/></svg>,
+  bottle: (s=48) => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><rect x="24" y="4" width="16" height="8" rx="2" fill="#8B5E3C"/><rect x="20" y="12" width="24" height="44" rx="6" fill="#C62828"/><rect x="24" y="20" width="16" height="16" rx="8" fill="#FFD60A" opacity=".3"/><circle cx="32" cy="28" r="6" fill="#FFD60A" opacity=".5"/></svg>,
+  mail: (s=22) => <svg width={s} height={s} viewBox="0 0 22 22"><rect x="1" y="4" width="20" height="14" rx="3" fill="#1A1A2E"/><path d="M1 7l10 6 10-6" stroke="#FFD60A" strokeWidth="2" fill="none"/></svg>,
+  gamepad: (s=48,c="#2D2D2D") => <svg width={s} height={s} viewBox="0 0 64 64" fill="none"><path d="M8 28C8 20 14 14 22 14h20c8 0 14 6 14 14v4c0 10-6 18-14 22H22C14 50 8 42 8 32v-4z" fill={c}/><rect x="18" y="24" width="4" height="14" rx="2" fill="#FFD60A"/><rect x="13" y="29" width="14" height="4" rx="2" fill="#FFD60A"/><circle cx="44" cy="26" r="3.5" fill="#FFD60A"/><circle cx="44" cy="36" r="3.5" fill="#FFD60A"/></svg>,
 };
 
 // Logo placeholder component
@@ -201,8 +219,8 @@ function LogoMascot({ size = 40 }) {
 }
 
 function MockImg({ label, grad, h = 200, round = true }) {
-  const gs = { warm: "linear-gradient(135deg,#8B5E3C,#E8A33C,#FFD60A)", cool: "linear-gradient(135deg,#0077B6,#00B4D8,#90E0EF)", green: "linear-gradient(135deg,#33691E,#558B2F,#7CB342)", coral: "linear-gradient(135deg,#BF360C,#E64A19,#FF8A65)", dark: "linear-gradient(135deg,#1A1A2E,#2D2D44,#4A4A60)", mixed: "linear-gradient(135deg,#FFD60A,#FF6B6B,#B388FF)" };
-  return <div style={{ width: "100%", height: h, background: gs[grad] || gs.warm, borderRadius: round ? 16 : 0, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden" }}><div style={{ position: "absolute", inset: 0, opacity: .1, backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='1' fill='%23fff'/%3E%3C/svg%3E")`, backgroundSize: "20px 20px" }} /><span style={{ color: "rgba(255,255,255,.8)", fontFamily: "'Lilita One',sans-serif", fontSize: ".85rem", textAlign: "center", padding: "1rem", textShadow: "1px 2px 4px rgba(0,0,0,.4)" }}>{label}</span></div>;
+  const gs = { warm:"linear-gradient(135deg,#8B5E3C,#E8A33C,#FFD60A)", cool:"linear-gradient(135deg,#0077B6,#00B4D8,#90E0EF)", green:"linear-gradient(135deg,#33691E,#558B2F,#7CB342)", coral:"linear-gradient(135deg,#BF360C,#E64A19,#FF8A65)", dark:"linear-gradient(135deg,#1A1A2E,#2D2D44,#4A4A60)", mixed:"linear-gradient(135deg,#FFD60A,#FF6B6B,#B388FF)" };
+  return <div style={{ width:"100%", height:h, background:gs[grad]||gs.warm, borderRadius:round?16:0, display:"flex", alignItems:"center", justifyContent:"center", position:"relative", overflow:"hidden" }}><div style={{ position:"absolute", inset:0, opacity:.1, backgroundImage:`url("data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='1' fill='%23fff'/%3E%3C/svg%3E")`, backgroundSize:"20px 20px" }}/><span style={{ color:"rgba(255,255,255,.8)", fontFamily:"'Lilita One',sans-serif", fontSize:".85rem", textAlign:"center", padding:"1rem", textShadow:"1px 2px 4px rgba(0,0,0,.4)" }}>{label}</span></div>;
 }
 
 // ============================================================
@@ -246,9 +264,9 @@ function Roadmap() {
 // ============================================================
 function HeroCarousel({ setPage }) {
   const slides = [
-    { title: "Bienvenido a", hl: "El Búnker", sub: "Juegos de mesa, comida increíble y el mejor ambiente. Tu plan perfecto con amigos, familia o pareja.", bg: "linear-gradient(135deg,#1A1A2E 0%,#2D2D44 60%,#3D3D5C 100%)" },
-    { title: "Más de", hl: "500 Juegos", sub: "Estrategia, party, cooperativos, familiares... Encuentra tu favorito y juega sin límite de tiempo.", bg: "linear-gradient(135deg,#0077B6 0%,#00B4D8 60%,#90E0EF 100%)" },
-    { title: "¡Ven a comer...", hl: "Quédate a jugar!", sub: "Crazy Nachos, Burgers, Hotdogs, Bunker Cola... Combustible premium para las mejores partidas.", bg: "linear-gradient(135deg,#8B5E3C 0%,#E8A33C 60%,#FFD60A 100%)" },
+    { title:"Bienvenido a", hl:"El Búnker", sub:"Juegos de mesa, comida increíble y el mejor ambiente. Tu plan perfecto con amigos, familia o pareja.", bg:"linear-gradient(135deg,#1A1A2E 0%,#2D2D44 60%,#3D3D5C 100%)" },
+    { title:"Más de", hl:"500 Juegos", sub:"Estrategia, party, cooperativos, familiares... Encuentra tu favorito y juega sin límite de tiempo.", bg:"linear-gradient(135deg,#0077B6 0%,#00B4D8 60%,#90E0EF 100%)" },
+    { title:"¡Ven a comer...", hl:"Quédate a jugar!", sub:"Crazy Nachos, Burgers, Hotdogs, Bunker Cola... Combustible premium para las mejores partidas.", bg:"linear-gradient(135deg,#8B5E3C 0%,#E8A33C 60%,#FFD60A 100%)" },
   ];
   const [idx, setIdx] = useState(0);
   const t = useRef(null);
@@ -619,95 +637,189 @@ h1,h2,h3,h4{font-family:'Lilita One',sans-serif;font-weight:400}
 .res-row span{color:var(--black);font-weight:700}
 
 /* EXPERIENCE IMAGE PLACEHOLDER */
-.exp-img-placeholder{
-  max-width:900px;
-  margin:0 auto;
-  background:transparent;
-  border:none;
-  border-radius:0;
-  box-shadow:none;
-  overflow:visible;
-}
+.exp-img-placeholder{max-width:900px;margin:0 auto;background:var(--white);border-radius:var(--rl);box-shadow:var(--sh);overflow:hidden;border:3px dashed var(--yellow)}
 .exp-img-inner{padding:4rem 2rem;text-align:center;color:var(--tm)}
 .exp-img-inner p{font-family:'Lilita One',sans-serif;font-size:1.2rem;color:var(--black);margin:.8rem 0 .3rem}
 .exp-img-inner span{font-size:.9rem;font-weight:600;color:var(--tl)}
 
+
+/* AUTH MODAL */
+.auth-modal{background:var(--white);border-radius:var(--rl);padding:2.5rem;max-width:420px;width:100%;position:relative;box-shadow:var(--shl);animation:modalIn .3s ease}
+
+/* DEXTER CHATBOT */
+.dexter-fab{position:fixed;bottom:2rem;left:2rem;width:56px;height:56px;border-radius:50%;background:var(--black);border:3px solid var(--yellow);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shl);z-index:998;transition:all .3s;animation:dexter-bounce 3s ease infinite}
+.dexter-fab:hover{transform:scale(1.1)}
+@keyframes dexter-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.dexter-panel{position:fixed;bottom:2rem;left:2rem;width:380px;max-width:calc(100vw - 2rem);height:520px;max-height:calc(100vh - 4rem);background:var(--white);border-radius:var(--rl);box-shadow:var(--shl);z-index:998;display:flex;flex-direction:column;overflow:hidden;border:3px solid var(--black);animation:modalIn .3s ease}
+@media(max-width:500px){.dexter-panel{width:calc(100vw - 2rem);height:calc(100vh - 6rem);bottom:1rem;left:1rem}}
+.dexter-header{background:var(--black);padding:.8rem 1rem;display:flex;justify-content:space-between;align-items:center}
+.dexter-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.6rem;background:var(--cream)}
+.dexter-msg{display:flex;gap:.5rem;max-width:85%}.dexter-assistant{align-self:flex-start}.dexter-user{align-self:flex-end;flex-direction:row-reverse}
+.dexter-avatar{width:28px;height:28px;border-radius:50%;background:var(--black);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dexter-bubble{padding:.6rem .9rem;border-radius:14px;font-size:.88rem;font-weight:600;line-height:1.5;white-space:pre-wrap}
+.dexter-assistant .dexter-bubble{background:var(--white);color:var(--text);border:2px solid var(--cream-dk);border-top-left-radius:4px}
+.dexter-user .dexter-bubble{background:var(--yellow);color:var(--black);border-top-right-radius:4px}
+.dexter-typing span{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--tm);margin:0 2px;animation:typing .8s ease infinite}.dexter-typing span:nth-child(2){animation-delay:.15s}.dexter-typing span:nth-child(3){animation-delay:.3s}
+@keyframes typing{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
+.dexter-quick{display:flex;flex-wrap:wrap;gap:.4rem;padding:.5rem 0}
+.dexter-quick button{padding:.3rem .7rem;border-radius:50px;border:2px solid var(--yellow);background:var(--white);font-size:.75rem;font-weight:700;cursor:pointer;color:var(--black);transition:all .2s}.dexter-quick button:hover{background:var(--yellow)}
+.dexter-input{display:flex;gap:.5rem;padding:.8rem;border-top:2px solid var(--cream-dk);background:var(--white)}
+.dexter-input input{flex:1;padding:.5rem .8rem;border:2px solid var(--cream-dk);border-radius:10px;font-family:'Quicksand',sans-serif;font-weight:600;font-size:.9rem}.dexter-input input:focus{outline:none;border-color:var(--yellow)}
+.dexter-input button{width:36px;height:36px;border-radius:50%;background:var(--yellow);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--black);transition:all .2s}.dexter-input button:disabled{opacity:.3}
+
 /* SCROLL TOP */
 .sctop{position:fixed;bottom:2rem;right:2rem;width:48px;height:48px;background:var(--yellow);color:var(--black);border:3px solid var(--black);border-radius:50%;font-size:1.3rem;font-family:'Lilita One',sans-serif;cursor:pointer;box-shadow:var(--shh);display:flex;align-items:center;justify-content:center;z-index:999;transition:all .3s;opacity:0;pointer-events:none}
 .sctop.vis{opacity:1;pointer-events:auto}.sctop:hover{transform:translateY(-3px)}
-.exp-feature{
-  display:grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap:2rem;
-  align-items:center;
-  max-width:1200px;
-  margin:0 auto;
-}
-
-.exp-feature{
-  display:grid;
-  grid-template-columns: 1fr 1.25fr;
-  gap:2.5rem;
-  align-items:center;
-  max-width:1200px;
-  margin:0 auto;
-}
-
-.exp-feature-text{
-  min-width:0;
-}
-
-.exp-feature-title{
-  font-size:clamp(2.2rem,4vw,3.4rem);
-  color:var(--teal);
-  margin-bottom:1rem;
-  line-height:1;
-}
-
-.exp-feature-desc{
-  color:var(--tm);
-  font-size:1.05rem;
-  line-height:1.7;
-  font-weight:600;
-  margin-bottom:1.5rem;
-  max-width:560px;
-}
-
-.exp-feature-image{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-
-.exp-feature-image img{
-  width:100%;
-  max-width:780px;
-  max-height:420px;
-  height:auto;
-  display:block;
-}
-
-@media(max-width:900px){
-  .exp-feature{
-    grid-template-columns:1fr;
-    text-align:center;
-  }
-
-  .exp-feature-desc{
-    max-width:100%;
-  }
-
-  .exp-feature-image img{
-    max-height:320px;
-  }
-}
-
 `;
 
 // ============================================================
 // NAV & FOOTER
 // ============================================================
-function Nav({ page, setPage }) {
+
+// ============================================================
+// LOGIN / REGISTER MODAL
+// ============================================================
+function AuthModal({ onClose, onAuth, initialMode }) {
+  const [mode, setMode] = useState(initialMode || "login");
+  const [form, setForm] = useState({ email: "", password: "", name: "", phone: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const handleSubmit = async () => {
+    setError(""); setLoading(true);
+    try {
+      if (mode === "login") await onAuth.login(form.email, form.password);
+      else {
+        if (!form.name) { setError("El nombre es obligatorio"); setLoading(false); return; }
+        if (form.password.length < 6) { setError("Mínimo 6 caracteres"); setLoading(false); return; }
+        await onAuth.register(form.email, form.password, form.name, form.phone);
+      }
+      onClose();
+    } catch (e) { setError(e.message || "Error"); } finally { setLoading(false); }
+  };
+  return (
+    <div className="gmodal-overlay" onClick={onClose}>
+      <div className="auth-modal" onClick={e => e.stopPropagation()}>
+        <button className="gmodal-close" onClick={onClose}>×</button>
+        <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+          {I.dice(48, "#FFD60A")}
+          <h2 style={{ fontFamily: "'Lilita One',sans-serif", color: "var(--black)", fontSize: "1.5rem", marginTop: ".5rem" }}>{mode === "login" ? "Iniciar sesión" : "Crear cuenta"}</h2>
+          <p style={{ color: "var(--tm)", fontWeight: 600, fontSize: ".9rem" }}>{mode === "login" ? "Accede para gestionar tus reservas" : "Regístrate para reservar fácilmente"}</p>
+        </div>
+        {error && <div style={{ background: "#FFEBEE", border: "2px solid #EF9A9A", borderRadius: 10, padding: ".6rem 1rem", marginBottom: "1rem", color: "#C62828", fontWeight: 600, fontSize: ".85rem" }}>{error}</div>}
+        <div style={{ display: "flex", flexDirection: "column", gap: ".8rem" }}>
+          {mode === "register" && <div className="fg"><label>Nombre *</label><input placeholder="Tu nombre" value={form.name} onChange={e => set("name", e.target.value)} /></div>}
+          <div className="fg"><label>Email *</label><input type="email" placeholder="tu@email.com" value={form.email} onChange={e => set("email", e.target.value)} /></div>
+          <div className="fg"><label>Contraseña *</label><input type="password" placeholder={mode === "login" ? "Tu contraseña" : "Mínimo 6 caracteres"} value={form.password} onChange={e => set("password", e.target.value)} onKeyDown={e => e.key === "Enter" && handleSubmit()} /></div>
+          {mode === "register" && <div className="fg"><label>Teléfono</label><input placeholder="600 123 456" value={form.phone} onChange={e => set("phone", e.target.value)} /></div>}
+        </div>
+        <button className="btn btn-yellow" disabled={loading} style={{ width: "100%", justifyContent: "center", marginTop: "1.2rem", fontSize: "1.05rem" }} onClick={handleSubmit}>{loading ? "..." : mode === "login" ? "Entrar" : "Crear cuenta"}</button>
+        <p style={{ textAlign: "center", marginTop: "1rem", fontSize: ".85rem", fontWeight: 600, color: "var(--tm)" }}>
+          {mode === "login" ? "¿No tienes cuenta? " : "¿Ya tienes cuenta? "}
+          <button onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(""); }} style={{ background: "none", border: "none", color: "var(--teal)", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}>{mode === "login" ? "Regístrate" : "Inicia sesión"}</button>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// MI CUENTA PAGE
+// ============================================================
+function PMiCuenta({ auth, setPage }) {
+  const [reservations, setReservations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState("upcoming");
+  useEffect(() => { api.customer.reservations().then(data => { if (data) setReservations(data); }).finally(() => setLoading(false)); }, []);
+  const now = new Date(); now.setHours(0,0,0,0);
+  const upcoming = reservations.filter(r => new Date(r.date) >= now && r.status !== "CANCELLED");
+  const past = reservations.filter(r => new Date(r.date) < now || r.status === "CANCELLED");
+  const handleCancel = async (r) => { if (!confirm("¿Seguro que quieres cancelar esta reserva?")) return; const result = await api.reservations.cancel(r.cancelToken, auth.user.email); if (result) setReservations(prev => prev.map(res => res.id === r.id ? { ...res, status: "CANCELLED" } : res)); };
+  const handleRebook = (r) => { setPage("reservas"); window.scrollTo(0, 0); if (r.rebookData) sessionStorage.setItem("elbunker_rebook", JSON.stringify({ zone: r.rebookData.zoneSlug, people: r.rebookData.people, eventType: r.rebookData.eventType })); };
+  const statusLabels = { CONFIRMED: "Confirmada", PENDING: "Pendiente", CANCELLED: "Cancelada", COMPLETED: "Completada", REJECTED: "Rechazada", NO_SHOW: "No presentado" };
+  const statusColors = { CONFIRMED: "#7CB342", PENDING: "#FF9800", CANCELLED: "#9E9E9E", COMPLETED: "#0096B7", REJECTED: "#C62828", NO_SHOW: "#795548" };
+  return (<>
+    <div className="ph"><h1>Mi Cuenta</h1><p>Hola, {auth.user?.name}</p></div>
+    <section className="sec rbg" style={{ background: "var(--cream)" }}>
+      <div className="ctn" style={{ maxWidth: 800 }}>
+        <div style={{ background: "var(--white)", borderRadius: "var(--rl)", padding: "1.5rem 2rem", boxShadow: "var(--sh)", marginBottom: "2rem", display: "flex", alignItems: "center", gap: "1.5rem", flexWrap: "wrap" }}>
+          <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--yellow)", display: "flex", alignItems: "center", justifyContent: "center" }}>{I.people(32, "#1A1A2E")}</div>
+          <div style={{ flex: 1 }}><div style={{ fontFamily: "'Lilita One',sans-serif", fontSize: "1.2rem", color: "var(--black)" }}>{auth.user?.name}</div><div style={{ color: "var(--tm)", fontWeight: 600, fontSize: ".9rem" }}>{auth.user?.email}</div>{auth.user?.phone && <div style={{ color: "var(--tl)", fontWeight: 600, fontSize: ".85rem" }}>{auth.user.phone}</div>}</div>
+          <button className="btn btn-sm btn-dark" onClick={auth.logout}>Cerrar sesión</button>
+        </div>
+        <div style={{ display: "flex", gap: ".5rem", marginBottom: "1.5rem" }}>
+          <button className={`fbtn ${tab === "upcoming" ? "on" : ""}`} onClick={() => setTab("upcoming")}>Próximas ({upcoming.length})</button>
+          <button className={`fbtn ${tab === "past" ? "on" : ""}`} onClick={() => setTab("past")}>Historial ({past.length})</button>
+        </div>
+        {loading && <p style={{ textAlign: "center", padding: "2rem", color: "var(--tm)" }}>Cargando reservas...</p>}
+        {!loading && (tab === "upcoming" ? upcoming : past).length === 0 && (
+          <div style={{ textAlign: "center", padding: "3rem", background: "var(--white)", borderRadius: "var(--rl)", boxShadow: "var(--sh)" }}>
+            {I.dice(56, "#ccc")}
+            <p style={{ fontFamily: "'Lilita One',sans-serif", color: "var(--tm)", marginTop: "1rem" }}>{tab === "upcoming" ? "No tienes reservas próximas" : "No hay reservas en tu historial"}</p>
+            {tab === "upcoming" && <button className="btn btn-yellow btn-sm" style={{ marginTop: "1rem" }} onClick={() => { setPage("reservas"); window.scrollTo(0, 0); }}>Hacer una reserva</button>}
+          </div>
+        )}
+        {(tab === "upcoming" ? upcoming : past).map(r => (
+          <div key={r.id} style={{ background: "var(--white)", borderRadius: "var(--r)", padding: "1.2rem 1.5rem", boxShadow: "0 2px 8px rgba(0,0,0,.05)", marginBottom: ".8rem", borderLeft: "5px solid " + (statusColors[r.status] || "#ccc") }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: ".5rem" }}>
+              <div>
+                <div style={{ fontFamily: "'Lilita One',sans-serif", fontSize: "1.05rem", color: "var(--black)" }}>{new Date(r.date).toLocaleDateString("es-ES", { weekday: "short", day: "numeric", month: "short" })} · {r.hour}</div>
+                <div style={{ color: "var(--tm)", fontWeight: 600, fontSize: ".85rem", marginTop: ".2rem" }}>{r.tables?.map(t => t.label).join(" + ")} · {r.tables?.[0]?.zone} · {r.people} personas</div>
+              </div>
+              <span style={{ background: (statusColors[r.status] || "#ccc") + "22", color: statusColors[r.status], padding: ".2rem .6rem", borderRadius: 8, fontWeight: 700, fontSize: ".75rem" }}>{statusLabels[r.status] || r.status}</span>
+            </div>
+            {r.status === "CONFIRMED" && tab === "upcoming" && <div style={{ marginTop: ".8rem" }}><button className="btn btn-sm btn-dark" style={{ fontSize: ".8rem" }} onClick={() => handleCancel(r)}>Cancelar</button></div>}
+            {tab === "past" && r.status !== "CANCELLED" && <div style={{ marginTop: ".8rem" }}><button className="btn btn-sm btn-yellow" style={{ fontSize: ".8rem" }} onClick={() => handleRebook(r)}>Repetir reserva</button></div>}
+          </div>
+        ))}
+      </div>
+    </section>
+  </>);
+}
+
+// ============================================================
+// DEXTER CHATBOT
+// ============================================================
+function DexterChat() {
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState([{ role: "assistant", content: "¡Hola! Soy Dexter, el asistente de El Búnker. ¿En qué puedo ayudarte? Puedo resolver dudas sobre el local, la carta, los juegos, cómo reservar..." }]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const bottomRef = useRef(null);
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+  const quickOptions = [{ label: "¿Cómo funciona?", msg: "¿Cómo funciona El Búnker?" }, { label: "Ver la carta", msg: "¿Qué tenéis para comer?" }, { label: "Juegos para 4", msg: "¿Qué juegos me recomiendas para 4 personas principiantes?" }, { label: "Reservar", msg: "¿Cómo puedo reservar?" }, { label: "Precios", msg: "¿Cuánto cuesta jugar?" }, { label: "Cumpleaños", msg: "¿Puedo celebrar un cumpleaños?" }];
+  const sendMsg = async (msg) => {
+    if (!msg.trim() || loading) return;
+    setMessages(prev => [...prev, { role: "user", content: msg.trim() }]);
+    setInput(""); setLoading(true);
+    const history = messages.slice(-6).map(m => ({ role: m.role, content: m.content }));
+    const result = await api.chat(msg.trim(), history);
+    setMessages(prev => [...prev, { role: "assistant", content: result?.reply || "Lo siento, no puedo responder ahora. Contacta con nosotros en hola@elbunker.es." }]);
+    setLoading(false);
+  };
+  if (!open) return (<button className="dexter-fab" onClick={() => setOpen(true)} title="Habla con Dexter"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 2C7.4 2 2 6.6 2 12.2c0 3.2 1.7 6.1 4.4 8L5 25l5.6-2.8c1.1.3 2.2.4 3.4.4 6.6 0 12-4.6 12-10.2S20.6 2 14 2z" fill="#FFD60A"/><circle cx="9" cy="12" r="1.5" fill="#1A1A2E"/><circle cx="14" cy="12" r="1.5" fill="#1A1A2E"/><circle cx="19" cy="12" r="1.5" fill="#1A1A2E"/></svg></button>);
+  return (
+    <div className="dexter-panel">
+      <div className="dexter-header">
+        <div style={{ display: "flex", alignItems: "center", gap: ".6rem" }}>{I.dice(28, "#FFD60A")}<div><div style={{ fontFamily: "'Lilita One',sans-serif", fontSize: "1rem", color: "var(--yellow)" }}>Dexter</div><div style={{ fontSize: ".7rem", color: "rgba(255,255,255,.6)", fontWeight: 600 }}>Asistente de El Búnker</div></div></div>
+        <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", color: "rgba(255,255,255,.7)", fontSize: "1.3rem", cursor: "pointer" }}>×</button>
+      </div>
+      <div className="dexter-messages">
+        {messages.map((m, i) => (<div key={i} className={"dexter-msg dexter-" + m.role}>{m.role === "assistant" && <div className="dexter-avatar">{I.dice(18, "#FFD60A")}</div>}<div className="dexter-bubble">{m.content}</div></div>))}
+        {loading && <div className="dexter-msg dexter-assistant"><div className="dexter-avatar">{I.dice(18, "#FFD60A")}</div><div className="dexter-bubble dexter-typing"><span/><span/><span/></div></div>}
+        <div ref={bottomRef} />
+        {messages.length <= 1 && <div className="dexter-quick">{quickOptions.map((q, i) => <button key={i} onClick={() => sendMsg(q.msg)}>{q.label}</button>)}</div>}
+      </div>
+      <div className="dexter-input">
+        <input placeholder="Escribe tu pregunta..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendMsg(input)} disabled={loading} />
+        <button onClick={() => sendMsg(input)} disabled={loading || !input.trim()}><svg width="20" height="20" viewBox="0 0 20 20"><path d="M2 10l16-8-4 8 4 8z" fill="currentColor"/></svg></button>
+      </div>
+    </div>
+  );
+}
+
+
+function Nav({ page, setPage, auth, onLogin }) {
   const [open, setOpen] = useState(false);
   const go = p => { setPage(p); setOpen(false); window.scrollTo(0, 0); };
   return (
@@ -719,6 +831,11 @@ function Nav({ page, setPage }) {
       <button className="hmb" onClick={() => setOpen(!open)}><svg width="28" height="28" viewBox="0 0 28 28"><rect y="4" width="28" height="3" rx="1.5" fill="#fff" /><rect y="12" width="28" height="3" rx="1.5" fill="#FFD60A" /><rect y="20" width="28" height="3" rx="1.5" fill="#fff" /></svg></button>
       <div className={`nlinks ${open ? "open" : ""}`}>
         {[["inicio", "Inicio"], ["juegos", "Juegos"], ["carta", "Carta"], ["preguntas", "Preguntas"], ["nosotros", "Nosotros"], ["contacto", "Contacto"]].map(([k, l]) => <button key={k} className={`nl ${page === k ? "on" : ""}`} onClick={() => go(k)}>{l}</button>)}
+        {auth && auth.isLoggedIn ? (
+          <button className={"nl" + (page === "cuenta" ? " on" : "")} onClick={() => go("cuenta")} style={{ color: "var(--yellow)" }}>Mi Cuenta</button>
+        ) : (
+          <button className="nl" onClick={onLogin} style={{ color: "var(--yellow)" }}>Entrar</button>
+        )}
         <button className="nl ncta" onClick={() => go("reservas")}>¡Reservar!</button>
       </div>
     </nav>
@@ -778,11 +895,11 @@ function PInicio({ setPage }) {
 
 // Game data: [id, name, playersMin, playersMax, playersBest, durMin, durMax, difficulty, ageMin]
 // Game data: [id, name, pMin, pMax, pBest, dMin, dMax, diff, ageMin, typeIds, catIds, mechIds]
-const GDATA = [[1, "Pandemic Legacy: Season 1", 2, 4, 4, 60, 60, 3, 13, "1", "27,43", "3,40,62,80,118,140,163,175"], [2, "Terraforming Mars", 1, 5, 3, 120, 120, 3, 12, "1", "24,27,37,69,70,73", "51,54,62,63,71,140,146,155,160,170,175"], [3, "Through the Ages: A New Story of Civilization", 2, 4, 3, 120, 120, 5, 14, "1", "15,19,24", "3,13,15,28,55,71,155"], [4, "Twilight Struggle", 2, 2, 2, 120, 180, 4, 13, "4", "47,60,80", "7,8,10,27,48,55,62,141,142,154,166"], [5, "Los castillos de Borgoña", 2, 4, 2, 30, 90, 3, 12, "1,3", "23,44,73", "48,60,63,140,160,173,180"], [6, "7 Wonders Duel", 2, 2, 2, 30, 30, 2, 10, "1", "9,15,17,19,24", "28,79,140,154,166"], [7, "Terra Mystica", 2, 5, 4, 60, 150, 4, 12, "1", "19,24,31,73", "54,63,71,72,104,158,169,175,176,177"], [8, "Puerto Rico", 3, 5, 4, 90, 150, 3, 12, "1", "17,24,32", "2,54,58,66,72,170,174"], [9, "Agricola", 1, 5, 3, 30, 150, 4, 12, "1", "10,24,32", "8,22,51,53,62,72,146,168,175,179"], [10, "La Tripulación", 2, 5, 4, 20, 20, 2, 10, "3,5,1", "15,69,70", "36,40,62,135,165"], [11, "Tzolk'in: The Mayan Calendar", 2, 4, 4, 90, 90, 4, 13, "1", "9,19,24,32,51", "24,54,168,179"], [12, "Alta tensión", 2, 6, 4, 120, 120, 3, 12, "1,3", "24,37", "13,21,30,71,89,104,173"], [13, "Star Wars: Imperial Assault", 1, 5, 2, 60, 120, 3, 14, "2", "3,29,33,46,48,69,80", "48,49,61,82,95,131,135,148,157,175"], [14, "Le Havre", 1, 5, 3, 30, 150, 4, 12, "1", "17,24,37,53", "22,54,72,83,107,146,179"], [15, "Azul", 2, 4, 2, 30, 45, 2, 8, "5", "1,64,68", "28,54,110,140,160,168"], [16, "Through the Ages: A Story of Civilization", 2, 4, 3, 120, 120, 4, 12, "1", "19,24", "3,13,15,28,62"], [17, "7 Wonders", 2, 7, 4, 30, 30, 2, 10, "1", "9,15,17,19,24", "51,62,140,142,175"], [18, "Agricola (Revised Edition)", 1, 4, 4, 30, 120, 4, 12, "1", "10,24,32", "53,62,179,8,22,51,72,146,157,168,175"], [19, "Caylus", 2, 5, 3, 60, 150, 4, 12, "1", "17,24,44", "107,168,169,176,179"], [20, "Troyes", 1, 4, 3, 90, 90, 3, 12, "1", "23,24,44", "10,48,54,66,84,107,140,146,170,179,180,181"], [21, "Mombasa", 2, 4, 4, 75, 150, 4, 12, "1", "24", "4,10,28,45,62,75,142,152,175,179"], [22, "Dominion: Intrigue", 2, 6, 3, 30, 30, 2, 13, "1", "15,44", "45,62"], [23, "Patchwork", 2, 2, 2, 15, 30, 2, 8, "5", "1,64", "28,60,71,148,160,161,177"], [24, "Russian Railroads", 2, 4, 4, 90, 120, 3, 12, "1", "37,74", "54,179"], [25, "Código Secreto", 2, 8, 6, 15, 15, 1, 14, "3,8", "15,22,57,71,81", "36,93,122,157"], [26, "Dominion", 2, 4, 3, 30, 30, 2, 13, "1", "15,44", "45,47,62,155,176"], [27, "Pandemic", 2, 4, 4, 45, 45, 2, 8, "1", "43", "3,40,62,118,140,163,175"], [28, "Yokohama", 2, 4, 3, 90, 90, 3, 14, "1", "24", "39,54,61,95,104,140,176,179,181"], [29, "Alchemists", 2, 4, 4, 120, 120, 4, 13, "1", "22,31", "2,28,38,46,54,55,62,170"], [30, "Stone Age", 2, 4, 4, 60, 90, 2, 10, "1", "23,24,62", "39,48,54,140,170,179"], [31, "Star Realms", 2, 2, 2, 20, 20, 2, 12, "1", "15,33,69", "28,45,47,62,155"], [32, "Ticket to Ride: Europe", 2, 5, 4, 30, 60, 2, 8, "5", "74", "28,37,54,62,104,122,140"], [33, "Istanbul", 2, 5, 4, 40, 60, 3, 10, "1", "24", "39,48,61,95,104,114,123,176,179"], [34, "Azul: Summer Pavilion", 2, 4, 2, 30, 45, 2, 8, "5", "1,64", "28,54,110,140,160,168"], [35, "Jaipur", 2, 2, 2, 30, 30, 1, 12, "5", "10,15,24", "28,62,66,89,136,140"], [36, "The Resistance: Avalon", 5, 10, 7, 30, 30, 2, 13, "8", "13,15,22,31,44,54,57,71", "56,65,132,142,157,164,175,178"], [37, "Cosmic Encounter", 3, 5, 5, 60, 120, 3, 12, "2", "13,54,69,70", "9,29,62,74,103,120,123,142,155,163,175"], [38, "Just One", 3, 7, 6, 20, 20, 1, 8, "8", "57,81", "36,40"], [39, "T.I.M.E Stories", 2, 4, 4, 90, 90, 2, 12, "2", "3,41,64,69", "40,48,96,102,153,175"], [40, "Código Secreto: Dúo", 2, 2, 2, 15, 30, 1, 11, "3,5", "15,22,71,81", "36,40,122,157"], [41, "Splendor", 2, 4, 3, 30, 30, 2, 10, "5", "15,24,68", "28,39,123,140"], [42, "Ticket to Ride", 2, 5, 4, 30, 60, 2, 8, "5", "74", "28,39,54,62,104,122,140"], [43, "Ra", 2, 5, 3, 45, 60, 2, 12, "1", "9,51", "13,19,33,38,122,140"], [44, "Carcassonne", 2, 5, 2, 30, 45, 2, 7, "5", "17,44,73", "10,86,160"], [45, "Sushi Go Party!", 2, 8, 4, 20, 20, 1, 8, "5", "15,57", "28,51,54,62,140,142"], [46, "Isle of Skye: From Chieftain to King", 2, 5, 3, 30, 50, 2, 8, "5", "24,73", "13,30,140,160,170"], [47, "Power Grid Deluxe: Europe/North America", 2, 6, 4, 120, 120, 3, 12, "1", "24,37", "21,71,89,104"], [48, "Dixit: Odyssey", 3, 12, 6, 30, 30, 1, 8, "8", "15,36,57", "153,156,178"], [49, "Kingdomino", 2, 4, 2, 15, 15, 1, 8, "5", "17,44,73", "28,51,160"], [50, "Imperial Settlers", 1, 4, 2, 45, 90, 3, 10, "1", "9,15,17,19", "28,39,51,62,155,175"], [51, "Hive", 2, 2, 2, 20, 20, 2, 9, "7", "1,10", "53,61,63,115,145,159,160"], [52, "Small World", 2, 5, 4, 40, 80, 2, 8, "5", "31,33,73", "10,11,16,48,175,176,177"], [53, "Arboretum", 2, 4, 2, 30, 30, 2, 8, "5", "13,15", "62,110,140,160"], [54, "Sid Meier's Civilization: The Board Game", 2, 4, 4, 120, 240, 4, 13, "1", "17,19,29,54,78", "28,45,61,62,95,130,148,163,175"], [55, "La Resistencia", 5, 10, 7, 30, 30, 1, 13, "8", "13,15,22,54,57,69,71", "65,93,132,142,157,164,178"], [56, "Love Letter", 2, 4, 4, 20, 20, 1, 10, "5", "15,22,68", "46,62,116,136"], [57, "Dixit", 3, 6, 5, 30, 30, 1, 8, "8", "15,36,57", "123,142,153,156,178"], [58, "Takenoko", 2, 4, 3, 45, 45, 2, 8, "5", "10,27,32,73", "3,39,48,54,61,63,95,104,110,140,160"], [59, "The Island", 2, 4, 4, 45, 60, 2, 8, "5", "3,10,13,53", "3,48,61,63,88,93,95,137,155"], [60, "Arkham Horror (Third Edition)", 1, 6, 3, 120, 180, 3, 14, "2", "3,33,35,55", "40,48,95,118,150,175"], [61, "Se Vende", 3, 6, 5, 30, 30, 1, 10, "5", "15,24", "13,20,21,62,138"], [62, "Exploradores", 2, 2, 2, 30, 30, 1, 10, "5", "15,29", "62,122,136,140"], [63, "Azul: Stained Glass of Sintra", 2, 4, 3, 30, 45, 2, 8, "5", "1,64,68", "28,54,95,110,140,160,168"], [64, "King of Tokyo", 2, 6, 4, 30, 30, 1, 8, "5", "23,33,48,69", "28,48,49,77,116,122,126"], [65, "Código Secreto: Imágenes", 2, 8, 6, 15, 15, 1, 10, "8,3", "15,22,57,71", "36,93,122,157"], [66, "El Padrino: El imperio Corleone", 2, 5, 4, 60, 90, 3, 14, "1", "24,39,48", "10,13,28,62,93,155,175,179,181"], [67, "Dice Forge", 2, 4, 4, 45, 45, 2, 10, "5", "9,23,31,51", "28,45,48,124"], [68, "Pandemic: Fall of Rome", 1, 5, 3, 45, 60, 2, 8, "1", "9", "3,40,48,62,118,140,146,175"], [69, "Incómodos Invitados", 1, 8, 4, 45, 75, 2, 12, "3,5,2", "15,22,36,48,49", "28,46,62,163"], [70, "Firefly: The Game", 1, 4, 3, 120, 240, 3, 13, "2", "3,48,69,70,76", "11,28,48,114,146,155,163,175"], [71, "Flash Point: Fire Rescue", 2, 6, 4, 45, 45, 2, 10, "5", "3", "3,40,48,61,114,141,146,148,175"], [72, "Quadropolis", 2, 4, 4, 30, 60, 2, 8, "5", "17,27", "62,110,140,160"], [73, "Pandemic: The Cure", 2, 5, 3, 30, 30, 2, 8, "1", "23,27,43", "40,48,62,118,122,126,140,146,175"], [74, "Skull", 3, 6, 5, 15, 45, 1, 10, "8", "13,15,57", "13,62,116"], [75, "El Desierto Prohibido (Forbidden Desert)", 2, 5, 4, 45, 45, 2, 10, "5", "3,31,69", "3,24,40,61,62,88,95,114,140,146,148,175"], [76, "Colt Express", 2, 6, 5, 30, 40, 2, 10, "5", "8,33,74", "4,5,62,93,121,155,175"], [77, "Hanabi", 2, 5, 4, 25, 25, 2, 8, "5", "15,22,45", "36,40,62,93,140"], [78, "Catan", 3, 4, 4, 60, 120, 2, 10, "1", "24,54", "48,63,71,95,104,123,124,163,176"], [79, "Legends of Andor", 2, 4, 4, 60, 90, 3, 10, "2", "3,31,33,64", "11,40,48,135,175"], [80, "Citadels", 2, 8, 5, 20, 60, 2, 10, "1", "13,15,17,22,31,44", "2,28,51,84,140,172,175"], [81, "Small World Underground", 2, 5, 4, 30, 90, 3, 8, "1", "31,33,73", "10,11,48,77,175"], [82, "Friday", 1, 1, 1, 25, 25, 2, 13, "1", "3,15,33,55,59", "45,62,122,146"], [83, "Imhotep", 2, 4, 4, 40, 40, 2, 10, "5", "9,75", "10,54,95,140,179"], [84, "Ajedrez (Chess)", 2, 2, 2, 60, 60, 5, 6, "7", "1", "61,111,148,151"], [85, "Las mil y una noches (Tales of the Arabian Nights)", 1, 6, 3, 120, 120, 2, 12, "2", "3,11,29,31,76", "48,102,118,131,146,153,175"], [86, "Sushi Go!", 2, 5, 4, 15, 15, 1, 8, "5", "15", "28,51,54,62,140,142"], [87, "Bohnanza", 2, 7, 4, 45, 45, 2, 13, "5", "15,32,54", "62,92,103,140,163"], [88, "Pathfinder Adventure Card Game: Rise of the Runelords – Base Set", 1, 4, 3, 90, 90, 3, 13, "3,2", "3,15,31,33", "40,45,48,62,131,135,146,175"], [89, "Port Royal", 2, 5, 3, 20, 50, 2, 8, "5", "15,24,53,59", "28,39,122,140"], [90, "Karuba", 2, 4, 4, 30, 40, 1, 8, "5", "29,64", "25,37,61,104,123,142,160"], [91, "Colosseum", 3, 5, 5, 60, 90, 3, 10, "5", "9,54", "13,48,133,140,163"], [92, "Hadara", 2, 5, 4, 45, 60, 2, 10, "1", "17,19", "28,54,93,140,142"], [93, "Alhambra", 2, 6, 3, 45, 60, 2, 8, "1", "11,17,44", "28,62,93,140,160"], [94, "A Game of Thrones", 3, 5, 5, 180, 180, 4, 12, "1", "13,31,54,55,60,80", "11,13,55,62,93,106,116,142,175"], [95, "Carcassonne: Hunters and Gatherers", 2, 5, 2, 35, 35, 2, 8, "5", "62", "10,86,160"], [96, "Quantum", 2, 4, 4, 60, 60, 2, 13, "1", "23,33,69,70", "10,48,61,95,148"], [97, "Coup", 2, 6, 5, 15, 15, 1, 13, "8", "13,15,22,57,60", "65,93,116,155,175"], [98, "Valeria: Card Kingdoms", 1, 5, 3, 30, 45, 2, 13, "1", "15,23,31", "28,48,124,176"], [99, "Magic Maze", 1, 8, 4, 15, 15, 2, 8, "5", "29,31,42,66", "36,40,52,61,86,95,127,146,175"], [100, "Dixit: Journey", 3, 6, 5, 30, 30, 1, 8, "8", "15,36,57", "1,142,153,156,178"], [101, "Mr. Jack", 2, 2, 2, 30, 30, 2, 9, "1", "22,49", "51,61,175"], [102, "Coloretto", 2, 5, 4, 30, 30, 1, 8, "5", "10,15", "28,122,140"], [103, "The Red Cathedral", 1, 4, 3, 30, 120, 3, 10, "1", "23,24", "10,48,54,128,134,146,177,179,180"], [104, "Kingdom Builder", 2, 4, 4, 45, 45, 2, 8, "1", "44,73", "10,31,53,63,95,176"], [105, "Elder Sign", 1, 8, 4, 90, 90, 2, 13, "2", "3,15,23,31,33,35,55", "40,48,49,95,126,146,175"], [106, "Cacao", 2, 4, 3, 45, 45, 2, 8, "5", "24,32,73", "10,62,86,160"], [107, "Tokaido", 2, 5, 4, 45, 45, 2, 8, "5", "76", "54,140,161,162,175,179"], [108, "The Oracle of Delphi", 2, 4, 3, 70, 100, 3, 12, "1", "9,51,53", "3,48,61,95,114,122,123,175"], [109, "HeroQuest", 2, 5, 5, 90, 90, 2, 14, "2", "3,29,31,33", "48,49,61,95,131,133,135,148,157,175"], [110, "BANG! The Dice Game", 3, 8, 6, 15, 15, 1, 8, "8", "8,13,22,23,33,57", "48,65,116,122,126,157,175"], [111, "Toma 6!", 2, 10, 5, 45, 45, 1, 8, "5", "15,56", "62,76,136,142"], [112, "Ascension: Deckbuilding Game", 1, 4, 2, 30, 30, 2, 13, "1", "15,31", "28,45,62"], [113, "Disney Villainous", 2, 6, 3, 50, 50, 2, 10, "5", "15,31,44,48,51,55,59", "62,155,175"], [114, "Oh My Goods!", 2, 4, 2, 30, 30, 2, 10, "1", "15,24,44", "4,62,122,140"], [115, "Deep Sea Adventure", 2, 6, 4, 30, 30, 1, 8, "5", "23,29,53,57", "114,122,133"], [116, "Blue Moon City", 2, 4, 3, 30, 50, 2, 14, "1", "17,31", "10,61,62,95,140"], [117, "The Mind", 2, 4, 4, 20, 20, 1, 8, "8", "15,56", "36,40"], [118, "Finca", 2, 4, 2, 45, 45, 2, 10, "5", "24,32", "39,85,105,134,140"], [119, "13 Days: The Cuban Missile Crisis", 2, 2, 2, 45, 45, 2, 10, "4", "13,47,60,80", "7,8,10,27,54,62,166"], [120, "Red7", 2, 4, 4, 5, 30, 2, 9, "5", "15,56", "62,116,140,176"], [121, "Not Alone", 2, 7, 4, 30, 45, 2, 10, "1", "13,15,22,69", "45,62,142,157"], [122, "Rhino Hero: Super Battle", 2, 4, 3, 10, 20, 1, 5, "5", "2,10,16", "48,144,149"], [123, "Ca$h 'n Guns (Second Edition)", 4, 8, 6, 30, 30, 1, 10, "8", "13,33,36,39,54,57", "28,116,142,155,175"], [124, "Santiago", 3, 5, 5, 75, 75, 2, 10, "1", "32,54", "10,13,26,35,160"], [125, "Fungi", 2, 2, 2, 30, 30, 2, 10, "5", "15,25", "28,62,140"], [126, "Diamant", 3, 8, 6, 30, 30, 1, 8, "5", "3,13,29", "96,122,142"], [127, "Rhino Hero", 2, 5, 3, 5, 15, 1, 5, "5", "2,10,16,57", "62,84,149"], [128, "La Isla Prohibida", 2, 4, 4, 30, 30, 2, 10, "5", "3,31", "3,40,61,62,88,95,114,140,146,175"], [129, "Dale of Merchants", 2, 4, 2, 30, 30, 2, 10, "1", "10,15,31", "28,45,48,62,123,140,155"], [130, "Tragedy Looper", 2, 4, 4, 120, 120, 3, 13, "2", "13,15,22,49", "36,46,61,62,93,157"], [131, "The Others", 2, 5, 5, 90, 90, 3, 14, "2", "31,33,35,46", "10,11,48,74,95,157,175"], [132, "Wizard", 3, 6, 4, 45, 45, 2, 10, "5", "15", "23,62,119,165"], [133, "La Posada Sangrienta", 1, 4, 4, 30, 60, 2, 14, "1", "15,24,35,61", "28,54,62,71,107,141,146"], [134, "Flick 'em Up!", 2, 10, 4, 30, 45, 1, 7, "2", "2,8,33", "57,114,157"], [135, "Concept", 4, 12, 6, 40, 40, 1, 10, "8", "22,57", "36,157"], [136, "Parade", 2, 6, 4, 45, 45, 1, 12, "5", "15,55", "62,140"], [137, "Qwirkle", 2, 4, 4, 45, 45, 1, 6, "5", "1", "62,110,160"], [138, "Mr. Jack Pocket", 2, 2, 2, 15, 15, 2, 14, "1", "13,22,49,61", "87,95"], [139, "Valley of the Kings", 2, 4, 2, 45, 45, 2, 14, "1", "9,15,51,67", "28,45,62,140"], [140, "El Gran Libro de la Locura", 2, 5, 3, 60, 90, 3, 12, "1", "15,31", "40,45,62,116,175"], [141, "When I Dream", 4, 10, 6, 20, 40, 1, 8, "8", "22,57,66,81", "36,93,131,153,157"], [142, "Loony Quest", 2, 5, 4, 20, 30, 1, 8, "5", "2,16,31,66", "81"], [143, "Mr. Jack in New York", 2, 2, 2, 30, 30, 2, 14, "1", "22,49", "61,175"], [144, "Riverboat", 2, 4, 4, 90, 90, 3, 10, "1", "32", "28,140,160"], [145, "Fauna", 2, 6, 4, 45, 60, 1, 8, "5", "10,25,77", "23"], [146, "Smash Up", 2, 4, 3, 45, 45, 2, 12, "1", "15,31,36,59,69,84", "10,28,29,44,62,155,175,176"], [147, "Dream Home", 2, 4, 3, 30, 30, 2, 7, "5", "15", "28,93,110,140,174"], [148, "Animal Sobre Animal", 2, 4, 4, 15, 15, 1, 4, "9", "2,10,16", "48,149"], [149, "Steam Park", 2, 4, 4, 60, 60, 2, 10, "5", "17,23,66,69", "28,48,93,95"], [150, "Caylus 1303", 2, 5, 4, 60, 90, 3, 12, "1", "17,24,44", "107,168,169,176,179"], [151, "Catan Card Game", 2, 2, 2, 60, 120, 2, 10, "1", "15,17,73", "28,48,62,163"], [152, "Machi Koro", 2, 4, 4, 30, 30, 1, 10, "5", "17,23", "48,124"], [153, "Cockroach Poker", 2, 6, 5, 20, 20, 1, 8, "8", "13,15,57", "62,140,144"], [154, "Colossal Arena", 2, 5, 3, 40, 60, 2, 8, "1", "15,31,51", "23,62"], [155, "Mission: Red Planet", 3, 5, 4, 60, 60, 2, 10, "1", "69,70", "5,10,11,54,62,142,155,172"], [156, "Santiago de Cuba", 2, 4, 2, 40, 75, 2, 10, "1", "24", "35,48,93,95,114,129,162,179"], [157, "Ponzi Scheme", 3, 5, 4, 60, 90, 2, 12, "1", "24", "140,163"], [158, "Poker Set", 2, 10, 5, 60, 60, 2, 12, "1", "13,15", "23,116,140"], [159, "The Werewolves of Miller's Hollow", 8, 18, 11, 30, 30, 1, 10, "8", "13,22,35,49,57", "116,131,157,175,178"], [160, "Virrey (Viceroy)", 1, 4, 3, 45, 60, 3, 13, "1", "13,15,17,19,31,54", "20,28,62,93,140,160"], [161, "Evo", 3, 5, 4, 60, 120, 2, 12, "1", "10,62,69", "10,11,13,48,62,173,175,177"], [162, "Rialto", 2, 5, 4, 45, 45, 0, 10, "1", "60,68", "10,13,28"], [163, "Ubongo", 1, 4, 4, 25, 25, 1, 8, "5", "64,66", "60,110,140"], [164, "The Magic Labyrinth", 2, 4, 3, 20, 30, 1, 6, "5", "16,31,42,45", "48,61,93,104,133"], [165, "Timeline: Inventions", 2, 8, 4, 15, 15, 1, 8, "5", "15,25,77", ""], [166, "Saboteur", 3, 10, 7, 30, 30, 1, 8, "8", "13,15,29,31,57", "62,65,86,104,155,157,164"], [167, "Fantasma Blitz", 2, 8, 4, 20, 20, 1, 8, "5", "2,15,16,66", "112,147"], [168, "Dobble", 2, 8, 4, 15, 15, 1, 7, "8", "15,16,25,57,66,72", "112,147"], [169, "Bienvenido a la Mazmorra", 2, 4, 3, 30, 30, 1, 10, "8", "13,15,31,33", "23,93,116,122"], [170, "Aton", 2, 2, 2, 30, 30, 2, 8, "1", "9", "10,62,142"], [171, "Mascarade", 2, 13, 6, 30, 30, 1, 10, "8", "13,15,44,57", "65,93,175"], [172, "Timeline: Events", 2, 8, 4, 15, 15, 1, 8, "5", "15,25,57,77", ""], [173, "Agricola: Family Edition", 1, 4, 3, 45, 45, 2, 8, "1", "10,32", "22,179"], [174, "Quoridor", 2, 4, 2, 15, 15, 2, 8, "7", "1,42", "61,148"], [175, "Piko Piko El Gusanito", 2, 7, 3, 20, 20, 1, 8, "5", "10,23", "48,122,126"], [176, "Bar Bestial", 2, 4, 4, 20, 20, 1, 8, "5", "10,15,36", "4,62,155"], [177, "Scotland Yard", 3, 6, 0, 45, 45, 2, 10, "5", "22,76", "64,118,137,157"], [178, "BANG!", 4, 7, 7, 20, 40, 1, 10, "8", "8,13,15,22,33", "62,65,76,116,155,157,175"], [179, "Backgammon", 2, 2, 2, 30, 30, 2, 8, "7", "1,23", "8,23,48,133,162"], [180, "Ishtar: Gardens of Babylon", 2, 4, 3, 45, 45, 2, 14, "5", "9", "10,134,160"], [181, "Fireteam Zero", 1, 4, 3, 90, 90, 3, 14, "1", "3,31,33,35,46,83", "40,45,48,153,175"], [182, "Dice Settlers", 1, 4, 3, 45, 60, 3, 14, "1", "8,19,23,29,73", "10,45,48,86,140,146,160"], [183, "Pitch Car", 2, 8, 4, 30, 30, 1, 6, "8", "2,65", "57,123"], [184, "El Diablo de la Botella", 2, 4, 3, 30, 30, 2, 10, "1", "15,55", "136,165"], [185, "Jungle Speed", 2, 8, 5, 10, 10, 1, 7, "8", "2,15,57,66", "112,147"], [186, "Small World of Warcraft", 2, 5, 4, 40, 80, 3, 8, "1", "31,33,73,78", "10,11,48,72,157,175,177"], [187, "Timeline: Música y Cine", 2, 8, 4, 15, 15, 1, 8, "3,8,5", "15,25,50,57,77", ""], [188, "El Favor del Faraón (Favor of the Pharaoh)", 2, 4, 2, 45, 45, 2, 13, "3,5", "23", "45,48"], [189, "Tranvía (Trambahn)", 2, 2, 2, 30, 45, 2, 8, "3,5", "15,74,75", "28,140"], [190, "Duplik", 3, 10, 5, 45, 45, 1, 12, "8", "36,57", "81"], [191, "Niagara", 3, 5, 4, 30, 45, 2, 8, "5", "53", "24,62,114,140,142"], [192, "Trapwords", 4, 8, 6, 30, 45, 1, 8, "8", "29,31,57,81", "95,153,157,161"], [193, "A Game of Thrones: Hand of the King", 2, 4, 2, 15, 30, 1, 14, "5", "1,15,31", "28,61,140"], [194, "Treasure Hunter", 2, 6, 4, 40, 40, 2, 8, "5", "3,15,31", "28,62,142"], [195, "Carcassonne Junior", 2, 4, 4, 10, 20, 1, 4, "9", "16,44", "53,95,160"], [196, "Criaturas de serie B", 2, 5, 4, 20, 30, 1, 10, "5", "13,15,22,35", "13,62,140,142"], [197, "Time's Up! Edición Azul", 4, 12, 6, 45, 45, 1, 12, "3,8", "36,48,57", "1,36,93,157"], [198, "2 de Mayo", 2, 2, 2, 20, 20, 2, 12, "4", "52,80", "11,62,108,141,142"], [199, "Time's Up! Edición Amarilla", 4, 12, 6, 30, 30, 1, 0, "3,8", "36,57", "1,36,93,157"], [200, "Samurai Sword", 3, 7, 7, 20, 40, 2, 8, "5", "13,15,22,33,44", "62,157,175"], [201, "Rumbo a la India", 3, 4, 3, 60, 60, 2, 14, "1", "24,29,53,68", "3,11,140,179"], [202, "Virus!", 2, 6, 4, 20, 20, 1, 8, "8", "15,43", "62,140,155"], [203, "Rummikub", 2, 4, 4, 60, 60, 2, 8, "5", "1,15,56", "92,140,160"], [204, "Labyrinth", 2, 4, 4, 20, 20, 1, 8, "5", "16,42,64", "87,95,104,118,160"], [205, "Zombie 15'", 2, 4, 4, 15, 15, 2, 14, "2", "33,35,66,84", "3,40,61,95,175"], [206, "Mafia de Cuba", 6, 12, 8, 10, 20, 1, 10, "8", "13,22,39,57", "131,157,175"], [207, "Machi Koro: Legacy", 2, 4, 3, 30, 45, 2, 10, "5", "", "48,80"], [208, "Poli Bueno Poli Malo", 4, 8, 6, 10, 20, 1, 12, "8", "13,15,22,57,71", "9,62,65,93,116,155"], [209, "Escape from Colditz", 2, 6, 4, 180, 180, 2, 12, "2", "3,83", "28,52,61,63,133,140,141"], [210, "After The Virus", 1, 3, 1, 30, 90, 2, 10, "2", "15,35,84", "40,45,62,146"], [211, "Crónicas (Chronicle)", 3, 6, 4, 30, 30, 2, 12, "3,1,5", "15,31", "5,140,155,165"], [212, "Drako: Dragon & Dwarves", 2, 2, 2, 30, 30, 2, 8, "2", "31,33", "3,27,61,62,63,175"], [213, "Catan: Junior", 2, 4, 4, 30, 30, 1, 6, "5", "16,24,53,59", "48,104"], [214, "Scrabble", 2, 4, 2, 90, 90, 2, 10, "5", "81", "54,62,148,160"], [215, "Timebomb", 4, 8, 6, 1, 30, 1, 10, "8", "13,15,57,71", "65,131,157,164"], [216, "Time of Soccer", 1, 4, 3, 120, 120, 3, 12, "1", "24,72", "48,140,141"], [217, "Fuji Flush", 3, 8, 6, 10, 20, 1, 7, "5", "15,56", "62,155"], [218, "Código Secreto: Disney – Family Edition", 2, 8, 6, 15, 15, 1, 8, "3,8", "15,22,48,57,81", "36,93,112,122,157"], [219, "My First Stone Age", 2, 4, 3, 15, 15, 1, 5, "9", "16,45,62", "93,140"], [220, "Pandemic: Rapid Response", 2, 4, 0, 20, 20, 2, 8, "1", "43,66", "39,40,48,126,175"], [221, "Epic Card Game", 2, 4, 2, 20, 40, 2, 13, "8", "15,31,33,62,84", "28,62,155"], [222, "Muse", 2, 12, 4, 30, 30, 1, 10, "8", "15,36,57", "36,40,156,157,178"], [223, "Pandemic: Hot Zone – North America", 2, 4, 2, 30, 30, 2, 8, "5,3", "43,63", "3,40,62,118,140"], [224, "Boss Monster: The Dungeon Building Card Game", 2, 4, 4, 30, 30, 2, 13, "5", "15,31,78", "62,116,155,175"], [225, "Famiglia", 2, 2, 2, 30, 30, 2, 10, "1", "15,39", "5,28,45,62"], [226, "Mundus Novus", 2, 6, 4, 45, 60, 2, 14, "1", "15,24,53,68", "28,62,140,163"], [227, "Dungeon Raiders", 3, 5, 5, 20, 60, 1, 8, "2", "3,13,15,29,31,33", "62,116,142,155,175"], [228, "¿Alcachofas? ¡No, gracias!", 2, 4, 2, 20, 20, 1, 10, "3,5", "15,32", "28,45"], [229, "Micropolis", 2, 6, 3, 30, 30, 2, 8, "5", "10,73", "28,140,160"], [230, "Cave Troll", 2, 4, 4, 20, 60, 2, 10, "2", "31", "3,10,62,118,175"], [231, "Pandemic: Contagion", 2, 5, 4, 30, 30, 2, 14, "1", "15,43", "10,62"], [232, "De mudanzas", 3, 6, 6, 30, 45, 1, 10, "5", "2,64,66", "48,142"], [233, "Zombie Dice", 2, 99, 4, 10, 20, 1, 10, "8", "23,35,36,57,84", "48,122,126"], [234, "Monza", 2, 6, 4, 10, 10, 1, 5, "9", "16,23,65,72", "48,123,133,162"], [235, "Cheating Moth", 3, 5, 5, 30, 30, 1, 7, "8", "2,15", "62"], [236, "The Fury of Dracula", 2, 4, 4, 180, 180, 3, 12, "2", "3,22,33,35,55", "64,118,137,157,175"], [237, "Gift Trap", 3, 8, 5, 60, 60, 1, 8, "8", "36,57", "142,178"], [238, "Scattergories", 2, 6, 4, 30, 30, 1, 12, "8", "57,66,81", "48,108"], [239, "Rory's Story Cubes", 1, 12, 2, 20, 20, 1, 6, "8", "16,23", "40,48,112,153"], [240, "Blood Bound", 6, 12, 8, 30, 30, 2, 14, "8", "13,22,31,35,54,57", "131,157,175"], [241, "Sherlock: Last Call", 1, 8, 0, 40, 60, 1, 10, "2", "15,22,49", "36,40,62,93"], [242, "Topoum", 2, 4, 0, 60, 90, 0, 14, "1", "73,82", "10,160"], [243, "Sonora", 1, 4, 4, 30, 45, 2, 10, "7", "1,2,10", "3,10,31,53,57,104,108,140"], [244, "Shark", 2, 6, 4, 90, 90, 2, 12, "1", "24", "35,48,152"], [245, "Fight for Olympus", 2, 2, 2, 30, 30, 2, 12, "1", "9,15,51", "62,155,166"], [246, "Aliens", 1, 9, 1, 90, 90, 2, 10, "2", "33,35,48,69", "40,48,135,148,175"], [247, "Mi Primer Frutal", 1, 4, 3, 10, 10, 1, 2, "9", "16,25,32", "40,48"], [248, "Stratego", 2, 2, 2, 45, 45, 2, 8, "5", "1,13,22,33,45,52,80", "61,93,137,148,176"], [249, "Camel Up Cards", 2, 6, 4, 30, 60, 2, 8, "5", "15", "23,62"], [250, "Byzanz", 3, 6, 0, 45, 45, 2, 8, "5", "9,11,15,24", "13,21,28,33,38,62,140"], [251, "La Torre Encantada", 2, 4, 2, 15, 25, 1, 5, "9", "13,16,23,31", "48,133"], [252, "Exploding Kittens: NSFW Deck", 2, 5, 4, 10, 20, 1, 18, "8", "10,15,21,36,41", "62,116,122,140,155"], [253, "Pairs", 2, 8, 5, 15, 15, 1, 0, "5", "15", "122"], [254, "Dungeon Roll", 1, 4, 2, 15, 15, 1, 8, "5", "23,31,33", "48,62,122,175"], [255, "1911 Amundsen vs Scott", 2, 2, 2, 20, 20, 2, 12, "2", "15,29", "28,62,123"], [256, "La Escalera Encantada", 2, 4, 4, 10, 15, 1, 4, "9", "16,31,45", "93,133"], [257, "El cuco Kiko estrena nido", 2, 5, 4, 10, 15, 1, 4, "5", "2,16,57", "149"], [258, "Unstable Unicorns", 2, 8, 4, 30, 45, 1, 14, "8", "15,36,57", "62,140,155"], [259, "Haru Ichiban", 2, 2, 2, 20, 20, 2, 8, "7", "1,10,64", "61,62,93,110,142"], [260, "Sherlock: La tumba del arqueólogo (Sherlock: The Tomb of the Archaeologist)", 1, 8, 4, 40, 60, 1, 10, "3,10", "15,22,49", "36,40,62,93"], [261, "Game of Trains", 2, 4, 0, 20, 20, 1, 8, "5", "15,64,74", "28,110"], [262, "Catan Histories: Struggle for Rome", 3, 4, 4, 120, 120, 3, 10, "1", "9,19", "11,163"], [263, "El Séptimo Héroe", 3, 5, 3, 20, 30, 1, 8, "5,3", "13,15,31", "62,140,155"], [264, "Star Wars: Empire vs. Rebellion", 2, 2, 2, 60, 60, 2, 10, "5", "13,15,48,69", "45,62,175"], [265, "Concept Kids: Animals", 2, 12, 4, 20, 20, 1, 4, "9", "10,16,22", "40"], [266, "Time's Up! Family", 4, 12, 6, 30, 30, 1, 8, "5", "45,57", "1,36,93,157"], [267, "Munchkin Zombies", 3, 6, 4, 90, 90, 2, 10, "2", "15,33,36,84", "48,62,175"], [268, "13 Minutes: The Cuban Missile Crisis, 1962", 2, 2, 2, 13, 13, 2, 10, "1", "15,60", "10,27,62"], [269, "Ensalada de Bichos", 2, 6, 4, 10, 20, 1, 6, "8", "2,15,36,66", "112"], [270, "Rolling Ranch", 2, 20, 4, 10, 20, 1, 14, "5", "10,23,73", "48,108"], [271, "Alcatraz: El Chivo Expiatorio", 3, 4, 4, 45, 60, 2, 15, "2", "13,39,54", "3,61,95,114,140,144,163,178"], [272, "Ritmo y Bola", 4, 12, 8, 30, 30, 1, 8, "8", "2,36,50,57,66", "1,93,112"], [273, "Exploding Kittens", 2, 5, 4, 15, 15, 1, 7, "8", "10,15,21,36", "62,68,116,122,140,155"], [274, "Lobo (Wooly Wars)", 2, 4, 0, 30, 30, 2, 7, "5", "10,13,32,64", "53,62,116,160"], [275, "Zombicide: Dark Side", 1, 6, 2, 60, 60, 2, 14, "2", "46,69,84", "3,40,48,95,175"], [276, "Colt Super Express", 3, 7, 5, 15, 20, 1, 7, "7", "8,74", "4,62,93,116,121,142"], [277, "Versailles", 2, 5, 0, 90, 90, 3, 12, "1", "73", "118,134,160"], [278, "Hex", 2, 2, 2, 20, 20, 2, 8, "7", "1", "63,104"], [279, "Cerberus", 3, 7, 5, 30, 45, 2, 10, "8", "3,51,54", "62,95,139"], [280, "Cthulhu Fluxx", 2, 6, 4, 5, 30, 1, 8, "8", "15", "62,140"], [281, "Rory's Story Cubes: Actions", 1, 12, 3, 20, 20, 1, 6, "5", "23", "40,48,112,153"], [282, "Bubblee Pop", 1, 2, 2, 20, 20, 1, 8, "5", "", "110"], [283, "Speed Cups", 2, 4, 4, 15, 15, 1, 6, "8", "2,16,66", "110"], [284, "El Valle de los Vikingos", 2, 4, 3, 15, 20, 1, 6, "9", "2,16", "133,179"], [285, "Arcana", 2, 4, 4, 60, 60, 2, 13, "1", "13,15,31", "10,45,62,137,140,165,175"], [286, "10' to Kill", 2, 4, 4, 10, 15, 2, 12, "8", "10,13,22,49", "4,93,95,116,137"], [287, "Zombie Fluxx", 2, 6, 4, 10, 40, 1, 8, "8", "15,84", "62,140,155"], [288, "Sherlock: Death on the 4th of July", 1, 8, 4, 40, 60, 1, 10, "2", "15,22,49", "36,40,62,93"], [289, "Gravity Superstar", 2, 6, 4, 15, 30, 1, 7, "5", "78", "61,62,95"], [290, "Miguel Strogoff", 1, 5, 0, 60, 60, 2, 12, "2", "55", "48,62,116,118,122,123,139"], [291, "Twilight Imperium", 2, 6, 0, 240, 240, 4, 12, "2", "19,54,60,69,70,80", "48,63,95,160,175,178"], [292, "BANG! The Duel", 2, 2, 2, 30, 30, 2, 8, "1", "8,15", "62"], [293, "1920 Wall Street", 2, 5, 3, 45, 60, 2, 12, "1", "15,24", "75,140,152"], [294, "El Frutal", 2, 8, 3, 10, 10, 1, 3, "9", "16,23", "40,48"], [295, "Gardens", 2, 4, 4, 45, 45, 2, 8, "5", "27", "112,160"], [296, "Frente a los Ascensores (In Front of the Elevators)", 2, 4, 4, 20, 40, 1, 8, "5", "15", "10,62"], [297, "HMS Dolores", 2, 4, 3, 10, 20, 1, 10, "8", "15,54,59", "120,130,140,142"], [298, "Dr. Jekyll & Mr. Hyde", 3, 4, 4, 60, 60, 2, 10, "1", "13,15", "165"], [299, "Huida de Silver City", 1, 4, 4, 120, 120, 2, 12, "2", "33,35,84", "40,48,62,131,157,175"], [300, "Brick Party", 2, 9, 4, 15, 30, 1, 5, "8", "2,57,66", "40,62"], [301, "Sailing Toward Osiris", 2, 5, 4, 60, 90, 3, 14, "2", "9,54", "110,179"], [302, "Black Stories 2", 2, 15, 5, 20, 20, 1, 12, "8", "15,22,35,36,49,57", ""], [303, "Zombies!!! 4: The End...", 2, 6, 4, 60, 120, 1, 16, "2", "29,33,35,46,48,84", "133,160"], [304, "Scarab Lords", 2, 2, 2, 20, 40, 2, 12, "1", "9,15,31", "10,45,62"], [305, "Silk", 2, 4, 3, 45, 45, 2, 10, "1", "10,32", "10,48,155,179"], [306, "Sherlock: 13 Rehenes (Sherlock: 13 Hostages)", 1, 8, 4, 60, 60, 0, 8, "2", "15,22,49", "36,40,62,93"], [307, "Tomb: Cryptmaster", 2, 6, 3, 120, 120, 3, 12, "2", "3,29,31,33,44", "48,93,95,137"], [308, "Dobble 1,2,3", 2, 6, 4, 15, 15, 1, 4, "9", "10,15,16,25,57,66", "112,147"], [309, "Kreus", 3, 6, 4, 20, 30, 2, 10, "2", "15,22,51", "36,40"], [310, "Karuba: The Card Game", 2, 6, 4, 10, 15, 1, 8, "5", "3,15,64", "110,142,160"], [311, "Costa Rica", 2, 5, 3, 30, 45, 1, 8, "5", "29", "88,122,140"], [312, "Rattle, Battle, Grab the Loot", 2, 5, 4, 45, 60, 2, 8, "5", "23,36,53,59", "48,91"], [313, "Harvest Island", 2, 4, 2, 30, 40, 2, 8, "5", "10,15", "62,140"], [314, "Tesoros Inesperados", 3, 6, 0, 30, 30, 1, 13, "5", "", "140,142"], [315, "Munchkin", 3, 6, 4, 60, 120, 2, 10, "8", "15,31,33,36", "62,155,175"], [316, "The Hobbit", 2, 5, 3, 30, 45, 2, 8, "5", "3,15,31,55,76", "13,48,62,118,131,142"], [317, "Kill The Unicorns", 3, 6, 4, 25, 45, 2, 10, "8", "10,13,15,57", "13,62,140,155,175"], [318, "Pictionary", 3, 16, 6, 90, 90, 1, 12, "8", "57", "81,133,157"], [319, "Micro Robots", 2, 99, 4, 20, 20, 2, 8, "7", "1,64,66", "48,61,95"], [320, "Cards Against Humanity", 4, 30, 6, 30, 30, 1, 17, "8", "15,36,41,57,63", "62,117,142"], [321, "Sopa de Bichos", 2, 6, 6, 10, 20, 1, 6, "8", "10,15,36,66", "112"], [322, "Password", 3, 4, 4, 30, 30, 1, 10, "5", "48,57,81", "157"], [323, "Checkpoint Charlie", 3, 5, 5, 20, 30, 1, 10, "5", "15,22,71", "93,112"], [324, "Rumble in the House", 3, 6, 6, 20, 20, 1, 8, "5", "13,22,33,36,57", "61,95,137"], [325, "So Clover!", 3, 6, 3, 30, 30, 1, 10, "8", "57,81", "40,156"], [326, "Zen Master", 3, 5, 0, 30, 30, 1, 8, "5", "15", "62,140,165"], [327, "Warehouse 51", 3, 5, 5, 30, 45, 2, 10, "2", "15,51", "13,140"], [328, "Target Earth", 1, 4, 4, 90, 90, 3, 12, "2", "69", "40,48,141"], [329, "La Cosa", 4, 12, 6, 15, 60, 1, 12, "8", "13,15,22,35,57", "28,40,116,131,153,157"], [330, "Aye, Dark Overlord! The Red Box", 4, 16, 4, 30, 30, 1, 13, "8", "15,31,36,57", "1,131,144,153"], [331, "Speed Cups²", 2, 2, 3, 10, 10, 1, 6, "3,9,8", "2,16,66", "110"], [332, "Rory's Story Cubes: Enchanted", 1, 12, 3, 15, 15, 1, 8, "7", "23", "40,48,112,153"], [333, "Cluedo", 2, 6, 0, 40, 40, 2, 8, "5", "13,22,49", "48,133"], [334, "Adventure Time Card Wars: Finn vs. Jake", 2, 2, 2, 30, 30, 2, 10, "2", "15,36,48", "62"], [335, "Rory's Story Cubes: Prehistoria", 1, 12, 0, 15, 15, 1, 8, "7", "23", "40,48,112,153"], [336, "Guilds", 2, 4, 3, 60, 90, 2, 10, "2", "17,31,44", "4,13,160"], [337, "Super Munchkin", 3, 6, 4, 90, 90, 2, 10, "2", "15,21,33,36", "48,163,175"], [338, "Papua", 2, 4, 3, 75, 75, 3, 10, "1", "29", "13,48,140,179"], [339, "Adventure Games: The Grand Hotel Abaddon", 1, 4, 2, 75, 75, 0, 12, "2", "", "40"], [340, "Código Secreto 13+4", 2, 4, 3, 15, 15, 1, 8, "10,3", "25,40,71", "48"], [341, "Chariot Race", 2, 6, 6, 15, 45, 2, 8, "5", "9,65", "48,123"], [342, "Oilfield", 2, 5, 4, 60, 60, 3, 12, "1", "24,37,54", "10,13,142,179"], [343, "Poule Poule", 2, 8, 4, 20, 20, 1, 8, "9", "10,45,57,66", "93"], [344, "Prohis", 3, 6, 6, 20, 20, 1, 10, "5", "13,15,39", "26,62"], [345, "Troika", 2, 5, 3, 20, 20, 1, 7, "7", "", "140"], [346, "Mecanisburgo", 2, 6, 4, 120, 120, 4, 14, "2", "24,31,69", "10,28,137,179"], [347, "Time's Up! Kids", 2, 12, 4, 20, 20, 1, 4, "9", "16,57", "1,36,93,157"], [348, "Mixmo", 2, 6, 4, 15, 15, 1, 8, "8", "57,81", "160"], [349, "El Monstruo de Colores", 2, 5, 2, 25, 25, 1, 3, "9", "16", "40,48,93,153"], [350, "Dino Race", 2, 4, 4, 30, 30, 1, 8, "9", "15,65", "62,155"], [351, "Carrera de Caracoles", 2, 4, 4, 15, 15, 1, 5, "9", "16,23", "48"], [352, "A lo loco Retro", 2, 5, 0, 5, 10, 1, 8, "7", "15,66", "112"], [353, "Pocket Invaders", 2, 4, 2, 10, 20, 2, 8, "7", "1,23", "61,133"], [354, "Black Hills", 2, 4, 3, 30, 60, 2, 10, "2", "6,8,15", "174"], [355, "Dragons", 3, 6, 4, 30, 30, 1, 8, "2", "15,31", "28,122,140"], [356, "Cat Box", 2, 5, 4, 15, 30, 1, 6, "5", "1,10,15", "110"], [357, "Zombies!!!", 2, 6, 4, 60, 90, 1, 15, "2", "29,33,35,46,48,84", "48,61,62,95,133"], [358, "Los Impostores", 3, 6, 5, 10, 20, 2, 14, "8", "13,22,49,57", "93,178"], [359, "Catan Dice Game", 1, 4, 2, 15, 15, 1, 7, "5", "23", "48,108,140"], [360, "Mondrian: The Dice Game", 2, 4, 4, 30, 30, 1, 10, "7", "2,23", "62"], [361, "Rory's Story Cubes: Intergalactic", 1, 10, 0, 20, 20, 1, 6, "7", "23", "40,48,112,153"], [362, "Barcelona: The Rose of Fire", 2, 4, 4, 70, 90, 3, 10, "1", "17", "10,160"], [363, "MOON", 1, 4, 1, 15, 30, 0, 10, "7", "1,25,40", "110,141"], [364, "It's Mine", 2, 2, 2, 20, 45, 2, 12, "7", "15,17,39", "10,140,142,155,175"], [365, "Pot de Vin", 3, 6, 4, 30, 45, 2, 14, "2", "60,68", "62,140,165"], [366, "Excalibur", 2, 6, 4, 120, 120, 3, 14, "1", "33,44,80", "4,48,108,118,142"], [367, "Time's Up! Party Edition", 4, 12, 4, 45, 90, 1, 12, "8", "36,57", "1,93,157"], [368, "Spartacus", 2, 2, 2, 300, 300, 3, 12, "4", "9,18,60,80", "27,118,141"], [369, "Junta: Las Cartas", 3, 6, 6, 45, 60, 2, 12, "5", "13,15,54,60", "62,137,141,142,155,178"], [370, "Fast Food Fear!", 3, 6, 4, 10, 30, 1, 8, "8", "57,66", "40,140"], [371, "Black Stories 3", 2, 15, 4, 45, 45, 1, 14, "8", "15,22,35,36,49,57", ""], [372, "Final Touch", 2, 4, 2, 15, 15, 1, 8, "5", "13,15", "62,157"], [373, "What's Up", 2, 4, 2, 10, 20, 1, 8, "5", "10,22,45", "93,140"], [374, "Mil Kilometros: Fun & Speed", 2, 6, 4, 45, 45, 1, 8, "5", "15,65", "62,155,157"], [375, "Emporion", 2, 4, 4, 30, 45, 2, 12, "2", "9,15,19", "28,140"], [376, "Ars Universalis", 2, 4, 3, 45, 45, 2, 10, "5", "1,25,44,64,68", "13,110"], [377, "Karuba Junior", 1, 4, 3, 5, 10, 1, 4, "9", "3,16,64", "40,95,160"], [378, "Unicornio Destello", 2, 4, 3, 10, 10, 1, 3, "9", "16", "48,133"], [379, "Hands Up", 2, 8, 6, 20, 20, 1, 6, "8", "2,15", "110"], [380, "Hombres Lobo de Castronegro", 8, 28, 0, 30, 30, 0, 14, "8", "13,22,35,49,57", "116,131,157,175,178"], [381, "Ubongo Junior", 2, 4, 4, 20, 20, 0, 5, "9", "64,66", ""], [382, "Fire Team", 2, 2, 0, 240, 240, 3, 12, "4", "47,80", "3,32,48,61,63,82,95,135,141"], [383, "Simon's Cat Card Game", 3, 6, 4, 10, 25, 1, 6, "9", "15,21,36,48,56,57", "62,93,144,165"], [384, "Odyssey: La Ira de Poseidon (Odyssey: Wrath of Poseidon)", 2, 5, 2, 30, 30, 2, 13, "2", "22,53", "11,157"], [385, "Upstream", 2, 5, 4, 25, 40, 2, 8, "7", "1,10,27,65", "3,61,95,160"], [386, "Mi Primer Tesoro de Juegos", 1, 6, 3, 5, 5, 0, 3, "9", "10,16,32", "40,93,112"], [387, "No Time For Heroes", 1, 4, 4, 25, 45, 2, 8, "4", "15,31,33", "28,62,175"], [388, "Sidibaba", 3, 7, 0, 45, 45, 2, 14, "5", "9,11,42,51,63,66", "142,157,175,178"], [389, "Cranium", 4, 16, 8, 60, 60, 1, 13, "8", "57,64,77,81", "1,81,108,133,143,157"], [390, "Co-Mix", 3, 10, 4, 30, 30, 1, 6, "8", "21,36,57", "153,178"], [391, "¡Cobardes!", 2, 2, 2, 5, 15, 1, 10, "3,10", "15,44", "62,142,175"], [392, "Rory's Story Cubes: Mythic", 1, 12, 0, 20, 20, 1, 6, "7", "23", "40,48,112,153"], [393, "Rory's Story Cubes: Animalia", 1, 12, 0, 20, 20, 0, 6, "7", "23", "40,48,112,153"], [394, "Hippo", 2, 4, 4, 15, 20, 1, 6, "9", "", "48,95"], [395, "Rally de Zanahorias", 2, 4, 3, 15, 15, 1, 4, "9", "10,16", "48,98,118"], [396, "Galactic Warlords: Battle for Dominion", 1, 4, 2, 30, 90, 3, 8, "4", "70,71,80", "10,28,48,95,175"], [397, "Air Show", 2, 5, 3, 60, 90, 3, 14, "2", "12", "13,140"], [398, "Alice", 2, 4, 0, 35, 40, 2, 10, "2", "3,31,55", "28,140"], [399, "Fuerza de Dragón", 2, 4, 3, 15, 15, 1, 5, "3,9", "16,45,65", "93"], [400, "Palabrea", 1, 10, 0, 10, 15, 1, 6, "8", "15,57,66,81", ""], [401, "Basketball Age", 2, 2, 2, 80, 120, 3, 12, "2", "72", "4,11,48,141,175"], [402, "Fluxx", 2, 6, 4, 5, 30, 1, 8, "5", "15", "62,140"], [403, "Trivial Pursuit: Classic Edition", 2, 6, 3, 45, 90, 1, 16, "5", "57,77", "133,140"], [404, "Aye, Dark Overlord! The Green Box", 4, 7, 5, 30, 60, 1, 14, "8", "15,31,36,57", "1,131,144,153"], [405, "Ladrillazo", 1, 6, 4, 60, 90, 2, 18, "5", "24,54,60", "28"], [406, "Humans!!!", 2, 6, 5, 60, 60, 2, 0, "2", "33,35,36,84", "62,160,175"], [407, "El Mortal", 2, 6, 6, 20, 20, 1, 10, "8", "15,36", "155"], [408, "SecuenzooS", 2, 5, 4, 30, 30, 1, 8, "5", "10,45,65", "93,95,175"], [409, "Manos ¡Arriba! (Hands)", 3, 8, 8, 20, 20, 1, 8, "10,3", "15,57,66", "1,112"], [410, "Matterhorn", 2, 4, 0, 10, 30, 0, 8, "5", "23,72", "48,122"], [411, "Provincia Romana", 2, 6, 0, 90, 90, 3, 13, "1", "9,15", "28,62"], [412, "1,2,3! Now you see me...", 2, 8, 0, 15, 15, 1, 6, "8", "15,45,57", "93"], [413, "Entern!", 2, 2, 2, 10, 25, 2, 10, "2", "15,53,59,63", "10,28,130,142,175"], [414, "Misterio", 2, 6, 4, 60, 60, 1, 9, "2", "22,31,35,49", "62,133"], [415, "El Soneto", 2, 4, 0, 60, 60, 3, 12, "2", "81", "108,140"], [416, "Sector 6", 1, 6, 2, 30, 60, 2, 8, "7", "1,42", "53,61,95"], [417, "Rick and Morty: 100 Días", 2, 4, 3, 45, 70, 2, 16, "10,3", "", "4,28,179"], [418, "Cubulus", 2, 3, 2, 20, 20, 2, 8, "7", "1", "110"], [419, "What's Missing?", 3, 6, 0, 20, 20, 1, 7, "8", "36,57,66", "81,108"], [420, "Jenga", 1, 8, 4, 20, 20, 1, 6, "8", "2,57", "113,144,149"], [421, "Doggy Bag", 2, 6, 4, 20, 45, 1, 8, "8", "10,13,57", "23,122"], [422, "Alakazum!: Witches and Traditions", 2, 5, 3, 20, 40, 2, 10, "5", "15,23,31,33", "48,62,140"], [423, "Catan Junior Madagascar", 2, 4, 4, 30, 30, 2, 6, "9", "10,16,23,48", "48,104,163"], [424, "Mascotas", 2, 8, 6, 15, 30, 2, 4, "9", "10,15,16", "1"], [425, "Help Me!", 2, 6, 2, 10, 10, 1, 7, "7", "1,10,13,57", "157,160"], [426, "Eureka", 3, 6, 4, 60, 60, 1, 8, "5", "8,29", "48,61,114,122,133"], [427, "Alchemical Crystal Quest (Second Edition)", 1, 4, 4, 40, 120, 3, 14, "2", "3,31,33,46", "40,48,95,153,175"], [428, "15 Dias: The Spanish Golden Age", 2, 8, 4, 60, 60, 3, 12, "1", "15,54,60,68", "62,174"], [429, "Rory's Story Cubes: Medieval", 1, 99, 0, 10, 10, 0, 6, "7", "23,44", "153"], [430, "El Valle Secreto", 2, 4, 0, 30, 40, 0, 10, "2", "15", "51,62,95"], [431, "Time's Up! Family 2", 4, 12, 0, 30, 30, 0, 8, "8", "57", "1,36,157"], [432, "Total Rumble", 2, 12, 9, 20, 20, 1, 8, "2", "15,33", "28"], [433, "Mia", 2, 12, 5, 20, 20, 1, 8, "5", "13,23", "23,48"], [434, "Cortex Challenge KIDS", 2, 6, 0, 15, 30, 1, 6, "8", "15,57", ""], [435, "Black Stories: Shit Happens Edition", 2, 15, 6, 20, 20, 1, 12, "8", "15,22,35,36,49,57", "153"], [436, "Aliens: Hadley's Hope", 2, 6, 5, 60, 90, 0, 14, "5", "13,35,48,69", "3,40,95,164,175"], [437, "Waterloo 1815", 2, 6, 6, 720, 720, 5, 0, "4", "52,80", "63"], [438, "El Ministerio del Tiempo", 2, 4, 2, 45, 60, 2, 10, "2", "3,48", "3,140"], [439, "Contrast", 2, 6, 5, 10, 20, 1, 8, "8", "15,57", "112,142,178"], [440, "¡MÍA!", 1, 6, 3, 10, 20, 1, 6, "3,10", "15,16,25,40,56,64", "28,62,93,108"], [441, "Dragons & Chickens", 2, 5, 4, 15, 20, 1, 8, "5", "2,3,15,29,31,36", "112,142,155"], [442, "La Familia Hort", 2, 4, 4, 30, 40, 1, 8, "5", "10,15,24,32,35", "89,107,175"], [443, "Chairs", 1, 99, 4, 20, 20, 1, 5, "8", "2,16", ""], [444, "Home Sweet Home", 2, 4, 3, 20, 20, 1, 8, "5", "10,15", "62"], [445, "Pandemic: Hot Zone – Europe", 2, 4, 2, 30, 30, 2, 8, "3,10", "43", "3,40,62,118"], [446, "Seven Swords", 2, 2, 2, 60, 60, 3, 14, "2", "33", "3,48,114,175"], [447, "Quest Stories", 3, 5, 4, 30, 45, 1, 8, "8", "31,36,44", "1,131,153"], [448, "Bitoku", 1, 4, 0, 120, 120, 4, 12, "1", "31,51", "140,180"], [449, "Los tesoros de Castellina", 2, 4, 4, 15, 15, 1, 5, "9", "2,16", "93,140"], [450, "Ray Master", 1, 2, 2, 30, 30, 2, 10, "7", "1,48,63", "3,62,179"], [451, "Candy Time", 2, 6, 3, 10, 25, 1, 5, "9", "16,64", "160"], [452, "Covenant", 3, 5, 0, 20, 45, 0, 10, "2", "49", "62,93"], [453, "Pescar Peces", 1, 4, 3, 5, 5, 1, 2, "9", "2,10,16,25,53", "48,140"], [454, "Bellaflor", 2, 4, 3, 10, 10, 1, 3, "9", "16", "133"], [455, "Omerta", 3, 5, 3, 20, 0, 1, 10, "5", "15,39", "62,93,155"], [456, "Zombie Tsunami", 3, 6, 5, 25, 35, 1, 10, "5", "13,15,22,54,57,78,84", "48,122,155,157,178"], [457, "¡Desplumados!", 3, 7, 5, 15, 30, 1, 8, "10,3", "10,15,57", "155"], [458, "Macbeth", 2, 5, 4, 30, 45, 2, 12, "8", "23,36,44,55,57", "48,122,155"], [459, "LIXO?", 2, 6, 5, 20, 20, 1, 6, "9", "15,16,25,27", "13,62"], [460, "Ticket to Mars", 2, 5, 0, 15, 20, 1, 8, "5", "69", "62,179"], [461, "Rory's Story Cubes: Rescue", 1, 99, 0, 10, 10, 0, 6, "7", "23", "153"], [462, "CONEX", 2, 4, 3, 15, 20, 1, 8, "7", "1,15,23", "48,79,110,160"], [463, "Rolit", 2, 4, 2, 30, 30, 1, 7, "7", "1", "10"], [464, "Trappist One", 2, 4, 0, 45, 60, 3, 12, "1", "15,69,70", "28,62,140"], [465, "Globe Twister", 1, 5, 4, 15, 30, 2, 8, "5", "29,64,76", "4,110"], [466, "Dark Matter", 2, 4, 4, 15, 45, 3, 8, "1", "15,69,70", "3,62"], [467, "Rory's Story Cubes: Explore", 1, 12, 0, 15, 20, 0, 6, "7", "23", "40,48,153"], [468, "Back to the Future: An Adventure Through Time", 2, 4, 3, 30, 30, 2, 10, "2", "48", "62"], [469, "StoryLine: Scary Tales", 3, 8, 6, 15, 30, 1, 8, "9", "15,16,31", "142,153,178"], [470, "La Abeja Adela", 1, 4, 0, 5, 10, 1, 2, "9", "10,16,25", "48"], [471, "Time's Up! Green Edition", 4, 12, 0, 30, 30, 1, 12, "8", "57", "1,93,157"], [472, "Cortex + Challenge", 2, 6, 0, 10, 15, 1, 8, "8", "15,25,45,57", "93,112"], [473, "Town of Salem: The Card Game", 4, 36, 11, 10, 45, 0, 8, "8", "13,15,22,39,78", "178"], [474, "Flap Flap", 2, 4, 0, 20, 20, 1, 5, "9", "10,16,66", "112"], [475, "Black Stories: Holiday Edition", 2, 15, 6, 45, 45, 1, 14, "8", "15,22,35,36,49,57", "153"], [476, "Hexcalibur", 2, 2, 2, 20, 50, 2, 10, "2", "23,31,33,44,80", "10,48,104,160,175"], [477, "Hatflings!", 2, 2, 2, 15, 30, 2, 10, "5", "1,31", "10,61,160"], [478, "Vampir Mau Mau", 2, 4, 3, 20, 30, 1, 8, "5", "15", "62"], [479, "Fast Flip", 2, 8, 3, 15, 15, 1, 7, "8", "66", "112"], [480, "Rush Hour Shift", 2, 2, 2, 5, 15, 1, 8, "7", "", "62"], [481, "Magic Mandala", 2, 4, 3, 10, 15, 1, 6, "5", "2,66", "110"], [482, "Tortilla de Patatas: The Game", 2, 4, 4, 15, 15, 1, 6, "5", "15,45", "62,93"], [483, "Arcanya: Magic Academy", 3, 10, 6, 20, 30, 1, 6, "5", "15,31", "62"], [484, "Cortex Challenge GEO", 2, 6, 0, 15, 30, 1, 9, "8", "15,57", ""], [485, "Little Fox", 2, 4, 4, 10, 10, 1, 4, "9", "10,16,23,43,78", "48"], [486, "Black Stories: Mittelalter Edition", 2, 15, 6, 20, 20, 1, 12, "8", "15,22,35,36,44,49,57", "153"], [487, "Crazy Clack!", 2, 6, 3, 10, 10, 1, 4, "9", "16,66", "48,112"], [488, "Escape Pods", 1, 5, 5, 20, 30, 2, 10, "2", "65,69,70", "3,61,93,114"], [489, "Penalties: Animal Cup", 2, 2, 2, 10, 10, 1, 8, "5", "15,22,72", "29,62,141"], [490, "Predator: Partida de Caza", 1, 5, 1, 30, 45, 0, 14, "2", "15,23,48,69,80", "48,122,139"], [491, "Tweegles", 2, 5, 0, 15, 15, 1, 6, "9", "15,16,66", "1,112"], [492, "Populi Turolii", 3, 8, 0, 20, 20, 1, 8, "5", "15,44", "62,175,178"], [493, "La Ruta del Tesoro", 2, 6, 6, 90, 180, 1, 8, "5", "24,54", "133,140,163"], [494, "Bugs", 3, 6, 6, 30, 30, 1, 10, "5", "10,15", "78"], [495, "El Monstruo de los Calcetines", 2, 6, 4, 10, 10, 1, 4, "9", "16", "112,140"], [496, "Ajo y Agua", 4, 6, 6, 20, 20, 0, 8, "5", "13,15,22,36,49,55,69", "62,131,157,175"], [497, "No Game Over", 2, 6, 4, 15, 30, 1, 10, "5", "33,36,78", "48,62,116,155"], [498, "Black Stories: El Interrogatorio", 3, 6, 0, 15, 20, 0, 12, "8", "49", "153"], [499, "¡Tocado, Encontrado!", 2, 4, 0, 5, 10, 1, 3, "3,9", "2,16,31", "112"], [500, "Triominos Deluxe", 1, 6, 4, 20, 20, 0, 6, "7", "1", "160"], [501, "Tangram", 1, 4, 4, 10, 10, 1, 8, "7", "64,66", ""], [502, "Colorpop", 1, 5, 2, 10, 20, 1, 8, "7", "1,22,64", "110"], [503, "Karibou Camp", 3, 7, 5, 20, 20, 1, 8, "8", "2,57", "157"], [504, "En tu casa o donde sea", 4, 7, 5, 30, 50, 1, 18, "8", "15,36,41,57", "62,131,155"], [505, "Baby Blues", 3, 5, 0, 30, 30, 1, 8, "8", "15,36", "62,155"], [506, "Trivial Pursuit: The Big Bang Theory Edition", 2, 10, 0, 30, 60, 0, 12, "5", "48,57,77", "48,93"], [507, "Adventure Time: Aventuras en el mundo de Ooo", 1, 5, 3, 60, 90, 2, 8, "2", "3,29,31,48", "28,62,118,155,175"], [508, "Soplar el pastel", 1, 4, 2, 5, 5, 1, 4, "9", "2,16", ""], [509, "Alquerque", 2, 2, 2, 10, 20, 2, 8, "7", "1", "61"], [510, "Miau Miau", 2, 5, 3, 10, 10, 1, 5, "9", "15,16", "28,112"], [511, "Tira al Cuervo", 2, 2, 2, 10, 15, 1, 5, "9", "10,16,22", "48,137"], [512, "Conejito Burbuja", 2, 4, 2, 5, 5, 1, 2, "9", "16", "112"], [513, "PRRRT...", 3, 7, 6, 15, 15, 1, 8, "5", "13,15", ""], [514, "Doodle Dice", 2, 6, 4, 20, 30, 1, 6, "5", "15,23", "48,140,155"], [515, "Jenga Quake", 1, 99, 0, 10, 10, 1, 6, "7", "2,26", "144"], [516, "The Lord of the P.I.G.S.", 2, 4, 4, 30, 30, 0, 16, "5", "15,25,36,54,60", "62,141,157,178"], [517, "Poc!", 2, 4, 0, 10, 15, 1, 8, "5", "2", ""], [518, "Black Stories: Medizin Edition", 2, 15, 6, 45, 45, 1, 14, "8", "15,22,35,36,43,49,57", "153"], [519, "Pamplona: Viva San Fermín!", 2, 4, 4, 45, 45, 3, 8, "3,10", "10,65", "61,62,155,175"], [520, "Explorers of the Lost Valley", 2, 4, 4, 15, 25, 1, 10, "5", "10,15,23,29,33,61,62", "28,48,122,140"], [521, "Guau, Guau, La Oreja Colgante", 2, 4, 2, 10, 10, 2, 5, "9", "10,15,16,36,45", "62,93"], [522, "La Pandilla Hámster", 1, 4, 2, 10, 0, 1, 4, "3,10", "10,16,23", "40,114,133,161"], [523, "Forest", 2, 5, 4, 15, 15, 1, 6, "5", "15", "140"], [524, "Fruit Ninja: Combo Party", 3, 6, 5, 20, 40, 1, 8, "8", "2,15,28,57", "28,112,122"], [525, "Alcatraz", 2, 4, 2, 30, 30, 2, 10, "7", "1", ""], [526, "\"La Garde recule!\"", 1, 2, 1, 60, 60, 2, 10, "4", "52,80", "63"], [527, "Cards Against Downtime", 3, 99, 5, 45, 45, 1, 17, "8", "15,36,57,63", "28"], [528, "Quizoo", 2, 8, 0, 15, 15, 0, 6, "5", "10,45", "93"], [529, "Café Race", 3, 6, 0, 15, 15, 1, 8, "3,10", "63,65", "13,48,142"], [530, "Rick and Morty: Tráfico de Megasemillas", 2, 5, 3, 15, 30, 0, 12, "3,10", "15,20,36", "62,140"], [531, "Junior Cluedo", 2, 6, 0, 20, 20, 0, 12, "5", "45,49", "93,95"], [532, "Fantasía S.A.", 2, 5, 3, 20, 20, 1, 12, "3,10", "3,15,23,31,33,36", "131,175"], [533, "Taki", 2, 10, 4, 30, 30, 1, 6, "5", "15,56", ""], [534, "Party & Co", 3, 20, 4, 45, 45, 1, 14, "8", "57", "108,131,143,153,157"], [535, "Party & Co: Junior", 2, 4, 0, 35, 35, 1, 6, "9", "16,40,45,57", "40,81,93,131,133,143"], [536, "¿Por qué no te callas? (Taggle)", 3, 6, 6, 20, 20, 1, 14, "3,10", "15,41,57", "178"], [537, "Guatafac", 3, 12, 0, 15, 60, 1, 18, "8", "15,36,57", ""], [538, "El Palé", 2, 6, 3, 60, 60, 0, 9, "3,10", "24", "13,28,48,133"], [539, "El último banquete (The Last Banquet)", 6, 25, 11, 45, 45, 2, 10, "8,3", "13,31,36,44,57", "1,131,153,157,175"], [540, "Trivial Pursuit: Family Edition", 2, 36, 4, 90, 90, 1, 12, "9", "16,57,77", "133"], [541, "Operation", 2, 4, 0, 15, 15, 1, 4, "9", "2,16,43", ""], [542, "Donkey Kong", 2, 4, 4, 20, 20, 1, 7, "9", "16,78", "118,133"], [543, "Crisis: Tokyo", 2, 5, 4, 60, 60, 1, 14, "2", "15", "62"], [544, "Yo Fui a EGB: El Juego Oficial", 2, 6, 6, 60, 180, 1, 12, "5", "25,57,77", "48,133"], [545, "¡Camarero!", 3, 6, 6, 15, 15, 1, 8, "10,3", "15,24,45", "93"], [546, "Preguntas de Mierda", 2, 24, 8, 20, 20, 1, 18, "8", "15,41,57", "178"], [547, "Risk", 2, 6, 4, 120, 120, 2, 10, "4", "73,80", "11,48,116,140"], [548, "Monos Locos", 2, 4, 3, 15, 15, 1, 5, "9", "2,16", "48,113"], [549, "Pictureka!", 2, 7, 4, 30, 30, 1, 6, "5", "1,45,57,64", "13,93,95"], [550, "Kabaleo", 2, 4, 2, 15, 15, 1, 8, "7", "1,13,22", "160"], [551, "Dominoes", 2, 10, 4, 30, 30, 1, 5, "7", "1,34,78", "110,112,157,160"], [552, "Conan: el juego de cartas", 2, 4, 3, 30, 30, 1, 13, "2", "15,31", ""], [553, "Jenga: Tetris", 1, 99, 0, 20, 20, 1, 8, "7", "2,57,78", "122"], [554, "The Game of Life Junior", 2, 4, 4, 15, 30, 1, 5, "9", "16", "133"], [555, "Alguien ha probado este juego?", 2, 10, 5, 1, 10, 1, 12, "8", "15,36,57", "62,93,116,130,155"], [556, "Monopoly Tramposo", 2, 6, 4, 60, 180, 1, 8, "5", "24", "133,140,163"], [557, "DogFight WW1", 2, 2, 2, 30, 30, 1, 8, "2", "12,15,33,80,82", "62,137"], [558, "The Hobbit Card Game", 2, 5, 5, 30, 30, 1, 10, "5", "15,31,55", "62,116,165"], [559, "Cthulhu Dice", 2, 6, 0, 5, 5, 1, 10, "8", "23,35,36,57", "48,116"], [560, "Trivial Pursuit: Genus Edition", 2, 24, 4, 90, 90, 1, 12, "5", "57,77", "133,140"], [561, "El Ahorcado (Hangman)", 2, 2, 2, 10, 10, 1, 6, "5", "22,81", ""], [562, "Damas (Checkers)", 2, 2, 2, 30, 30, 1, 6, "7", "1,21", "61,111,148,151"], [563, "Guess Who?", 2, 2, 2, 20, 20, 1, 6, "9", "16,22,48", "46"], [564, "The Game of Life", 2, 6, 4, 60, 60, 1, 8, "5", "16,24,26", "133,141"], [565, "Monopoly", 2, 8, 4, 60, 180, 1, 8, "5", "24,54", "13,48,71,83,84,107,116,133,140,152,162,163"], [566, "Catan: 5-6 Player Extension", 5, 6, 5, 120, 120, 2, 10, "5", "28,54", "48,62,93,95,104,163"], [567, "Carcassonne: Expansion 1 – Inns & Cathedrals", 2, 6, 2, 60, 60, 2, 8, "3,5", "17,28,44,73", "10,160"], [568, "Carcassonne: Expansion 2 – Traders & Builders", 2, 6, 2, 60, 60, 2, 13, "5,1,3", "17,28,44,73", "10,140,160"], [569, "Picar?", 2, 4, 2, 4, 3, 1, 5, "2", "8", "9"], [570, "Monopoly : Money Heist Edition", 2, 4, 4, 1, 2, 1, 5, "9", "36", "17"], [571, "BANG! The Bullet!", 3, 8, 6, 20, 40, 2, 8, "8", "8,13,15,22,33,36", "62,65,116,155,157,175"], [572, "Dixit: Origins", 3, 6, 5, 30, 30, 1, 8, "8", "13,15,28,36,57", "142,153,178"], [573, "Carcassonne: Expansion 4 – The Tower", 2, 6, 3, 60, 60, 2, 8, "3,1,5", "17,28,44,73", "10,160"], [574, "Black Stories: Scary Music Edition", 2, 99, 0, 2, 222, 0, 12, "8", "15,22,35,36,49,57", "153"], [575, "Black Stories Junior: Purple Stories", 2, 15, 0, 2, 222, 1, 8, "8", "16,22,31,57", "153"], [576, "Black Stories: Uni Edition", 2, 99, 0, 2, 222, 0, 12, "8", "15,22,35,49,57", "153"], [577, "Black Stories: Science-Fiction Edition", 0, 0, 0, 0, 0, 0, 3, "8", "", ""], [578, "Black Stories: Office Edition", 0, 0, 0, 0, 0, 0, 3, "8", "", ""], [579, "Carcassonne: 20th Anniversary Edition", 0, 0, 0, 0, 0, 0, 3, "5", "", ""], [580, "Carcassonne: Expansion 3 – The Princess & The Dragon", 0, 0, 0, 0, 0, 0, 3, "", "", ""], [581, "Carcassonne: Expansion 8 – Bridges, Castles and Bazaars", 0, 0, 0, 0, 0, 0, 3, "", "", ""], [582, "Carcassonne: Expansion 5 – Abbey & Mayor", 0, 0, 0, 0, 0, 0, 3, "", "", ""], [583, "Cards Against Humanity: Green Box", 0, 0, 0, 0, 0, 0, 3, "8", "", ""], [584, "Dobble: Star Wars", 0, 0, 0, 0, 0, 0, 3, "5", "", ""], [585, "Dobble Star Wars: Mandalorian", 0, 0, 0, 0, 0, 0, 3, "5", "", ""]];
+const GDATA = [[1,"Pandemic Legacy: Season 1",2,4,4,60,60,3,13,"1","27,43","3,40,62,80,118,140,163,175"],[2,"Terraforming Mars",1,5,3,120,120,3,12,"1","24,27,37,69,70,73","51,54,62,63,71,140,146,155,160,170,175"],[3,"Through the Ages: A New Story of Civilization",2,4,3,120,120,5,14,"1","15,19,24","3,13,15,28,55,71,155"],[4,"Twilight Struggle",2,2,2,120,180,4,13,"4","47,60,80","7,8,10,27,48,55,62,141,142,154,166"],[5,"Los castillos de Borgoña",2,4,2,30,90,3,12,"1,3","23,44,73","48,60,63,140,160,173,180"],[6,"7 Wonders Duel",2,2,2,30,30,2,10,"1","9,15,17,19,24","28,79,140,154,166"],[7,"Terra Mystica",2,5,4,60,150,4,12,"1","19,24,31,73","54,63,71,72,104,158,169,175,176,177"],[8,"Puerto Rico",3,5,4,90,150,3,12,"1","17,24,32","2,54,58,66,72,170,174"],[9,"Agricola",1,5,3,30,150,4,12,"1","10,24,32","8,22,51,53,62,72,146,168,175,179"],[10,"La Tripulación",2,5,4,20,20,2,10,"3,5,1","15,69,70","36,40,62,135,165"],[11,"Tzolk'in: The Mayan Calendar",2,4,4,90,90,4,13,"1","9,19,24,32,51","24,54,168,179"],[12,"Alta tensión",2,6,4,120,120,3,12,"1,3","24,37","13,21,30,71,89,104,173"],[13,"Star Wars: Imperial Assault",1,5,2,60,120,3,14,"2","3,29,33,46,48,69,80","48,49,61,82,95,131,135,148,157,175"],[14,"Le Havre",1,5,3,30,150,4,12,"1","17,24,37,53","22,54,72,83,107,146,179"],[15,"Azul",2,4,2,30,45,2,8,"5","1,64,68","28,54,110,140,160,168"],[16,"Through the Ages: A Story of Civilization",2,4,3,120,120,4,12,"1","19,24","3,13,15,28,62"],[17,"7 Wonders",2,7,4,30,30,2,10,"1","9,15,17,19,24","51,62,140,142,175"],[18,"Agricola (Revised Edition)",1,4,4,30,120,4,12,"1","10,24,32","53,62,179,8,22,51,72,146,157,168,175"],[19,"Caylus",2,5,3,60,150,4,12,"1","17,24,44","107,168,169,176,179"],[20,"Troyes",1,4,3,90,90,3,12,"1","23,24,44","10,48,54,66,84,107,140,146,170,179,180,181"],[21,"Mombasa",2,4,4,75,150,4,12,"1","24","4,10,28,45,62,75,142,152,175,179"],[22,"Dominion: Intrigue",2,6,3,30,30,2,13,"1","15,44","45,62"],[23,"Patchwork",2,2,2,15,30,2,8,"5","1,64","28,60,71,148,160,161,177"],[24,"Russian Railroads",2,4,4,90,120,3,12,"1","37,74","54,179"],[25,"Código Secreto",2,8,6,15,15,1,14,"3,8","15,22,57,71,81","36,93,122,157"],[26,"Dominion",2,4,3,30,30,2,13,"1","15,44","45,47,62,155,176"],[27,"Pandemic",2,4,4,45,45,2,8,"1","43","3,40,62,118,140,163,175"],[28,"Yokohama",2,4,3,90,90,3,14,"1","24","39,54,61,95,104,140,176,179,181"],[29,"Alchemists",2,4,4,120,120,4,13,"1","22,31","2,28,38,46,54,55,62,170"],[30,"Stone Age",2,4,4,60,90,2,10,"1","23,24,62","39,48,54,140,170,179"],[31,"Star Realms",2,2,2,20,20,2,12,"1","15,33,69","28,45,47,62,155"],[32,"Ticket to Ride: Europe",2,5,4,30,60,2,8,"5","74","28,37,54,62,104,122,140"],[33,"Istanbul",2,5,4,40,60,3,10,"1","24","39,48,61,95,104,114,123,176,179"],[34,"Azul: Summer Pavilion",2,4,2,30,45,2,8,"5","1,64","28,54,110,140,160,168"],[35,"Jaipur",2,2,2,30,30,1,12,"5","10,15,24","28,62,66,89,136,140"],[36,"The Resistance: Avalon",5,10,7,30,30,2,13,"8","13,15,22,31,44,54,57,71","56,65,132,142,157,164,175,178"],[37,"Cosmic Encounter",3,5,5,60,120,3,12,"2","13,54,69,70","9,29,62,74,103,120,123,142,155,163,175"],[38,"Just One",3,7,6,20,20,1,8,"8","57,81","36,40"],[39,"T.I.M.E Stories",2,4,4,90,90,2,12,"2","3,41,64,69","40,48,96,102,153,175"],[40,"Código Secreto: Dúo",2,2,2,15,30,1,11,"3,5","15,22,71,81","36,40,122,157"],[41,"Splendor",2,4,3,30,30,2,10,"5","15,24,68","28,39,123,140"],[42,"Ticket to Ride",2,5,4,30,60,2,8,"5","74","28,39,54,62,104,122,140"],[43,"Ra",2,5,3,45,60,2,12,"1","9,51","13,19,33,38,122,140"],[44,"Carcassonne",2,5,2,30,45,2,7,"5","17,44,73","10,86,160"],[45,"Sushi Go Party!",2,8,4,20,20,1,8,"5","15,57","28,51,54,62,140,142"],[46,"Isle of Skye: From Chieftain to King",2,5,3,30,50,2,8,"5","24,73","13,30,140,160,170"],[47,"Power Grid Deluxe: Europe/North America",2,6,4,120,120,3,12,"1","24,37","21,71,89,104"],[48,"Dixit: Odyssey",3,12,6,30,30,1,8,"8","15,36,57","153,156,178"],[49,"Kingdomino",2,4,2,15,15,1,8,"5","17,44,73","28,51,160"],[50,"Imperial Settlers",1,4,2,45,90,3,10,"1","9,15,17,19","28,39,51,62,155,175"],[51,"Hive",2,2,2,20,20,2,9,"7","1,10","53,61,63,115,145,159,160"],[52,"Small World",2,5,4,40,80,2,8,"5","31,33,73","10,11,16,48,175,176,177"],[53,"Arboretum",2,4,2,30,30,2,8,"5","13,15","62,110,140,160"],[54,"Sid Meier's Civilization: The Board Game",2,4,4,120,240,4,13,"1","17,19,29,54,78","28,45,61,62,95,130,148,163,175"],[55,"La Resistencia",5,10,7,30,30,1,13,"8","13,15,22,54,57,69,71","65,93,132,142,157,164,178"],[56,"Love Letter",2,4,4,20,20,1,10,"5","15,22,68","46,62,116,136"],[57,"Dixit",3,6,5,30,30,1,8,"8","15,36,57","123,142,153,156,178"],[58,"Takenoko",2,4,3,45,45,2,8,"5","10,27,32,73","3,39,48,54,61,63,95,104,110,140,160"],[59,"The Island",2,4,4,45,60,2,8,"5","3,10,13,53","3,48,61,63,88,93,95,137,155"],[60,"Arkham Horror (Third Edition)",1,6,3,120,180,3,14,"2","3,33,35,55","40,48,95,118,150,175"],[61,"Se Vende",3,6,5,30,30,1,10,"5","15,24","13,20,21,62,138"],[62,"Exploradores",2,2,2,30,30,1,10,"5","15,29","62,122,136,140"],[63,"Azul: Stained Glass of Sintra",2,4,3,30,45,2,8,"5","1,64,68","28,54,95,110,140,160,168"],[64,"King of Tokyo",2,6,4,30,30,1,8,"5","23,33,48,69","28,48,49,77,116,122,126"],[65,"Código Secreto: Imágenes",2,8,6,15,15,1,10,"8,3","15,22,57,71","36,93,122,157"],[66,"El Padrino: El imperio Corleone",2,5,4,60,90,3,14,"1","24,39,48","10,13,28,62,93,155,175,179,181"],[67,"Dice Forge",2,4,4,45,45,2,10,"5","9,23,31,51","28,45,48,124"],[68,"Pandemic: Fall of Rome",1,5,3,45,60,2,8,"1","9","3,40,48,62,118,140,146,175"],[69,"Incómodos Invitados",1,8,4,45,75,2,12,"3,5,2","15,22,36,48,49","28,46,62,163"],[70,"Firefly: The Game",1,4,3,120,240,3,13,"2","3,48,69,70,76","11,28,48,114,146,155,163,175"],[71,"Flash Point: Fire Rescue",2,6,4,45,45,2,10,"5","3","3,40,48,61,114,141,146,148,175"],[72,"Quadropolis",2,4,4,30,60,2,8,"5","17,27","62,110,140,160"],[73,"Pandemic: The Cure",2,5,3,30,30,2,8,"1","23,27,43","40,48,62,118,122,126,140,146,175"],[74,"Skull",3,6,5,15,45,1,10,"8","13,15,57","13,62,116"],[75,"El Desierto Prohibido (Forbidden Desert)",2,5,4,45,45,2,10,"5","3,31,69","3,24,40,61,62,88,95,114,140,146,148,175"],[76,"Colt Express",2,6,5,30,40,2,10,"5","8,33,74","4,5,62,93,121,155,175"],[77,"Hanabi",2,5,4,25,25,2,8,"5","15,22,45","36,40,62,93,140"],[78,"Catan",3,4,4,60,120,2,10,"1","24,54","48,63,71,95,104,123,124,163,176"],[79,"Legends of Andor",2,4,4,60,90,3,10,"2","3,31,33,64","11,40,48,135,175"],[80,"Citadels",2,8,5,20,60,2,10,"1","13,15,17,22,31,44","2,28,51,84,140,172,175"],[81,"Small World Underground",2,5,4,30,90,3,8,"1","31,33,73","10,11,48,77,175"],[82,"Friday",1,1,1,25,25,2,13,"1","3,15,33,55,59","45,62,122,146"],[83,"Imhotep",2,4,4,40,40,2,10,"5","9,75","10,54,95,140,179"],[84,"Ajedrez (Chess)",2,2,2,60,60,5,6,"7","1","61,111,148,151"],[85,"Las mil y una noches (Tales of the Arabian Nights)",1,6,3,120,120,2,12,"2","3,11,29,31,76","48,102,118,131,146,153,175"],[86,"Sushi Go!",2,5,4,15,15,1,8,"5","15","28,51,54,62,140,142"],[87,"Bohnanza",2,7,4,45,45,2,13,"5","15,32,54","62,92,103,140,163"],[88,"Pathfinder Adventure Card Game: Rise of the Runelords – Base Set",1,4,3,90,90,3,13,"3,2","3,15,31,33","40,45,48,62,131,135,146,175"],[89,"Port Royal",2,5,3,20,50,2,8,"5","15,24,53,59","28,39,122,140"],[90,"Karuba",2,4,4,30,40,1,8,"5","29,64","25,37,61,104,123,142,160"],[91,"Colosseum",3,5,5,60,90,3,10,"5","9,54","13,48,133,140,163"],[92,"Hadara",2,5,4,45,60,2,10,"1","17,19","28,54,93,140,142"],[93,"Alhambra",2,6,3,45,60,2,8,"1","11,17,44","28,62,93,140,160"],[94,"A Game of Thrones",3,5,5,180,180,4,12,"1","13,31,54,55,60,80","11,13,55,62,93,106,116,142,175"],[95,"Carcassonne: Hunters and Gatherers",2,5,2,35,35,2,8,"5","62","10,86,160"],[96,"Quantum",2,4,4,60,60,2,13,"1","23,33,69,70","10,48,61,95,148"],[97,"Coup",2,6,5,15,15,1,13,"8","13,15,22,57,60","65,93,116,155,175"],[98,"Valeria: Card Kingdoms",1,5,3,30,45,2,13,"1","15,23,31","28,48,124,176"],[99,"Magic Maze",1,8,4,15,15,2,8,"5","29,31,42,66","36,40,52,61,86,95,127,146,175"],[100,"Dixit: Journey",3,6,5,30,30,1,8,"8","15,36,57","1,142,153,156,178"],[101,"Mr. Jack",2,2,2,30,30,2,9,"1","22,49","51,61,175"],[102,"Coloretto",2,5,4,30,30,1,8,"5","10,15","28,122,140"],[103,"The Red Cathedral",1,4,3,30,120,3,10,"1","23,24","10,48,54,128,134,146,177,179,180"],[104,"Kingdom Builder",2,4,4,45,45,2,8,"1","44,73","10,31,53,63,95,176"],[105,"Elder Sign",1,8,4,90,90,2,13,"2","3,15,23,31,33,35,55","40,48,49,95,126,146,175"],[106,"Cacao",2,4,3,45,45,2,8,"5","24,32,73","10,62,86,160"],[107,"Tokaido",2,5,4,45,45,2,8,"5","76","54,140,161,162,175,179"],[108,"The Oracle of Delphi",2,4,3,70,100,3,12,"1","9,51,53","3,48,61,95,114,122,123,175"],[109,"HeroQuest",2,5,5,90,90,2,14,"2","3,29,31,33","48,49,61,95,131,133,135,148,157,175"],[110,"BANG! The Dice Game",3,8,6,15,15,1,8,"8","8,13,22,23,33,57","48,65,116,122,126,157,175"],[111,"Toma 6!",2,10,5,45,45,1,8,"5","15,56","62,76,136,142"],[112,"Ascension: Deckbuilding Game",1,4,2,30,30,2,13,"1","15,31","28,45,62"],[113,"Disney Villainous",2,6,3,50,50,2,10,"5","15,31,44,48,51,55,59","62,155,175"],[114,"Oh My Goods!",2,4,2,30,30,2,10,"1","15,24,44","4,62,122,140"],[115,"Deep Sea Adventure",2,6,4,30,30,1,8,"5","23,29,53,57","114,122,133"],[116,"Blue Moon City",2,4,3,30,50,2,14,"1","17,31","10,61,62,95,140"],[117,"The Mind",2,4,4,20,20,1,8,"8","15,56","36,40"],[118,"Finca",2,4,2,45,45,2,10,"5","24,32","39,85,105,134,140"],[119,"13 Days: The Cuban Missile Crisis",2,2,2,45,45,2,10,"4","13,47,60,80","7,8,10,27,54,62,166"],[120,"Red7",2,4,4,5,30,2,9,"5","15,56","62,116,140,176"],[121,"Not Alone",2,7,4,30,45,2,10,"1","13,15,22,69","45,62,142,157"],[122,"Rhino Hero: Super Battle",2,4,3,10,20,1,5,"5","2,10,16","48,144,149"],[123,"Ca$h 'n Guns (Second Edition)",4,8,6,30,30,1,10,"8","13,33,36,39,54,57","28,116,142,155,175"],[124,"Santiago",3,5,5,75,75,2,10,"1","32,54","10,13,26,35,160"],[125,"Fungi",2,2,2,30,30,2,10,"5","15,25","28,62,140"],[126,"Diamant",3,8,6,30,30,1,8,"5","3,13,29","96,122,142"],[127,"Rhino Hero",2,5,3,5,15,1,5,"5","2,10,16,57","62,84,149"],[128,"La Isla Prohibida",2,4,4,30,30,2,10,"5","3,31","3,40,61,62,88,95,114,140,146,175"],[129,"Dale of Merchants",2,4,2,30,30,2,10,"1","10,15,31","28,45,48,62,123,140,155"],[130,"Tragedy Looper",2,4,4,120,120,3,13,"2","13,15,22,49","36,46,61,62,93,157"],[131,"The Others",2,5,5,90,90,3,14,"2","31,33,35,46","10,11,48,74,95,157,175"],[132,"Wizard",3,6,4,45,45,2,10,"5","15","23,62,119,165"],[133,"La Posada Sangrienta",1,4,4,30,60,2,14,"1","15,24,35,61","28,54,62,71,107,141,146"],[134,"Flick 'em Up!",2,10,4,30,45,1,7,"2","2,8,33","57,114,157"],[135,"Concept",4,12,6,40,40,1,10,"8","22,57","36,157"],[136,"Parade",2,6,4,45,45,1,12,"5","15,55","62,140"],[137,"Qwirkle",2,4,4,45,45,1,6,"5","1","62,110,160"],[138,"Mr. Jack Pocket",2,2,2,15,15,2,14,"1","13,22,49,61","87,95"],[139,"Valley of the Kings",2,4,2,45,45,2,14,"1","9,15,51,67","28,45,62,140"],[140,"El Gran Libro de la Locura",2,5,3,60,90,3,12,"1","15,31","40,45,62,116,175"],[141,"When I Dream",4,10,6,20,40,1,8,"8","22,57,66,81","36,93,131,153,157"],[142,"Loony Quest",2,5,4,20,30,1,8,"5","2,16,31,66","81"],[143,"Mr. Jack in New York",2,2,2,30,30,2,14,"1","22,49","61,175"],[144,"Riverboat",2,4,4,90,90,3,10,"1","32","28,140,160"],[145,"Fauna",2,6,4,45,60,1,8,"5","10,25,77","23"],[146,"Smash Up",2,4,3,45,45,2,12,"1","15,31,36,59,69,84","10,28,29,44,62,155,175,176"],[147,"Dream Home",2,4,3,30,30,2,7,"5","15","28,93,110,140,174"],[148,"Animal Sobre Animal",2,4,4,15,15,1,4,"9","2,10,16","48,149"],[149,"Steam Park",2,4,4,60,60,2,10,"5","17,23,66,69","28,48,93,95"],[150,"Caylus 1303",2,5,4,60,90,3,12,"1","17,24,44","107,168,169,176,179"],[151,"Catan Card Game",2,2,2,60,120,2,10,"1","15,17,73","28,48,62,163"],[152,"Machi Koro",2,4,4,30,30,1,10,"5","17,23","48,124"],[153,"Cockroach Poker",2,6,5,20,20,1,8,"8","13,15,57","62,140,144"],[154,"Colossal Arena",2,5,3,40,60,2,8,"1","15,31,51","23,62"],[155,"Mission: Red Planet",3,5,4,60,60,2,10,"1","69,70","5,10,11,54,62,142,155,172"],[156,"Santiago de Cuba",2,4,2,40,75,2,10,"1","24","35,48,93,95,114,129,162,179"],[157,"Ponzi Scheme",3,5,4,60,90,2,12,"1","24","140,163"],[158,"Poker Set",2,10,5,60,60,2,12,"1","13,15","23,116,140"],[159,"The Werewolves of Miller's Hollow",8,18,11,30,30,1,10,"8","13,22,35,49,57","116,131,157,175,178"],[160,"Virrey (Viceroy)",1,4,3,45,60,3,13,"1","13,15,17,19,31,54","20,28,62,93,140,160"],[161,"Evo",3,5,4,60,120,2,12,"1","10,62,69","10,11,13,48,62,173,175,177"],[162,"Rialto",2,5,4,45,45,0,10,"1","60,68","10,13,28"],[163,"Ubongo",1,4,4,25,25,1,8,"5","64,66","60,110,140"],[164,"The Magic Labyrinth",2,4,3,20,30,1,6,"5","16,31,42,45","48,61,93,104,133"],[165,"Timeline: Inventions",2,8,4,15,15,1,8,"5","15,25,77",""],[166,"Saboteur",3,10,7,30,30,1,8,"8","13,15,29,31,57","62,65,86,104,155,157,164"],[167,"Fantasma Blitz",2,8,4,20,20,1,8,"5","2,15,16,66","112,147"],[168,"Dobble",2,8,4,15,15,1,7,"8","15,16,25,57,66,72","112,147"],[169,"Bienvenido a la Mazmorra",2,4,3,30,30,1,10,"8","13,15,31,33","23,93,116,122"],[170,"Aton",2,2,2,30,30,2,8,"1","9","10,62,142"],[171,"Mascarade",2,13,6,30,30,1,10,"8","13,15,44,57","65,93,175"],[172,"Timeline: Events",2,8,4,15,15,1,8,"5","15,25,57,77",""],[173,"Agricola: Family Edition",1,4,3,45,45,2,8,"1","10,32","22,179"],[174,"Quoridor",2,4,2,15,15,2,8,"7","1,42","61,148"],[175,"Piko Piko El Gusanito",2,7,3,20,20,1,8,"5","10,23","48,122,126"],[176,"Bar Bestial",2,4,4,20,20,1,8,"5","10,15,36","4,62,155"],[177,"Scotland Yard",3,6,0,45,45,2,10,"5","22,76","64,118,137,157"],[178,"BANG!",4,7,7,20,40,1,10,"8","8,13,15,22,33","62,65,76,116,155,157,175"],[179,"Backgammon",2,2,2,30,30,2,8,"7","1,23","8,23,48,133,162"],[180,"Ishtar: Gardens of Babylon",2,4,3,45,45,2,14,"5","9","10,134,160"],[181,"Fireteam Zero",1,4,3,90,90,3,14,"1","3,31,33,35,46,83","40,45,48,153,175"],[182,"Dice Settlers",1,4,3,45,60,3,14,"1","8,19,23,29,73","10,45,48,86,140,146,160"],[183,"Pitch Car",2,8,4,30,30,1,6,"8","2,65","57,123"],[184,"El Diablo de la Botella",2,4,3,30,30,2,10,"1","15,55","136,165"],[185,"Jungle Speed",2,8,5,10,10,1,7,"8","2,15,57,66","112,147"],[186,"Small World of Warcraft",2,5,4,40,80,3,8,"1","31,33,73,78","10,11,48,72,157,175,177"],[187,"Timeline: Música y Cine",2,8,4,15,15,1,8,"3,8,5","15,25,50,57,77",""],[188,"El Favor del Faraón (Favor of the Pharaoh)",2,4,2,45,45,2,13,"3,5","23","45,48"],[189,"Tranvía (Trambahn)",2,2,2,30,45,2,8,"3,5","15,74,75","28,140"],[190,"Duplik",3,10,5,45,45,1,12,"8","36,57","81"],[191,"Niagara",3,5,4,30,45,2,8,"5","53","24,62,114,140,142"],[192,"Trapwords",4,8,6,30,45,1,8,"8","29,31,57,81","95,153,157,161"],[193,"A Game of Thrones: Hand of the King",2,4,2,15,30,1,14,"5","1,15,31","28,61,140"],[194,"Treasure Hunter",2,6,4,40,40,2,8,"5","3,15,31","28,62,142"],[195,"Carcassonne Junior",2,4,4,10,20,1,4,"9","16,44","53,95,160"],[196,"Criaturas de serie B",2,5,4,20,30,1,10,"5","13,15,22,35","13,62,140,142"],[197,"Time's Up! Edición Azul",4,12,6,45,45,1,12,"3,8","36,48,57","1,36,93,157"],[198,"2 de Mayo",2,2,2,20,20,2,12,"4","52,80","11,62,108,141,142"],[199,"Time's Up! Edición Amarilla",4,12,6,30,30,1,0,"3,8","36,57","1,36,93,157"],[200,"Samurai Sword",3,7,7,20,40,2,8,"5","13,15,22,33,44","62,157,175"],[201,"Rumbo a la India",3,4,3,60,60,2,14,"1","24,29,53,68","3,11,140,179"],[202,"Virus!",2,6,4,20,20,1,8,"8","15,43","62,140,155"],[203,"Rummikub",2,4,4,60,60,2,8,"5","1,15,56","92,140,160"],[204,"Labyrinth",2,4,4,20,20,1,8,"5","16,42,64","87,95,104,118,160"],[205,"Zombie 15'",2,4,4,15,15,2,14,"2","33,35,66,84","3,40,61,95,175"],[206,"Mafia de Cuba",6,12,8,10,20,1,10,"8","13,22,39,57","131,157,175"],[207,"Machi Koro: Legacy",2,4,3,30,45,2,10,"5","","48,80"],[208,"Poli Bueno Poli Malo",4,8,6,10,20,1,12,"8","13,15,22,57,71","9,62,65,93,116,155"],[209,"Escape from Colditz",2,6,4,180,180,2,12,"2","3,83","28,52,61,63,133,140,141"],[210,"After The Virus",1,3,1,30,90,2,10,"2","15,35,84","40,45,62,146"],[211,"Crónicas (Chronicle)",3,6,4,30,30,2,12,"3,1,5","15,31","5,140,155,165"],[212,"Drako: Dragon & Dwarves",2,2,2,30,30,2,8,"2","31,33","3,27,61,62,63,175"],[213,"Catan: Junior",2,4,4,30,30,1,6,"5","16,24,53,59","48,104"],[214,"Scrabble",2,4,2,90,90,2,10,"5","81","54,62,148,160"],[215,"Timebomb",4,8,6,1,30,1,10,"8","13,15,57,71","65,131,157,164"],[216,"Time of Soccer",1,4,3,120,120,3,12,"1","24,72","48,140,141"],[217,"Fuji Flush",3,8,6,10,20,1,7,"5","15,56","62,155"],[218,"Código Secreto: Disney – Family Edition",2,8,6,15,15,1,8,"3,8","15,22,48,57,81","36,93,112,122,157"],[219,"My First Stone Age",2,4,3,15,15,1,5,"9","16,45,62","93,140"],[220,"Pandemic: Rapid Response",2,4,0,20,20,2,8,"1","43,66","39,40,48,126,175"],[221,"Epic Card Game",2,4,2,20,40,2,13,"8","15,31,33,62,84","28,62,155"],[222,"Muse",2,12,4,30,30,1,10,"8","15,36,57","36,40,156,157,178"],[223,"Pandemic: Hot Zone – North America",2,4,2,30,30,2,8,"5,3","43,63","3,40,62,118,140"],[224,"Boss Monster: The Dungeon Building Card Game",2,4,4,30,30,2,13,"5","15,31,78","62,116,155,175"],[225,"Famiglia",2,2,2,30,30,2,10,"1","15,39","5,28,45,62"],[226,"Mundus Novus",2,6,4,45,60,2,14,"1","15,24,53,68","28,62,140,163"],[227,"Dungeon Raiders",3,5,5,20,60,1,8,"2","3,13,15,29,31,33","62,116,142,155,175"],[228,"¿Alcachofas? ¡No, gracias!",2,4,2,20,20,1,10,"3,5","15,32","28,45"],[229,"Micropolis",2,6,3,30,30,2,8,"5","10,73","28,140,160"],[230,"Cave Troll",2,4,4,20,60,2,10,"2","31","3,10,62,118,175"],[231,"Pandemic: Contagion",2,5,4,30,30,2,14,"1","15,43","10,62"],[232,"De mudanzas",3,6,6,30,45,1,10,"5","2,64,66","48,142"],[233,"Zombie Dice",2,99,4,10,20,1,10,"8","23,35,36,57,84","48,122,126"],[234,"Monza",2,6,4,10,10,1,5,"9","16,23,65,72","48,123,133,162"],[235,"Cheating Moth",3,5,5,30,30,1,7,"8","2,15","62"],[236,"The Fury of Dracula",2,4,4,180,180,3,12,"2","3,22,33,35,55","64,118,137,157,175"],[237,"Gift Trap",3,8,5,60,60,1,8,"8","36,57","142,178"],[238,"Scattergories",2,6,4,30,30,1,12,"8","57,66,81","48,108"],[239,"Rory's Story Cubes",1,12,2,20,20,1,6,"8","16,23","40,48,112,153"],[240,"Blood Bound",6,12,8,30,30,2,14,"8","13,22,31,35,54,57","131,157,175"],[241,"Sherlock: Last Call",1,8,0,40,60,1,10,"2","15,22,49","36,40,62,93"],[242,"Topoum",2,4,0,60,90,0,14,"1","73,82","10,160"],[243,"Sonora",1,4,4,30,45,2,10,"7","1,2,10","3,10,31,53,57,104,108,140"],[244,"Shark",2,6,4,90,90,2,12,"1","24","35,48,152"],[245,"Fight for Olympus",2,2,2,30,30,2,12,"1","9,15,51","62,155,166"],[246,"Aliens",1,9,1,90,90,2,10,"2","33,35,48,69","40,48,135,148,175"],[247,"Mi Primer Frutal",1,4,3,10,10,1,2,"9","16,25,32","40,48"],[248,"Stratego",2,2,2,45,45,2,8,"5","1,13,22,33,45,52,80","61,93,137,148,176"],[249,"Camel Up Cards",2,6,4,30,60,2,8,"5","15","23,62"],[250,"Byzanz",3,6,0,45,45,2,8,"5","9,11,15,24","13,21,28,33,38,62,140"],[251,"La Torre Encantada",2,4,2,15,25,1,5,"9","13,16,23,31","48,133"],[252,"Exploding Kittens: NSFW Deck",2,5,4,10,20,1,18,"8","10,15,21,36,41","62,116,122,140,155"],[253,"Pairs",2,8,5,15,15,1,0,"5","15","122"],[254,"Dungeon Roll",1,4,2,15,15,1,8,"5","23,31,33","48,62,122,175"],[255,"1911 Amundsen vs Scott",2,2,2,20,20,2,12,"2","15,29","28,62,123"],[256,"La Escalera Encantada",2,4,4,10,15,1,4,"9","16,31,45","93,133"],[257,"El cuco Kiko estrena nido",2,5,4,10,15,1,4,"5","2,16,57","149"],[258,"Unstable Unicorns",2,8,4,30,45,1,14,"8","15,36,57","62,140,155"],[259,"Haru Ichiban",2,2,2,20,20,2,8,"7","1,10,64","61,62,93,110,142"],[260,"Sherlock: La tumba del arqueólogo (Sherlock: The Tomb of the Archaeologist)",1,8,4,40,60,1,10,"3,10","15,22,49","36,40,62,93"],[261,"Game of Trains",2,4,0,20,20,1,8,"5","15,64,74","28,110"],[262,"Catan Histories: Struggle for Rome",3,4,4,120,120,3,10,"1","9,19","11,163"],[263,"El Séptimo Héroe",3,5,3,20,30,1,8,"5,3","13,15,31","62,140,155"],[264,"Star Wars: Empire vs. Rebellion",2,2,2,60,60,2,10,"5","13,15,48,69","45,62,175"],[265,"Concept Kids: Animals",2,12,4,20,20,1,4,"9","10,16,22","40"],[266,"Time's Up! Family",4,12,6,30,30,1,8,"5","45,57","1,36,93,157"],[267,"Munchkin Zombies",3,6,4,90,90,2,10,"2","15,33,36,84","48,62,175"],[268,"13 Minutes: The Cuban Missile Crisis, 1962",2,2,2,13,13,2,10,"1","15,60","10,27,62"],[269,"Ensalada de Bichos",2,6,4,10,20,1,6,"8","2,15,36,66","112"],[270,"Rolling Ranch",2,20,4,10,20,1,14,"5","10,23,73","48,108"],[271,"Alcatraz: El Chivo Expiatorio",3,4,4,45,60,2,15,"2","13,39,54","3,61,95,114,140,144,163,178"],[272,"Ritmo y Bola",4,12,8,30,30,1,8,"8","2,36,50,57,66","1,93,112"],[273,"Exploding Kittens",2,5,4,15,15,1,7,"8","10,15,21,36","62,68,116,122,140,155"],[274,"Lobo (Wooly Wars)",2,4,0,30,30,2,7,"5","10,13,32,64","53,62,116,160"],[275,"Zombicide: Dark Side",1,6,2,60,60,2,14,"2","46,69,84","3,40,48,95,175"],[276,"Colt Super Express",3,7,5,15,20,1,7,"7","8,74","4,62,93,116,121,142"],[277,"Versailles",2,5,0,90,90,3,12,"1","73","118,134,160"],[278,"Hex",2,2,2,20,20,2,8,"7","1","63,104"],[279,"Cerberus",3,7,5,30,45,2,10,"8","3,51,54","62,95,139"],[280,"Cthulhu Fluxx",2,6,4,5,30,1,8,"8","15","62,140"],[281,"Rory's Story Cubes: Actions",1,12,3,20,20,1,6,"5","23","40,48,112,153"],[282,"Bubblee Pop",1,2,2,20,20,1,8,"5","","110"],[283,"Speed Cups",2,4,4,15,15,1,6,"8","2,16,66","110"],[284,"El Valle de los Vikingos",2,4,3,15,20,1,6,"9","2,16","133,179"],[285,"Arcana",2,4,4,60,60,2,13,"1","13,15,31","10,45,62,137,140,165,175"],[286,"10' to Kill",2,4,4,10,15,2,12,"8","10,13,22,49","4,93,95,116,137"],[287,"Zombie Fluxx",2,6,4,10,40,1,8,"8","15,84","62,140,155"],[288,"Sherlock: Death on the 4th of July",1,8,4,40,60,1,10,"2","15,22,49","36,40,62,93"],[289,"Gravity Superstar",2,6,4,15,30,1,7,"5","78","61,62,95"],[290,"Miguel Strogoff",1,5,0,60,60,2,12,"2","55","48,62,116,118,122,123,139"],[291,"Twilight Imperium",2,6,0,240,240,4,12,"2","19,54,60,69,70,80","48,63,95,160,175,178"],[292,"BANG! The Duel",2,2,2,30,30,2,8,"1","8,15","62"],[293,"1920 Wall Street",2,5,3,45,60,2,12,"1","15,24","75,140,152"],[294,"El Frutal",2,8,3,10,10,1,3,"9","16,23","40,48"],[295,"Gardens",2,4,4,45,45,2,8,"5","27","112,160"],[296,"Frente a los Ascensores (In Front of the Elevators)",2,4,4,20,40,1,8,"5","15","10,62"],[297,"HMS Dolores",2,4,3,10,20,1,10,"8","15,54,59","120,130,140,142"],[298,"Dr. Jekyll & Mr. Hyde",3,4,4,60,60,2,10,"1","13,15","165"],[299,"Huida de Silver City",1,4,4,120,120,2,12,"2","33,35,84","40,48,62,131,157,175"],[300,"Brick Party",2,9,4,15,30,1,5,"8","2,57,66","40,62"],[301,"Sailing Toward Osiris",2,5,4,60,90,3,14,"2","9,54","110,179"],[302,"Black Stories 2",2,15,5,20,20,1,12,"8","15,22,35,36,49,57",""],[303,"Zombies!!! 4: The End...",2,6,4,60,120,1,16,"2","29,33,35,46,48,84","133,160"],[304,"Scarab Lords",2,2,2,20,40,2,12,"1","9,15,31","10,45,62"],[305,"Silk",2,4,3,45,45,2,10,"1","10,32","10,48,155,179"],[306,"Sherlock: 13 Rehenes (Sherlock: 13 Hostages)",1,8,4,60,60,0,8,"2","15,22,49","36,40,62,93"],[307,"Tomb: Cryptmaster",2,6,3,120,120,3,12,"2","3,29,31,33,44","48,93,95,137"],[308,"Dobble 1,2,3",2,6,4,15,15,1,4,"9","10,15,16,25,57,66","112,147"],[309,"Kreus",3,6,4,20,30,2,10,"2","15,22,51","36,40"],[310,"Karuba: The Card Game",2,6,4,10,15,1,8,"5","3,15,64","110,142,160"],[311,"Costa Rica",2,5,3,30,45,1,8,"5","29","88,122,140"],[312,"Rattle, Battle, Grab the Loot",2,5,4,45,60,2,8,"5","23,36,53,59","48,91"],[313,"Harvest Island",2,4,2,30,40,2,8,"5","10,15","62,140"],[314,"Tesoros Inesperados",3,6,0,30,30,1,13,"5","","140,142"],[315,"Munchkin",3,6,4,60,120,2,10,"8","15,31,33,36","62,155,175"],[316,"The Hobbit",2,5,3,30,45,2,8,"5","3,15,31,55,76","13,48,62,118,131,142"],[317,"Kill The Unicorns",3,6,4,25,45,2,10,"8","10,13,15,57","13,62,140,155,175"],[318,"Pictionary",3,16,6,90,90,1,12,"8","57","81,133,157"],[319,"Micro Robots",2,99,4,20,20,2,8,"7","1,64,66","48,61,95"],[320,"Cards Against Humanity",4,30,6,30,30,1,17,"8","15,36,41,57,63","62,117,142"],[321,"Sopa de Bichos",2,6,6,10,20,1,6,"8","10,15,36,66","112"],[322,"Password",3,4,4,30,30,1,10,"5","48,57,81","157"],[323,"Checkpoint Charlie",3,5,5,20,30,1,10,"5","15,22,71","93,112"],[324,"Rumble in the House",3,6,6,20,20,1,8,"5","13,22,33,36,57","61,95,137"],[325,"So Clover!",3,6,3,30,30,1,10,"8","57,81","40,156"],[326,"Zen Master",3,5,0,30,30,1,8,"5","15","62,140,165"],[327,"Warehouse 51",3,5,5,30,45,2,10,"2","15,51","13,140"],[328,"Target Earth",1,4,4,90,90,3,12,"2","69","40,48,141"],[329,"La Cosa",4,12,6,15,60,1,12,"8","13,15,22,35,57","28,40,116,131,153,157"],[330,"Aye, Dark Overlord! The Red Box",4,16,4,30,30,1,13,"8","15,31,36,57","1,131,144,153"],[331,"Speed Cups²",2,2,3,10,10,1,6,"3,9,8","2,16,66","110"],[332,"Rory's Story Cubes: Enchanted",1,12,3,15,15,1,8,"7","23","40,48,112,153"],[333,"Cluedo",2,6,0,40,40,2,8,"5","13,22,49","48,133"],[334,"Adventure Time Card Wars: Finn vs. Jake",2,2,2,30,30,2,10,"2","15,36,48","62"],[335,"Rory's Story Cubes: Prehistoria",1,12,0,15,15,1,8,"7","23","40,48,112,153"],[336,"Guilds",2,4,3,60,90,2,10,"2","17,31,44","4,13,160"],[337,"Super Munchkin",3,6,4,90,90,2,10,"2","15,21,33,36","48,163,175"],[338,"Papua",2,4,3,75,75,3,10,"1","29","13,48,140,179"],[339,"Adventure Games: The Grand Hotel Abaddon",1,4,2,75,75,0,12,"2","","40"],[340,"Código Secreto 13+4",2,4,3,15,15,1,8,"10,3","25,40,71","48"],[341,"Chariot Race",2,6,6,15,45,2,8,"5","9,65","48,123"],[342,"Oilfield",2,5,4,60,60,3,12,"1","24,37,54","10,13,142,179"],[343,"Poule Poule",2,8,4,20,20,1,8,"9","10,45,57,66","93"],[344,"Prohis",3,6,6,20,20,1,10,"5","13,15,39","26,62"],[345,"Troika",2,5,3,20,20,1,7,"7","","140"],[346,"Mecanisburgo",2,6,4,120,120,4,14,"2","24,31,69","10,28,137,179"],[347,"Time's Up! Kids",2,12,4,20,20,1,4,"9","16,57","1,36,93,157"],[348,"Mixmo",2,6,4,15,15,1,8,"8","57,81","160"],[349,"El Monstruo de Colores",2,5,2,25,25,1,3,"9","16","40,48,93,153"],[350,"Dino Race",2,4,4,30,30,1,8,"9","15,65","62,155"],[351,"Carrera de Caracoles",2,4,4,15,15,1,5,"9","16,23","48"],[352,"A lo loco Retro",2,5,0,5,10,1,8,"7","15,66","112"],[353,"Pocket Invaders",2,4,2,10,20,2,8,"7","1,23","61,133"],[354,"Black Hills",2,4,3,30,60,2,10,"2","6,8,15","174"],[355,"Dragons",3,6,4,30,30,1,8,"2","15,31","28,122,140"],[356,"Cat Box",2,5,4,15,30,1,6,"5","1,10,15","110"],[357,"Zombies!!!",2,6,4,60,90,1,15,"2","29,33,35,46,48,84","48,61,62,95,133"],[358,"Los Impostores",3,6,5,10,20,2,14,"8","13,22,49,57","93,178"],[359,"Catan Dice Game",1,4,2,15,15,1,7,"5","23","48,108,140"],[360,"Mondrian: The Dice Game",2,4,4,30,30,1,10,"7","2,23","62"],[361,"Rory's Story Cubes: Intergalactic",1,10,0,20,20,1,6,"7","23","40,48,112,153"],[362,"Barcelona: The Rose of Fire",2,4,4,70,90,3,10,"1","17","10,160"],[363,"MOON",1,4,1,15,30,0,10,"7","1,25,40","110,141"],[364,"It's Mine",2,2,2,20,45,2,12,"7","15,17,39","10,140,142,155,175"],[365,"Pot de Vin",3,6,4,30,45,2,14,"2","60,68","62,140,165"],[366,"Excalibur",2,6,4,120,120,3,14,"1","33,44,80","4,48,108,118,142"],[367,"Time's Up! Party Edition",4,12,4,45,90,1,12,"8","36,57","1,93,157"],[368,"Spartacus",2,2,2,300,300,3,12,"4","9,18,60,80","27,118,141"],[369,"Junta: Las Cartas",3,6,6,45,60,2,12,"5","13,15,54,60","62,137,141,142,155,178"],[370,"Fast Food Fear!",3,6,4,10,30,1,8,"8","57,66","40,140"],[371,"Black Stories 3",2,15,4,45,45,1,14,"8","15,22,35,36,49,57",""],[372,"Final Touch",2,4,2,15,15,1,8,"5","13,15","62,157"],[373,"What's Up",2,4,2,10,20,1,8,"5","10,22,45","93,140"],[374,"Mil Kilometros: Fun & Speed",2,6,4,45,45,1,8,"5","15,65","62,155,157"],[375,"Emporion",2,4,4,30,45,2,12,"2","9,15,19","28,140"],[376,"Ars Universalis",2,4,3,45,45,2,10,"5","1,25,44,64,68","13,110"],[377,"Karuba Junior",1,4,3,5,10,1,4,"9","3,16,64","40,95,160"],[378,"Unicornio Destello",2,4,3,10,10,1,3,"9","16","48,133"],[379,"Hands Up",2,8,6,20,20,1,6,"8","2,15","110"],[380,"Hombres Lobo de Castronegro",8,28,0,30,30,0,14,"8","13,22,35,49,57","116,131,157,175,178"],[381,"Ubongo Junior",2,4,4,20,20,0,5,"9","64,66",""],[382,"Fire Team",2,2,0,240,240,3,12,"4","47,80","3,32,48,61,63,82,95,135,141"],[383,"Simon's Cat Card Game",3,6,4,10,25,1,6,"9","15,21,36,48,56,57","62,93,144,165"],[384,"Odyssey: La Ira de Poseidon (Odyssey: Wrath of Poseidon)",2,5,2,30,30,2,13,"2","22,53","11,157"],[385,"Upstream",2,5,4,25,40,2,8,"7","1,10,27,65","3,61,95,160"],[386,"Mi Primer Tesoro de Juegos",1,6,3,5,5,0,3,"9","10,16,32","40,93,112"],[387,"No Time For Heroes",1,4,4,25,45,2,8,"4","15,31,33","28,62,175"],[388,"Sidibaba",3,7,0,45,45,2,14,"5","9,11,42,51,63,66","142,157,175,178"],[389,"Cranium",4,16,8,60,60,1,13,"8","57,64,77,81","1,81,108,133,143,157"],[390,"Co-Mix",3,10,4,30,30,1,6,"8","21,36,57","153,178"],[391,"¡Cobardes!",2,2,2,5,15,1,10,"3,10","15,44","62,142,175"],[392,"Rory's Story Cubes: Mythic",1,12,0,20,20,1,6,"7","23","40,48,112,153"],[393,"Rory's Story Cubes: Animalia",1,12,0,20,20,0,6,"7","23","40,48,112,153"],[394,"Hippo",2,4,4,15,20,1,6,"9","","48,95"],[395,"Rally de Zanahorias",2,4,3,15,15,1,4,"9","10,16","48,98,118"],[396,"Galactic Warlords: Battle for Dominion",1,4,2,30,90,3,8,"4","70,71,80","10,28,48,95,175"],[397,"Air Show",2,5,3,60,90,3,14,"2","12","13,140"],[398,"Alice",2,4,0,35,40,2,10,"2","3,31,55","28,140"],[399,"Fuerza de Dragón",2,4,3,15,15,1,5,"3,9","16,45,65","93"],[400,"Palabrea",1,10,0,10,15,1,6,"8","15,57,66,81",""],[401,"Basketball Age",2,2,2,80,120,3,12,"2","72","4,11,48,141,175"],[402,"Fluxx",2,6,4,5,30,1,8,"5","15","62,140"],[403,"Trivial Pursuit: Classic Edition",2,6,3,45,90,1,16,"5","57,77","133,140"],[404,"Aye, Dark Overlord! The Green Box",4,7,5,30,60,1,14,"8","15,31,36,57","1,131,144,153"],[405,"Ladrillazo",1,6,4,60,90,2,18,"5","24,54,60","28"],[406,"Humans!!!",2,6,5,60,60,2,0,"2","33,35,36,84","62,160,175"],[407,"El Mortal",2,6,6,20,20,1,10,"8","15,36","155"],[408,"SecuenzooS",2,5,4,30,30,1,8,"5","10,45,65","93,95,175"],[409,"Manos ¡Arriba! (Hands)",3,8,8,20,20,1,8,"10,3","15,57,66","1,112"],[410,"Matterhorn",2,4,0,10,30,0,8,"5","23,72","48,122"],[411,"Provincia Romana",2,6,0,90,90,3,13,"1","9,15","28,62"],[412,"1,2,3! Now you see me...",2,8,0,15,15,1,6,"8","15,45,57","93"],[413,"Entern!",2,2,2,10,25,2,10,"2","15,53,59,63","10,28,130,142,175"],[414,"Misterio",2,6,4,60,60,1,9,"2","22,31,35,49","62,133"],[415,"El Soneto",2,4,0,60,60,3,12,"2","81","108,140"],[416,"Sector 6",1,6,2,30,60,2,8,"7","1,42","53,61,95"],[417,"Rick and Morty: 100 Días",2,4,3,45,70,2,16,"10,3","","4,28,179"],[418,"Cubulus",2,3,2,20,20,2,8,"7","1","110"],[419,"What's Missing?",3,6,0,20,20,1,7,"8","36,57,66","81,108"],[420,"Jenga",1,8,4,20,20,1,6,"8","2,57","113,144,149"],[421,"Doggy Bag",2,6,4,20,45,1,8,"8","10,13,57","23,122"],[422,"Alakazum!: Witches and Traditions",2,5,3,20,40,2,10,"5","15,23,31,33","48,62,140"],[423,"Catan Junior Madagascar",2,4,4,30,30,2,6,"9","10,16,23,48","48,104,163"],[424,"Mascotas",2,8,6,15,30,2,4,"9","10,15,16","1"],[425,"Help Me!",2,6,2,10,10,1,7,"7","1,10,13,57","157,160"],[426,"Eureka",3,6,4,60,60,1,8,"5","8,29","48,61,114,122,133"],[427,"Alchemical Crystal Quest (Second Edition)",1,4,4,40,120,3,14,"2","3,31,33,46","40,48,95,153,175"],[428,"15 Dias: The Spanish Golden Age",2,8,4,60,60,3,12,"1","15,54,60,68","62,174"],[429,"Rory's Story Cubes: Medieval",1,99,0,10,10,0,6,"7","23,44","153"],[430,"El Valle Secreto",2,4,0,30,40,0,10,"2","15","51,62,95"],[431,"Time's Up! Family 2",4,12,0,30,30,0,8,"8","57","1,36,157"],[432,"Total Rumble",2,12,9,20,20,1,8,"2","15,33","28"],[433,"Mia",2,12,5,20,20,1,8,"5","13,23","23,48"],[434,"Cortex Challenge KIDS",2,6,0,15,30,1,6,"8","15,57",""],[435,"Black Stories: Shit Happens Edition",2,15,6,20,20,1,12,"8","15,22,35,36,49,57","153"],[436,"Aliens: Hadley's Hope",2,6,5,60,90,0,14,"5","13,35,48,69","3,40,95,164,175"],[437,"Waterloo 1815",2,6,6,720,720,5,0,"4","52,80","63"],[438,"El Ministerio del Tiempo",2,4,2,45,60,2,10,"2","3,48","3,140"],[439,"Contrast",2,6,5,10,20,1,8,"8","15,57","112,142,178"],[440,"¡MÍA!",1,6,3,10,20,1,6,"3,10","15,16,25,40,56,64","28,62,93,108"],[441,"Dragons & Chickens",2,5,4,15,20,1,8,"5","2,3,15,29,31,36","112,142,155"],[442,"La Familia Hort",2,4,4,30,40,1,8,"5","10,15,24,32,35","89,107,175"],[443,"Chairs",1,99,4,20,20,1,5,"8","2,16",""],[444,"Home Sweet Home",2,4,3,20,20,1,8,"5","10,15","62"],[445,"Pandemic: Hot Zone – Europe",2,4,2,30,30,2,8,"3,10","43","3,40,62,118"],[446,"Seven Swords",2,2,2,60,60,3,14,"2","33","3,48,114,175"],[447,"Quest Stories",3,5,4,30,45,1,8,"8","31,36,44","1,131,153"],[448,"Bitoku",1,4,0,120,120,4,12,"1","31,51","140,180"],[449,"Los tesoros de Castellina",2,4,4,15,15,1,5,"9","2,16","93,140"],[450,"Ray Master",1,2,2,30,30,2,10,"7","1,48,63","3,62,179"],[451,"Candy Time",2,6,3,10,25,1,5,"9","16,64","160"],[452,"Covenant",3,5,0,20,45,0,10,"2","49","62,93"],[453,"Pescar Peces",1,4,3,5,5,1,2,"9","2,10,16,25,53","48,140"],[454,"Bellaflor",2,4,3,10,10,1,3,"9","16","133"],[455,"Omerta",3,5,3,20,0,1,10,"5","15,39","62,93,155"],[456,"Zombie Tsunami",3,6,5,25,35,1,10,"5","13,15,22,54,57,78,84","48,122,155,157,178"],[457,"¡Desplumados!",3,7,5,15,30,1,8,"10,3","10,15,57","155"],[458,"Macbeth",2,5,4,30,45,2,12,"8","23,36,44,55,57","48,122,155"],[459,"LIXO?",2,6,5,20,20,1,6,"9","15,16,25,27","13,62"],[460,"Ticket to Mars",2,5,0,15,20,1,8,"5","69","62,179"],[461,"Rory's Story Cubes: Rescue",1,99,0,10,10,0,6,"7","23","153"],[462,"CONEX",2,4,3,15,20,1,8,"7","1,15,23","48,79,110,160"],[463,"Rolit",2,4,2,30,30,1,7,"7","1","10"],[464,"Trappist One",2,4,0,45,60,3,12,"1","15,69,70","28,62,140"],[465,"Globe Twister",1,5,4,15,30,2,8,"5","29,64,76","4,110"],[466,"Dark Matter",2,4,4,15,45,3,8,"1","15,69,70","3,62"],[467,"Rory's Story Cubes: Explore",1,12,0,15,20,0,6,"7","23","40,48,153"],[468,"Back to the Future: An Adventure Through Time",2,4,3,30,30,2,10,"2","48","62"],[469,"StoryLine: Scary Tales",3,8,6,15,30,1,8,"9","15,16,31","142,153,178"],[470,"La Abeja Adela",1,4,0,5,10,1,2,"9","10,16,25","48"],[471,"Time's Up! Green Edition",4,12,0,30,30,1,12,"8","57","1,93,157"],[472,"Cortex + Challenge",2,6,0,10,15,1,8,"8","15,25,45,57","93,112"],[473,"Town of Salem: The Card Game",4,36,11,10,45,0,8,"8","13,15,22,39,78","178"],[474,"Flap Flap",2,4,0,20,20,1,5,"9","10,16,66","112"],[475,"Black Stories: Holiday Edition",2,15,6,45,45,1,14,"8","15,22,35,36,49,57","153"],[476,"Hexcalibur",2,2,2,20,50,2,10,"2","23,31,33,44,80","10,48,104,160,175"],[477,"Hatflings!",2,2,2,15,30,2,10,"5","1,31","10,61,160"],[478,"Vampir Mau Mau",2,4,3,20,30,1,8,"5","15","62"],[479,"Fast Flip",2,8,3,15,15,1,7,"8","66","112"],[480,"Rush Hour Shift",2,2,2,5,15,1,8,"7","","62"],[481,"Magic Mandala",2,4,3,10,15,1,6,"5","2,66","110"],[482,"Tortilla de Patatas: The Game",2,4,4,15,15,1,6,"5","15,45","62,93"],[483,"Arcanya: Magic Academy",3,10,6,20,30,1,6,"5","15,31","62"],[484,"Cortex Challenge GEO",2,6,0,15,30,1,9,"8","15,57",""],[485,"Little Fox",2,4,4,10,10,1,4,"9","10,16,23,43,78","48"],[486,"Black Stories: Mittelalter Edition",2,15,6,20,20,1,12,"8","15,22,35,36,44,49,57","153"],[487,"Crazy Clack!",2,6,3,10,10,1,4,"9","16,66","48,112"],[488,"Escape Pods",1,5,5,20,30,2,10,"2","65,69,70","3,61,93,114"],[489,"Penalties: Animal Cup",2,2,2,10,10,1,8,"5","15,22,72","29,62,141"],[490,"Predator: Partida de Caza",1,5,1,30,45,0,14,"2","15,23,48,69,80","48,122,139"],[491,"Tweegles",2,5,0,15,15,1,6,"9","15,16,66","1,112"],[492,"Populi Turolii",3,8,0,20,20,1,8,"5","15,44","62,175,178"],[493,"La Ruta del Tesoro",2,6,6,90,180,1,8,"5","24,54","133,140,163"],[494,"Bugs",3,6,6,30,30,1,10,"5","10,15","78"],[495,"El Monstruo de los Calcetines",2,6,4,10,10,1,4,"9","16","112,140"],[496,"Ajo y Agua",4,6,6,20,20,0,8,"5","13,15,22,36,49,55,69","62,131,157,175"],[497,"No Game Over",2,6,4,15,30,1,10,"5","33,36,78","48,62,116,155"],[498,"Black Stories: El Interrogatorio",3,6,0,15,20,0,12,"8","49","153"],[499,"¡Tocado, Encontrado!",2,4,0,5,10,1,3,"3,9","2,16,31","112"],[500,"Triominos Deluxe",1,6,4,20,20,0,6,"7","1","160"],[501,"Tangram",1,4,4,10,10,1,8,"7","64,66",""],[502,"Colorpop",1,5,2,10,20,1,8,"7","1,22,64","110"],[503,"Karibou Camp",3,7,5,20,20,1,8,"8","2,57","157"],[504,"En tu casa o donde sea",4,7,5,30,50,1,18,"8","15,36,41,57","62,131,155"],[505,"Baby Blues",3,5,0,30,30,1,8,"8","15,36","62,155"],[506,"Trivial Pursuit: The Big Bang Theory Edition",2,10,0,30,60,0,12,"5","48,57,77","48,93"],[507,"Adventure Time: Aventuras en el mundo de Ooo",1,5,3,60,90,2,8,"2","3,29,31,48","28,62,118,155,175"],[508,"Soplar el pastel",1,4,2,5,5,1,4,"9","2,16",""],[509,"Alquerque",2,2,2,10,20,2,8,"7","1","61"],[510,"Miau Miau",2,5,3,10,10,1,5,"9","15,16","28,112"],[511,"Tira al Cuervo",2,2,2,10,15,1,5,"9","10,16,22","48,137"],[512,"Conejito Burbuja",2,4,2,5,5,1,2,"9","16","112"],[513,"PRRRT...",3,7,6,15,15,1,8,"5","13,15",""],[514,"Doodle Dice",2,6,4,20,30,1,6,"5","15,23","48,140,155"],[515,"Jenga Quake",1,99,0,10,10,1,6,"7","2,26","144"],[516,"The Lord of the P.I.G.S.",2,4,4,30,30,0,16,"5","15,25,36,54,60","62,141,157,178"],[517,"Poc!",2,4,0,10,15,1,8,"5","2",""],[518,"Black Stories: Medizin Edition",2,15,6,45,45,1,14,"8","15,22,35,36,43,49,57","153"],[519,"Pamplona: Viva San Fermín!",2,4,4,45,45,3,8,"3,10","10,65","61,62,155,175"],[520,"Explorers of the Lost Valley",2,4,4,15,25,1,10,"5","10,15,23,29,33,61,62","28,48,122,140"],[521,"Guau, Guau, La Oreja Colgante",2,4,2,10,10,2,5,"9","10,15,16,36,45","62,93"],[522,"La Pandilla Hámster",1,4,2,10,0,1,4,"3,10","10,16,23","40,114,133,161"],[523,"Forest",2,5,4,15,15,1,6,"5","15","140"],[524,"Fruit Ninja: Combo Party",3,6,5,20,40,1,8,"8","2,15,28,57","28,112,122"],[525,"Alcatraz",2,4,2,30,30,2,10,"7","1",""],[526,"\"La Garde recule!\"",1,2,1,60,60,2,10,"4","52,80","63"],[527,"Cards Against Downtime",3,99,5,45,45,1,17,"8","15,36,57,63","28"],[528,"Quizoo",2,8,0,15,15,0,6,"5","10,45","93"],[529,"Café Race",3,6,0,15,15,1,8,"3,10","63,65","13,48,142"],[530,"Rick and Morty: Tráfico de Megasemillas",2,5,3,15,30,0,12,"3,10","15,20,36","62,140"],[531,"Junior Cluedo",2,6,0,20,20,0,12,"5","45,49","93,95"],[532,"Fantasía S.A.",2,5,3,20,20,1,12,"3,10","3,15,23,31,33,36","131,175"],[533,"Taki",2,10,4,30,30,1,6,"5","15,56",""],[534,"Party & Co",3,20,4,45,45,1,14,"8","57","108,131,143,153,157"],[535,"Party & Co: Junior",2,4,0,35,35,1,6,"9","16,40,45,57","40,81,93,131,133,143"],[536,"¿Por qué no te callas? (Taggle)",3,6,6,20,20,1,14,"3,10","15,41,57","178"],[537,"Guatafac",3,12,0,15,60,1,18,"8","15,36,57",""],[538,"El Palé",2,6,3,60,60,0,9,"3,10","24","13,28,48,133"],[539,"El último banquete (The Last Banquet)",6,25,11,45,45,2,10,"8,3","13,31,36,44,57","1,131,153,157,175"],[540,"Trivial Pursuit: Family Edition",2,36,4,90,90,1,12,"9","16,57,77","133"],[541,"Operation",2,4,0,15,15,1,4,"9","2,16,43",""],[542,"Donkey Kong",2,4,4,20,20,1,7,"9","16,78","118,133"],[543,"Crisis: Tokyo",2,5,4,60,60,1,14,"2","15","62"],[544,"Yo Fui a EGB: El Juego Oficial",2,6,6,60,180,1,12,"5","25,57,77","48,133"],[545,"¡Camarero!",3,6,6,15,15,1,8,"10,3","15,24,45","93"],[546,"Preguntas de Mierda",2,24,8,20,20,1,18,"8","15,41,57","178"],[547,"Risk",2,6,4,120,120,2,10,"4","73,80","11,48,116,140"],[548,"Monos Locos",2,4,3,15,15,1,5,"9","2,16","48,113"],[549,"Pictureka!",2,7,4,30,30,1,6,"5","1,45,57,64","13,93,95"],[550,"Kabaleo",2,4,2,15,15,1,8,"7","1,13,22","160"],[551,"Dominoes",2,10,4,30,30,1,5,"7","1,34,78","110,112,157,160"],[552,"Conan: el juego de cartas",2,4,3,30,30,1,13,"2","15,31",""],[553,"Jenga: Tetris",1,99,0,20,20,1,8,"7","2,57,78","122"],[554,"The Game of Life Junior",2,4,4,15,30,1,5,"9","16","133"],[555,"Alguien ha probado este juego?",2,10,5,1,10,1,12,"8","15,36,57","62,93,116,130,155"],[556,"Monopoly Tramposo",2,6,4,60,180,1,8,"5","24","133,140,163"],[557,"DogFight WW1",2,2,2,30,30,1,8,"2","12,15,33,80,82","62,137"],[558,"The Hobbit Card Game",2,5,5,30,30,1,10,"5","15,31,55","62,116,165"],[559,"Cthulhu Dice",2,6,0,5,5,1,10,"8","23,35,36,57","48,116"],[560,"Trivial Pursuit: Genus Edition",2,24,4,90,90,1,12,"5","57,77","133,140"],[561,"El Ahorcado (Hangman)",2,2,2,10,10,1,6,"5","22,81",""],[562,"Damas (Checkers)",2,2,2,30,30,1,6,"7","1,21","61,111,148,151"],[563,"Guess Who?",2,2,2,20,20,1,6,"9","16,22,48","46"],[564,"The Game of Life",2,6,4,60,60,1,8,"5","16,24,26","133,141"],[565,"Monopoly",2,8,4,60,180,1,8,"5","24,54","13,48,71,83,84,107,116,133,140,152,162,163"],[566,"Catan: 5-6 Player Extension",5,6,5,120,120,2,10,"5","28,54","48,62,93,95,104,163"],[567,"Carcassonne: Expansion 1 – Inns & Cathedrals",2,6,2,60,60,2,8,"3,5","17,28,44,73","10,160"],[568,"Carcassonne: Expansion 2 – Traders & Builders",2,6,2,60,60,2,13,"5,1,3","17,28,44,73","10,140,160"],[569,"Picar?",2,4,2,4,3,1,5,"2","8","9"],[570,"Monopoly : Money Heist Edition",2,4,4,1,2,1,5,"9","36","17"],[571,"BANG! The Bullet!",3,8,6,20,40,2,8,"8","8,13,15,22,33,36","62,65,116,155,157,175"],[572,"Dixit: Origins",3,6,5,30,30,1,8,"8","13,15,28,36,57","142,153,178"],[573,"Carcassonne: Expansion 4 – The Tower",2,6,3,60,60,2,8,"3,1,5","17,28,44,73","10,160"],[574,"Black Stories: Scary Music Edition",2,99,0,2,222,0,12,"8","15,22,35,36,49,57","153"],[575,"Black Stories Junior: Purple Stories",2,15,0,2,222,1,8,"8","16,22,31,57","153"],[576,"Black Stories: Uni Edition",2,99,0,2,222,0,12,"8","15,22,35,49,57","153"],[577,"Black Stories: Science-Fiction Edition",0,0,0,0,0,0,3,"8","",""],[578,"Black Stories: Office Edition",0,0,0,0,0,0,3,"8","",""],[579,"Carcassonne: 20th Anniversary Edition",0,0,0,0,0,0,3,"5","",""],[580,"Carcassonne: Expansion 3 – The Princess & The Dragon",0,0,0,0,0,0,3,"","",""],[581,"Carcassonne: Expansion 8 – Bridges, Castles and Bazaars",0,0,0,0,0,0,3,"","",""],[582,"Carcassonne: Expansion 5 – Abbey & Mayor",0,0,0,0,0,0,3,"","",""],[583,"Cards Against Humanity: Green Box",0,0,0,0,0,0,3,"8","",""],[584,"Dobble: Star Wars",0,0,0,0,0,0,3,"5","",""],[585,"Dobble Star Wars: Mandalorian",0,0,0,0,0,0,3,"5","",""]];
 
-const TYPE_NAMES = { 1: "Estrategia", 2: "Abstracto", 3: "Familiar", 4: "Wargames", 5: "Party / Fiesta", 7: "Temático", 8: "Infantil", 9: "Cooperativo", 10: "Filler" };
-const CAT_NAMES = { 1: "Aventura", 2: "Exploración", 3: "Deducción", 6: "Rol", 8: "Fantasía", 9: "Antiguo", 10: "De dados", 11: "Terror", 12: "Ciencia ficción", 13: "De cartas", 15: "De cartas", 16: "Gestión de mano", 17: "Económico", 18: "Medieval", 19: "Civilización", 20: "Construcción", 21: "Destreza", 22: "Humor", 23: "Territorial", 24: "Civilización", 25: "Puzle", 26: "Cooperativo", 27: "Legacy", 28: "Exploración", 29: "Misterio", 31: "Fantasía", 32: "Comercio", 33: "Miniaturas", 34: "Piratas", 35: "Dados", 36: "Deducción", 37: "Ciencia ficción", 39: "Animales", 40: "Lucha", 41: "Coleccionable", 42: "Viajes", 43: "Médico", 44: "Medieval", 45: "Construcción ciudades", 46: "Espionaje", 47: "Político", 48: "Puzzles", 49: "Mitología", 50: "Trenes", 51: "Náutico", 52: "Carreras", 53: "Zombis", 54: "Palabras", 55: "Trivia", 56: "Memoria", 57: "De fiesta", 59: "Adivinanzas", 60: "Guerra moderna", 61: "Historia", 62: "Familiar", 63: "Abstracto", 64: "Negociación", 65: "Habilidad", 66: "Educativo", 67: "Musical", 68: "Deportes", 69: "Temático", 70: "Industria", 71: "Agricultura", 72: "Cocina", 73: "Renacimiento", 74: "Vikingos", 75: "Asia", 76: "Egipto", 77: "Gatuno", 78: "Dragones", 80: "Guerra fría", 81: "2ª Guerra Mundial", 82: "1ª Guerra Mundial", 83: "Americano", 84: "Zombis" };
-const MECH_NAMES = { 1: "Tirada de dados", 3: "Gestión de acciones", 5: "Subastas", 7: "Faroleo", 8: "Apuestas", 9: "Movimiento", 10: "Campaña", 11: "Reclutamiento", 13: "Gestion de cartas", 15: "Combos", 16: "Comunicación", 17: "Contratos", 19: "Cooperativo", 20: "Mayorías", 21: "Coste de acciones", 22: "Crucigramas", 23: "Colocación de dados", 24: "Construcción de mazos", 25: "Borrador de cartas", 26: "Eliminación", 27: "Área de influencia", 28: "Drafting", 29: "Rapidez", 30: "Destreza", 31: "Escritura", 32: "Apilamiento", 33: "Colocación de losetas", 35: "Emparejar", 36: "Simultáneo", 37: "Puntos final", 38: "Equipos", 39: "Roles ocultos", 40: "Cooperativo", 44: "Bloqueo", 45: "Identidades ocultas", 46: "Mapa modular", 47: "Movimiento cuadrícula", 48: "Gestión de mano", 49: "Hexagonal", 51: "Rondas", 52: "Legado", 53: "Intercambio", 54: "Colocación obreros", 55: "Selección de acciones", 56: "Subasta", 57: "Mapa", 58: "Roles especiales", 60: "Tirar y mover", 61: "Colocación losetas", 62: "Colección de conjuntos", 63: "Puntos de victoria", 64: "Storytelling", 65: "Votación", 66: "Producción", 68: "Poder de veto", 71: "Recursos variables", 72: "Influencia", 74: "Memoria", 75: "Negociación", 76: "Cartas de objetivo", 77: "Toma de riesgos", 78: "Descarte", 79: "Capas", 80: "Movimiento de peones", 81: "Programación", 82: "Construcción de rutas", 83: "Patrones", 84: "Carreras", 85: "Preguntas", 86: "Lectura labios", 87: "Poderes asimétricos", 88: "Adivinanzas", 89: "Reconocimiento", 91: "Agilidad", 92: "Tiempo real", 93: "Elección múltiple", 95: "Tira y afloja", 96: "Solitario", 98: "Control zona", 102: "Tokens", 103: "Sigilo", 104: "Tracks", 105: "Puzle", 106: "Trading", 107: "Venta", 108: "Mapas", 110: "Mercado", 111: "Escenarios", 112: "Eventos", 113: "Narrativo", 114: "Misiones", 115: "Supervivencia", 116: "Tech tree", 117: "Tablero personal", 118: "Turno variable", 119: "Fichas", 120: "Bolsa", 121: "Bonificaciones", 122: "Puntuación por áreas", 123: "Modificadores", 124: "Multiplicadores", 126: "Movimiento secreto", 127: "Piedra-papel-tijeras", 128: "Asimetría", 129: "Apuestas ciegas", 130: "Persuasión", 131: "Multiusos", 132: "Pactos", 133: "Fase variable", 134: "Crecimiento", 135: "Combinación", 136: "Alianzas", 137: "Objetivos ocultos", 138: "Exploración", 139: "Revelación", 140: "Fin de partida variable", 141: "Cartas de evento", 142: "Orden de turno variable", 143: "Prueba de habilidad", 144: "Acumulación", 145: "Intercambio forzado", 146: "Income", 147: "Tablero oculto", 148: "Derrota cooperativa", 149: "Bloqueo de acciones", 150: "Límite de mano", 151: "Entrega", 152: "Reserva de acciones", 153: "Selección simultánea", 154: "Final de muerte súbita", 155: "Paso de cartas", 156: "Cadena de acciones", 157: "Movimiento en área", 158: "Poder especial", 159: "Resolución de combate", 160: "Mercado abierto", 161: "Apuesta progresiva", 162: "Resultado aleatorio", 163: "Cartas multifunción", 164: "Pago de recursos", 165: "Traición", 166: "Tira y afloja", 168: "Protección", 169: "Ingresos", 170: "Rondas fijas", 172: "Coste variable", 173: "Red de conexiones", 174: "Acciones limitadas", 175: "Turnos", 176: "Conexiones", 177: "Habilidad especial", 178: "Expansión territorial", 179: "Mazo compartido", 180: "Despliegue", 181: "Preparación" };
+const TYPE_NAMES = {1:"Estrategia",2:"Abstracto",3:"Familiar",4:"Wargames",5:"Party / Fiesta",7:"Temático",8:"Infantil",9:"Cooperativo",10:"Filler"};
+const CAT_NAMES = {1:"Aventura",2:"Exploración",3:"Deducción",6:"Rol",8:"Fantasía",9:"Antiguo",10:"De dados",11:"Terror",12:"Ciencia ficción",13:"De cartas",15:"De cartas",16:"Gestión de mano",17:"Económico",18:"Medieval",19:"Civilización",20:"Construcción",21:"Destreza",22:"Humor",23:"Territorial",24:"Civilización",25:"Puzle",26:"Cooperativo",27:"Legacy",28:"Exploración",29:"Misterio",31:"Fantasía",32:"Comercio",33:"Miniaturas",34:"Piratas",35:"Dados",36:"Deducción",37:"Ciencia ficción",39:"Animales",40:"Lucha",41:"Coleccionable",42:"Viajes",43:"Médico",44:"Medieval",45:"Construcción ciudades",46:"Espionaje",47:"Político",48:"Puzzles",49:"Mitología",50:"Trenes",51:"Náutico",52:"Carreras",53:"Zombis",54:"Palabras",55:"Trivia",56:"Memoria",57:"De fiesta",59:"Adivinanzas",60:"Guerra moderna",61:"Historia",62:"Familiar",63:"Abstracto",64:"Negociación",65:"Habilidad",66:"Educativo",67:"Musical",68:"Deportes",69:"Temático",70:"Industria",71:"Agricultura",72:"Cocina",73:"Renacimiento",74:"Vikingos",75:"Asia",76:"Egipto",77:"Gatuno",78:"Dragones",80:"Guerra fría",81:"2ª Guerra Mundial",82:"1ª Guerra Mundial",83:"Americano",84:"Zombis"};
+const MECH_NAMES = {1:"Tirada de dados",3:"Gestión de acciones",5:"Subastas",7:"Faroleo",8:"Apuestas",9:"Movimiento",10:"Campaña",11:"Reclutamiento",13:"Gestion de cartas",15:"Combos",16:"Comunicación",17:"Contratos",19:"Cooperativo",20:"Mayorías",21:"Coste de acciones",22:"Crucigramas",23:"Colocación de dados",24:"Construcción de mazos",25:"Borrador de cartas",26:"Eliminación",27:"Área de influencia",28:"Drafting",29:"Rapidez",30:"Destreza",31:"Escritura",32:"Apilamiento",33:"Colocación de losetas",35:"Emparejar",36:"Simultáneo",37:"Puntos final",38:"Equipos",39:"Roles ocultos",40:"Cooperativo",44:"Bloqueo",45:"Identidades ocultas",46:"Mapa modular",47:"Movimiento cuadrícula",48:"Gestión de mano",49:"Hexagonal",51:"Rondas",52:"Legado",53:"Intercambio",54:"Colocación obreros",55:"Selección de acciones",56:"Subasta",57:"Mapa",58:"Roles especiales",60:"Tirar y mover",61:"Colocación losetas",62:"Colección de conjuntos",63:"Puntos de victoria",64:"Storytelling",65:"Votación",66:"Producción",68:"Poder de veto",71:"Recursos variables",72:"Influencia",74:"Memoria",75:"Negociación",76:"Cartas de objetivo",77:"Toma de riesgos",78:"Descarte",79:"Capas",80:"Movimiento de peones",81:"Programación",82:"Construcción de rutas",83:"Patrones",84:"Carreras",85:"Preguntas",86:"Lectura labios",87:"Poderes asimétricos",88:"Adivinanzas",89:"Reconocimiento",91:"Agilidad",92:"Tiempo real",93:"Elección múltiple",95:"Tira y afloja",96:"Solitario",98:"Control zona",102:"Tokens",103:"Sigilo",104:"Tracks",105:"Puzle",106:"Trading",107:"Venta",108:"Mapas",110:"Mercado",111:"Escenarios",112:"Eventos",113:"Narrativo",114:"Misiones",115:"Supervivencia",116:"Tech tree",117:"Tablero personal",118:"Turno variable",119:"Fichas",120:"Bolsa",121:"Bonificaciones",122:"Puntuación por áreas",123:"Modificadores",124:"Multiplicadores",126:"Movimiento secreto",127:"Piedra-papel-tijeras",128:"Asimetría",129:"Apuestas ciegas",130:"Persuasión",131:"Multiusos",132:"Pactos",133:"Fase variable",134:"Crecimiento",135:"Combinación",136:"Alianzas",137:"Objetivos ocultos",138:"Exploración",139:"Revelación",140:"Fin de partida variable",141:"Cartas de evento",142:"Orden de turno variable",143:"Prueba de habilidad",144:"Acumulación",145:"Intercambio forzado",146:"Income",147:"Tablero oculto",148:"Derrota cooperativa",149:"Bloqueo de acciones",150:"Límite de mano",151:"Entrega",152:"Reserva de acciones",153:"Selección simultánea",154:"Final de muerte súbita",155:"Paso de cartas",156:"Cadena de acciones",157:"Movimiento en área",158:"Poder especial",159:"Resolución de combate",160:"Mercado abierto",161:"Apuesta progresiva",162:"Resultado aleatorio",163:"Cartas multifunción",164:"Pago de recursos",165:"Traición",166:"Tira y afloja",168:"Protección",169:"Ingresos",170:"Rondas fijas",172:"Coste variable",173:"Red de conexiones",174:"Acciones limitadas",175:"Turnos",176:"Conexiones",177:"Habilidad especial",178:"Expansión territorial",179:"Mazo compartido",180:"Despliegue",181:"Preparación"};
 
 
 const DIFF_LABELS = ["", "Muy fácil", "Fácil", "Media", "Difícil", "Muy difícil"];
@@ -793,10 +910,10 @@ function GameModal({ game, onClose }) {
   const [id, name, pMin, pMax, pBest, dMin, dMax, diff, age, tids, cids, mids] = game;
   const durText = dMin === dMax ? `${dMin} min` : `${dMin}-${dMax} min`;
   const playText = pMin === pMax ? `${pMin}` : `${pMin}-${pMax}`;
-
-  const typeList = tids ? tids.split(",").map(Number).filter(n => TYPE_NAMES[n]).map(n => ({ id: n, name: TYPE_NAMES[n] })) : [];
-  const catList = cids ? cids.split(",").map(Number).filter(n => CAT_NAMES[n]).map(n => ({ id: n, name: CAT_NAMES[n] })) : [];
-  const mechList = mids ? mids.split(",").map(Number).filter(n => MECH_NAMES[n]).map(n => ({ id: n, name: MECH_NAMES[n] })) : [];
+  
+  const typeList = tids ? tids.split(",").map(Number).filter(n => TYPE_NAMES[n]).map(n => ({id:n, name:TYPE_NAMES[n]})) : [];
+  const catList = cids ? cids.split(",").map(Number).filter(n => CAT_NAMES[n]).map(n => ({id:n, name:CAT_NAMES[n]})) : [];
+  const mechList = mids ? mids.split(",").map(Number).filter(n => MECH_NAMES[n]).map(n => ({id:n, name:MECH_NAMES[n]})) : [];
 
   return (
     <div className="gmodal-overlay" onClick={onClose}>
@@ -804,28 +921,28 @@ function GameModal({ game, onClose }) {
         <button className="gmodal-close" onClick={onClose}>×</button>
         <div className="gmodal-grid">
           <div className="gmodal-img">
-            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjUFA-6mCcH1ZUv67poysi5QfY6ke4nd9cX57u458jrtInwR90Xoy661W0MMq9xLeXjPeUz7yq1-BYlN873J5583MfI86-4_zIMaKn6jIwoazB_QyxwrdSoKp4L-xqa55VqBG9QaysJYMI/s554/Gloomhaven.png" alt={name} style={{ width: "100%", height: "auto", borderRadius: 16, display: "block" }} />
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjUFA-6mCcH1ZUv67poysi5QfY6ke4nd9cX57u458jrtInwR90Xoy661W0MMq9xLeXjPeUz7yq1-BYlN873J5583MfI86-4_zIMaKn6jIwoazB_QyxwrdSoKp4L-xqa55VqBG9QaysJYMI/s554/Gloomhaven.png" alt={name} style={{width:"100%",height:"auto",borderRadius:16,display:"block"}} />
           </div>
           <div className="gmodal-info">
             <h2>{name}</h2>
-
+            
             {typeList.length > 0 && <div className="gmodal-tagrow"><span className="gmodal-taglabel">Tipos:</span>{typeList.map(t => <span key={t.id} className="gtag tipo">{t.name}</span>)}</div>}
             {catList.length > 0 && <div className="gmodal-tagrow"><span className="gmodal-taglabel">Categorías:</span>{catList.map(c => <span key={c.id} className="gtag cat">{c.name}</span>)}</div>}
-
+            
             <div className="gmodal-diff">
               <span className="gdot" style={{ background: DIFF_COLORS[diff] || "#999" }} />
               <span>Dificultad: {diff}/5 — {DIFF_LABELS[diff] || "—"}</span>
             </div>
-
+            
             <div className="gmodal-stats">
               <div className="gstat">{I.clock(20, "#2D2D2D")}<div><small>Duración</small><strong>{durText}</strong></div></div>
               <div className="gstat">{I.people(20, "#2D2D2D")}<div><small>Jugadores</small><strong>{playText}</strong></div></div>
               <div className="gstat">{I.star(20, "#2D2D2D")}<div><small>Mejor para</small><strong>{pBest}</strong></div></div>
               <div className="gstat">{I.dice(20, "#2D2D2D")}<div><small>Edad</small><strong>{age}+</strong></div></div>
             </div>
-
+            
             <p className="gmodal-desc">¡Ven a El Búnker y prueba {name}! Pregunta a nuestro equipo y te explicamos las reglas en minutos.</p>
-
+            
             {mechList.length > 0 && <div className="gmodal-tagrow"><span className="gmodal-taglabel">Mecánicas:</span>{mechList.map(m => <span key={m.id} className="gtag mech">{m.name}</span>)}</div>}
           </div>
         </div>
@@ -844,52 +961,13 @@ function PJuegos() {
   const [page, setPage] = useState(1);
   const PER_PAGE = 24;
 
-  // ★ Try loading from API, fallback to GDATA mock
-  const [apiGames, setApiGames] = useState(null);
-  const [apiTotal, setApiTotal] = useState(0);
-  const [apiTypes, setApiTypes] = useState(null);
-  const [apiDetail, setApiDetail] = useState(null);
-  const [loadingApi, setLoadingApi] = useState(false);
-
-  useEffect(() => {
-    setLoadingApi(true);
-    api.games.search({
-      search: search || undefined,
-      typeId: typeFilter || undefined,
-      players: players || undefined,
-      maxDifficulty: maxDiff < 5 ? maxDiff : undefined,
-      maxDuration: maxDur < 240 ? maxDur : undefined,
-      page, limit: PER_PAGE,
-    }).then(data => {
-      if (data && data.games) {
-        setApiGames(data.games);
-        setApiTotal(data.pagination.total);
-      } else {
-        setApiGames(null); // Fall back to mock
-      }
-    }).finally(() => setLoadingApi(false));
-  }, [search, players, maxDiff, maxDur, typeFilter, page]);
-
-  // Load types from API
-  useEffect(() => {
-    api.games.getTypes().then(data => { if (data) setApiTypes(data); });
-  }, []);
-
-  // Load game detail from API when selected
-  useEffect(() => {
-    if (!selected) { setApiDetail(null); return; }
-    if (typeof selected === "string") {
-      api.games.getById(selected).then(d => { if (d) setApiDetail(d); });
-    }
-  }, [selected]);
-
   const filtered = GDATA.filter(g => {
     const [id, name, pMin, pMax, pBest, dMin, dMax, diff, age, tids] = g;
     if (search && !name.toLowerCase().includes(search.toLowerCase())) return false;
     if (players > 0 && !(pMin <= players && pMax >= players)) return false;
     if (diff > maxDiff) return false;
     if (dMin > maxDur) return false;
-    if (typeFilter > 0 && !(tids || "").split(",").includes(String(typeFilter))) return false;
+    if (typeFilter > 0 && !(tids||"").split(",").includes(String(typeFilter))) return false;
     return true;
   });
 
@@ -936,9 +1014,9 @@ function PJuegos() {
             <div className="jfield">
               <label>Tipo de juego</label>
               <div className="jtype-grid">
-                <button className={`jtype-btn ${typeFilter === 0 ? "on" : ""}`} onClick={() => { setTypeFilter(0); setPage(1); }}>Todos</button>
-                {Object.entries(TYPE_NAMES).map(([tid, tname]) => (
-                  <button key={tid} className={`jtype-btn ${typeFilter === +tid ? "on" : ""}`} onClick={() => { setTypeFilter(+tid); setPage(1); }}>{tname}</button>
+                <button className={`jtype-btn ${typeFilter===0?"on":""}`} onClick={() => {setTypeFilter(0);setPage(1);}}>Todos</button>
+                {Object.entries(TYPE_NAMES).map(([tid,tname]) => (
+                  <button key={tid} className={`jtype-btn ${typeFilter===+tid?"on":""}`} onClick={() => {setTypeFilter(+tid);setPage(1);}}>{tname}</button>
                 ))}
               </div>
             </div>
@@ -956,7 +1034,7 @@ function PJuegos() {
                 const playText = pMin === pMax ? `${pMin}` : `${pMin}-${pMax}`;
                 return (
                   <div className="jcard" key={id} onClick={() => setSelected(g)}>
-                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjUFA-6mCcH1ZUv67poysi5QfY6ke4nd9cX57u458jrtInwR90Xoy661W0MMq9xLeXjPeUz7yq1-BYlN873J5583MfI86-4_zIMaKn6jIwoazB_QyxwrdSoKp4L-xqa55VqBG9QaysJYMI/s554/Gloomhaven.png" alt={name} style={{ width: "100%", height: 120, objectFit: "cover", display: "block" }} />
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjUFA-6mCcH1ZUv67poysi5QfY6ke4nd9cX57u458jrtInwR90Xoy661W0MMq9xLeXjPeUz7yq1-BYlN873J5583MfI86-4_zIMaKn6jIwoazB_QyxwrdSoKp4L-xqa55VqBG9QaysJYMI/s554/Gloomhaven.png" alt={name} style={{width:"100%",height:120,objectFit:"cover",display:"block"}} />
                     <div className="jcard-body">
                       <div className="jcard-diff"><span className="gdot" style={{ background: DIFF_COLORS[diff] || "#ccc" }} /></div>
                       <h4>{name}</h4>
@@ -1049,26 +1127,14 @@ function PPreguntas({ setPage }) {
     <div className="ph"><h1>Preguntas & Cómo Funciona</h1><p>Todo lo que necesitas saber sobre El Búnker</p></div>
     <section className="sec rbg" style={{ background: "var(--cream)" }}>
       <div className="ctn">
-        <div className="exp-feature">
-          <div className="exp-feature-text">
-            <h2 className="exp-feature-title">¡Así funciona!</h2>
-            <p className="exp-feature-desc">
-              Entra, pide tu mesa y diviértete. Con un pequeño cover por persona,
-              podrás jugar a tantos juegos como quieras de nuestra colección, sin
-              límite de tiempo. Nuestro equipo te ayudará a elegir juego si lo
-              necesitas, y podrás acompañar la experiencia con comida, bebida y
-              postres para completar el plan perfecto.
-            </p>
-            <button className="btn btn-yellow" onClick={() => go("reservas")}>
-              Reservar
-            </button>
-          </div>
-
-          <div className="exp-feature-image">
-            <img
-              src={instruccionesImg}
-              alt="Cómo funciona El Búnker paso a paso"
-            />
+        <h2 className="stitle">Tu experiencia <span className="yl">paso a paso</span></h2>
+        <p className="ssub">Así de fácil es pasarlo genial en El Búnker</p>
+        {/* IMAGE PLACEHOLDER — Reemplaza src con tu imagen PNG */}
+        <div className="exp-img-placeholder">
+          <div className="exp-img-inner">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none"><rect x="4" y="10" width="56" height="40" rx="6" stroke="#FFD60A" strokeWidth="3" fill="none"/><circle cx="22" cy="28" r="7" stroke="#FFD60A" strokeWidth="2.5" fill="none"/><path d="M4 42l14-10 10 7 14-12 18 13" stroke="#FFD60A" strokeWidth="2.5" fill="none"/><circle cx="44" cy="20" r="4" fill="#FFD60A" opacity=".4"/></svg>
+            <p>Aquí va tu imagen de experiencia paso a paso (PNG)</p>
+            <span>Sube la imagen y reemplaza este placeholder</span>
           </div>
         </div>
       </div>
@@ -1094,192 +1160,159 @@ const FLOOR = {
   principal: {
     name: "Zona Principal", w: 720, h: 520,
     furniture: [
-      { type: "bar", x: 10, y: 2, w: 200, h: 50, label: "BARRA" },
-      { type: "shelf", x: 430, y: 2, w: 270, h: 45, label: "ESTANTERÍA JUEGOS" },
-      { type: "door", x: 310, y: 475, w: 100, h: 40, label: "ENTRADA" },
-      { type: "kitchen", x: 10, y: 470, w: 130, h: 40, label: "COCINA" },
+      { type:"bar", x:10, y:2, w:200, h:50, label:"BARRA" },
+      { type:"shelf", x:430, y:2, w:270, h:45, label:"ESTANTERÍA JUEGOS" },
+      { type:"door", x:310, y:475, w:100, h:40, label:"ENTRADA" },
+      { type:"kitchen", x:10, y:470, w:130, h:40, label:"COCINA" },
     ],
     tables: [
-      { id: "B1", seats: 3, x: 50, y: 85, w: 70, h: 55, shape: "round", label: "Barra 1", adj: ["B2"] },
-      { id: "B2", seats: 3, x: 150, y: 85, w: 70, h: 55, shape: "round", label: "Barra 2", adj: ["B1"] },
-      { id: "M1", seats: 4, x: 300, y: 120, w: 80, h: 65, shape: "rect", label: "Mesa 1", adj: ["M2", "M4"] },
-      { id: "M2", seats: 4, x: 420, y: 120, w: 80, h: 65, shape: "rect", label: "Mesa 2", adj: ["M1", "M3", "M5"] },
-      { id: "M3", seats: 4, x: 540, y: 120, w: 80, h: 65, shape: "rect", label: "Mesa 3", adj: ["M2", "M6"] },
-      { id: "M4", seats: 4, x: 300, y: 250, w: 80, h: 65, shape: "rect", label: "Mesa 4", adj: ["M1", "M5", "M7"] },
-      { id: "M5", seats: 4, x: 420, y: 250, w: 80, h: 65, shape: "rect", label: "Mesa 5", adj: ["M2", "M4", "M6", "M8"] },
-      { id: "M6", seats: 6, x: 540, y: 250, w: 90, h: 65, shape: "rect", label: "Mesa 6", adj: ["M3", "M5", "M9"] },
-      { id: "M7", seats: 4, x: 300, y: 380, w: 80, h: 65, shape: "rect", label: "Mesa 7", adj: ["M4", "M8"] },
-      { id: "M8", seats: 4, x: 420, y: 380, w: 80, h: 65, shape: "rect", label: "Mesa 8", adj: ["M5", "M7", "M9"] },
-      { id: "M9", seats: 6, x: 560, y: 380, w: 90, h: 65, shape: "rect", label: "Mesa 9", adj: ["M6", "M8"] },
+      { id:"B1", seats:3, x:50,  y:85,  w:70, h:55, shape:"round", label:"Barra 1", adj:["B2"] },
+      { id:"B2", seats:3, x:150, y:85,  w:70, h:55, shape:"round", label:"Barra 2", adj:["B1"] },
+      { id:"M1", seats:4, x:300, y:120, w:80, h:65, shape:"rect", label:"Mesa 1", adj:["M2","M4"] },
+      { id:"M2", seats:4, x:420, y:120, w:80, h:65, shape:"rect", label:"Mesa 2", adj:["M1","M3","M5"] },
+      { id:"M3", seats:4, x:540, y:120, w:80, h:65, shape:"rect", label:"Mesa 3", adj:["M2","M6"] },
+      { id:"M4", seats:4, x:300, y:250, w:80, h:65, shape:"rect", label:"Mesa 4", adj:["M1","M5","M7"] },
+      { id:"M5", seats:4, x:420, y:250, w:80, h:65, shape:"rect", label:"Mesa 5", adj:["M2","M4","M6","M8"] },
+      { id:"M6", seats:6, x:540, y:250, w:90, h:65, shape:"rect", label:"Mesa 6", adj:["M3","M5","M9"] },
+      { id:"M7", seats:4, x:300, y:380, w:80, h:65, shape:"rect", label:"Mesa 7", adj:["M4","M8"] },
+      { id:"M8", seats:4, x:420, y:380, w:80, h:65, shape:"rect", label:"Mesa 8", adj:["M5","M7","M9"] },
+      { id:"M9", seats:6, x:560, y:380, w:90, h:65, shape:"rect", label:"Mesa 9", adj:["M6","M8"] },
     ],
   },
   sillones: {
     name: "Zona Sillones", w: 400, h: 480,
     furniture: [
-      { type: "shelf", x: 10, y: 2, w: 380, h: 40, label: "ESTANTERÍA JUEGOS" },
+      { type:"shelf", x:10, y:2, w:380, h:40, label:"ESTANTERÍA JUEGOS" },
     ],
     tables: [
-      { id: "S1", seats: 6, x: 20, y: 340, w: 100, h: 70, shape: "long", label: "Sillón 1", adj: ["S2"] },
-      { id: "S2", seats: 6, x: 150, y: 340, w: 100, h: 70, shape: "long", label: "Sillón 2", adj: ["S1", "S7"] },
-      { id: "S3", seats: 4, x: 20, y: 70, w: 90, h: 65, shape: "rect", label: "Sillón 3", adj: ["S4", "S5"] },
-      { id: "S4", seats: 4, x: 150, y: 70, w: 90, h: 65, shape: "rect", label: "Sillón 4", adj: ["S3"] },
-      { id: "S5", seats: 4, x: 20, y: 160, w: 90, h: 65, shape: "rect", label: "Sillón 5", adj: ["S3", "S6"] },
-      { id: "S6", seats: 4, x: 20, y: 250, w: 90, h: 65, shape: "rect", label: "Sillón 6", adj: ["S5", "S7"] },
-      { id: "S7", seats: 4, x: 150, y: 250, w: 90, h: 65, shape: "rect", label: "Sillón 7", adj: ["S6", "S2"] },
+      { id:"S1", seats:6, x:20,  y:340, w:100, h:70, shape:"long", label:"Sillón 1", adj:["S2"] },
+      { id:"S2", seats:6, x:150, y:340, w:100, h:70, shape:"long", label:"Sillón 2", adj:["S1","S7"] },
+      { id:"S3", seats:4, x:20,  y:70,  w:90,  h:65, shape:"rect", label:"Sillón 3", adj:["S4","S5"] },
+      { id:"S4", seats:4, x:150, y:70,  w:90,  h:65, shape:"rect", label:"Sillón 4", adj:["S3"] },
+      { id:"S5", seats:4, x:20,  y:160, w:90,  h:65, shape:"rect", label:"Sillón 5", adj:["S3","S6"] },
+      { id:"S6", seats:4, x:20,  y:250, w:90,  h:65, shape:"rect", label:"Sillón 6", adj:["S5","S7"] },
+      { id:"S7", seats:4, x:150, y:250, w:90,  h:65, shape:"rect", label:"Sillón 7", adj:["S6","S2"] },
     ],
   },
   terraza: {
     name: "Terraza", w: 600, h: 300,
     furniture: [
-      { type: "plant", x: 10, y: 10, w: 60, h: 40, label: "🌿" },
-      { type: "plant", x: 530, y: 10, w: 60, h: 40, label: "🌿" },
-      { type: "plant", x: 10, y: 240, w: 60, h: 40, label: "🌿" },
-      { type: "plant", x: 530, y: 240, w: 60, h: 40, label: "🌿" },
+      { type:"plant", x:10,  y:10, w:60, h:40, label:"🌿" },
+      { type:"plant", x:530, y:10, w:60, h:40, label:"🌿" },
+      { type:"plant", x:10,  y:240, w:60, h:40, label:"🌿" },
+      { type:"plant", x:530, y:240, w:60, h:40, label:"🌿" },
     ],
     tables: [
-      { id: "T10", seats: 4, x: 80, y: 60, w: 90, h: 65, shape: "rect", label: "Mesa 10", adj: ["T11"] },
-      { id: "T11", seats: 4, x: 200, y: 60, w: 90, h: 65, shape: "rect", label: "Mesa 11", adj: ["T10", "T12"] },
-      { id: "T12", seats: 4, x: 320, y: 60, w: 90, h: 65, shape: "rect", label: "Mesa 12", adj: ["T11", "T13"] },
-      { id: "T13", seats: 4, x: 440, y: 60, w: 90, h: 65, shape: "rect", label: "Mesa 13", adj: ["T12"] },
-      { id: "T14", seats: 4, x: 140, y: 180, w: 90, h: 65, shape: "rect", label: "Mesa 14", adj: ["T15"] },
-      { id: "T15", seats: 4, x: 320, y: 180, w: 90, h: 65, shape: "rect", label: "Mesa 15", adj: ["T14"] },
+      { id:"T10", seats:4, x:80,  y:60,  w:90, h:65, shape:"rect", label:"Mesa 10", adj:["T11"] },
+      { id:"T11", seats:4, x:200, y:60,  w:90, h:65, shape:"rect", label:"Mesa 11", adj:["T10","T12"] },
+      { id:"T12", seats:4, x:320, y:60,  w:90, h:65, shape:"rect", label:"Mesa 12", adj:["T11","T13"] },
+      { id:"T13", seats:4, x:440, y:60,  w:90, h:65, shape:"rect", label:"Mesa 13", adj:["T12"] },
+      { id:"T14", seats:4, x:140, y:180, w:90, h:65, shape:"rect", label:"Mesa 14", adj:["T15"] },
+      { id:"T15", seats:4, x:320, y:180, w:90, h:65, shape:"rect", label:"Mesa 15", adj:["T14"] },
     ],
   },
 };
 
-const HOURS = ["12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"];
+const HOURS = ["12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00"];
 
 // Mock reservations for 11/09/2026
 const MOCK_RES = [
   // 12:00
-  { date: "2026-09-11", hour: "12:00", zone: "principal", tableId: "B1", name: "García" },
-  { date: "2026-09-11", hour: "12:00", zone: "principal", tableId: "M1", name: "López" },
-  { date: "2026-09-11", hour: "12:00", zone: "principal", tableId: "M6", name: "Martínez" },
-  { date: "2026-09-11", hour: "12:00", zone: "terraza", tableId: "T10", name: "Fernández" },
-  { date: "2026-09-11", hour: "12:00", zone: "terraza", tableId: "T12", name: "Rodríguez" },
+  { date:"2026-09-11", hour:"12:00", zone:"principal", tableId:"B1", name:"García" },
+  { date:"2026-09-11", hour:"12:00", zone:"principal", tableId:"M1", name:"López" },
+  { date:"2026-09-11", hour:"12:00", zone:"principal", tableId:"M6", name:"Martínez" },
+  { date:"2026-09-11", hour:"12:00", zone:"terraza", tableId:"T10", name:"Fernández" },
+  { date:"2026-09-11", hour:"12:00", zone:"terraza", tableId:"T12", name:"Rodríguez" },
   // 13:00 — zona principal casi llena
-  { date: "2026-09-11", hour: "13:00", zone: "principal", tableId: "B1", name: "Sánchez" },
-  { date: "2026-09-11", hour: "13:00", zone: "principal", tableId: "B2", name: "Díaz" },
-  { date: "2026-09-11", hour: "13:00", zone: "principal", tableId: "M1", name: "Hernández" },
-  { date: "2026-09-11", hour: "13:00", zone: "principal", tableId: "M2", name: "Muñoz" },
-  { date: "2026-09-11", hour: "13:00", zone: "principal", tableId: "M3", name: "Álvarez" },
-  { date: "2026-09-11", hour: "13:00", zone: "principal", tableId: "M4", name: "Romero" },
-  { date: "2026-09-11", hour: "13:00", zone: "principal", tableId: "M5", name: "Torres" },
-  { date: "2026-09-11", hour: "13:00", zone: "principal", tableId: "M6", name: "Navarro" },
-  { date: "2026-09-11", hour: "13:00", zone: "principal", tableId: "M7", name: "Soler" },
-  { date: "2026-09-11", hour: "13:00", zone: "principal", tableId: "M8", name: "Ruiz" },
-  { date: "2026-09-11", hour: "13:00", zone: "principal", tableId: "M9", name: "Gil" },
-  { date: "2026-09-11", hour: "13:00", zone: "sillones", tableId: "S1", name: "Jiménez" },
-  { date: "2026-09-11", hour: "13:00", zone: "sillones", tableId: "S2", name: "Cumple Ana" },
-  { date: "2026-09-11", hour: "13:00", zone: "terraza", tableId: "T10", name: "Moreno" },
-  { date: "2026-09-11", hour: "13:00", zone: "terraza", tableId: "T11", name: "Serrano" },
-  { date: "2026-09-11", hour: "13:00", zone: "terraza", tableId: "T13", name: "Domínguez" },
-  { date: "2026-09-11", hour: "13:00", zone: "terraza", tableId: "T14", name: "Vega" },
+  { date:"2026-09-11", hour:"13:00", zone:"principal", tableId:"B1", name:"Sánchez" },
+  { date:"2026-09-11", hour:"13:00", zone:"principal", tableId:"B2", name:"Díaz" },
+  { date:"2026-09-11", hour:"13:00", zone:"principal", tableId:"M1", name:"Hernández" },
+  { date:"2026-09-11", hour:"13:00", zone:"principal", tableId:"M2", name:"Muñoz" },
+  { date:"2026-09-11", hour:"13:00", zone:"principal", tableId:"M3", name:"Álvarez" },
+  { date:"2026-09-11", hour:"13:00", zone:"principal", tableId:"M4", name:"Romero" },
+  { date:"2026-09-11", hour:"13:00", zone:"principal", tableId:"M5", name:"Torres" },
+  { date:"2026-09-11", hour:"13:00", zone:"principal", tableId:"M6", name:"Navarro" },
+  { date:"2026-09-11", hour:"13:00", zone:"principal", tableId:"M7", name:"Soler" },
+  { date:"2026-09-11", hour:"13:00", zone:"principal", tableId:"M8", name:"Ruiz" },
+  { date:"2026-09-11", hour:"13:00", zone:"principal", tableId:"M9", name:"Gil" },
+  { date:"2026-09-11", hour:"13:00", zone:"sillones", tableId:"S1", name:"Jiménez" },
+  { date:"2026-09-11", hour:"13:00", zone:"sillones", tableId:"S2", name:"Cumple Ana" },
+  { date:"2026-09-11", hour:"13:00", zone:"terraza", tableId:"T10", name:"Moreno" },
+  { date:"2026-09-11", hour:"13:00", zone:"terraza", tableId:"T11", name:"Serrano" },
+  { date:"2026-09-11", hour:"13:00", zone:"terraza", tableId:"T13", name:"Domínguez" },
+  { date:"2026-09-11", hour:"13:00", zone:"terraza", tableId:"T14", name:"Vega" },
   // 14:00
-  { date: "2026-09-11", hour: "14:00", zone: "principal", tableId: "M3", name: "Gil" },
-  { date: "2026-09-11", hour: "14:00", zone: "principal", tableId: "M9", name: "Afterwork" },
-  { date: "2026-09-11", hour: "14:00", zone: "sillones", tableId: "S3", name: "Cumple Pedro" },
-  { date: "2026-09-11", hour: "14:00", zone: "sillones", tableId: "S4", name: "Reunión" },
+  { date:"2026-09-11", hour:"14:00", zone:"principal", tableId:"M3", name:"Gil" },
+  { date:"2026-09-11", hour:"14:00", zone:"principal", tableId:"M9", name:"Afterwork" },
+  { date:"2026-09-11", hour:"14:00", zone:"sillones", tableId:"S3", name:"Cumple Pedro" },
+  { date:"2026-09-11", hour:"14:00", zone:"sillones", tableId:"S4", name:"Reunión" },
   // 17:00
-  { date: "2026-09-11", hour: "17:00", zone: "principal", tableId: "B1", name: "Vega" },
-  { date: "2026-09-11", hour: "17:00", zone: "principal", tableId: "M6", name: "Castro" },
-  { date: "2026-09-11", hour: "17:00", zone: "sillones", tableId: "S2", name: "Evento corp." },
-  { date: "2026-09-11", hour: "17:00", zone: "sillones", tableId: "S1", name: "Cumple Lucía" },
+  { date:"2026-09-11", hour:"17:00", zone:"principal", tableId:"B1", name:"Vega" },
+  { date:"2026-09-11", hour:"17:00", zone:"principal", tableId:"M6", name:"Castro" },
+  { date:"2026-09-11", hour:"17:00", zone:"sillones", tableId:"S2", name:"Evento corp." },
+  { date:"2026-09-11", hour:"17:00", zone:"sillones", tableId:"S1", name:"Cumple Lucía" },
   // 18:00
-  { date: "2026-09-11", hour: "18:00", zone: "principal", tableId: "B1", name: "Ortiz" },
-  { date: "2026-09-11", hour: "18:00", zone: "principal", tableId: "B2", name: "Marín" },
-  { date: "2026-09-11", hour: "18:00", zone: "principal", tableId: "M1", name: "Iglesias" },
-  { date: "2026-09-11", hour: "18:00", zone: "principal", tableId: "M6", name: "Peña" },
-  { date: "2026-09-11", hour: "18:00", zone: "terraza", tableId: "T15", name: "Reyes" },
+  { date:"2026-09-11", hour:"18:00", zone:"principal", tableId:"B1", name:"Ortiz" },
+  { date:"2026-09-11", hour:"18:00", zone:"principal", tableId:"B2", name:"Marín" },
+  { date:"2026-09-11", hour:"18:00", zone:"principal", tableId:"M1", name:"Iglesias" },
+  { date:"2026-09-11", hour:"18:00", zone:"principal", tableId:"M6", name:"Peña" },
+  { date:"2026-09-11", hour:"18:00", zone:"terraza", tableId:"T15", name:"Reyes" },
   // 19:00
-  { date: "2026-09-11", hour: "19:00", zone: "principal", tableId: "M4", name: "Blanco" },
-  { date: "2026-09-11", hour: "19:00", zone: "principal", tableId: "M9", name: "Marcos" },
+  { date:"2026-09-11", hour:"19:00", zone:"principal", tableId:"M4", name:"Blanco" },
+  { date:"2026-09-11", hour:"19:00", zone:"principal", tableId:"M9", name:"Marcos" },
   // 20:00 — MUY lleno
-  { date: "2026-09-11", hour: "20:00", zone: "principal", tableId: "B1", name: "Molina" },
-  { date: "2026-09-11", hour: "20:00", zone: "principal", tableId: "B2", name: "Rubio" },
-  { date: "2026-09-11", hour: "20:00", zone: "principal", tableId: "M1", name: "Delgado" },
-  { date: "2026-09-11", hour: "20:00", zone: "principal", tableId: "M2", name: "Medina" },
-  { date: "2026-09-11", hour: "20:00", zone: "principal", tableId: "M5", name: "Guerrero" },
-  { date: "2026-09-11", hour: "20:00", zone: "principal", tableId: "M6", name: "Despedida" },
-  { date: "2026-09-11", hour: "20:00", zone: "principal", tableId: "M8", name: "Fiesta" },
-  { date: "2026-09-11", hour: "20:00", zone: "principal", tableId: "M9", name: "Santos" },
-  { date: "2026-09-11", hour: "20:00", zone: "sillones", tableId: "S1", name: "Herrera" },
-  { date: "2026-09-11", hour: "20:00", zone: "sillones", tableId: "S2", name: "Vargas" },
-  { date: "2026-09-11", hour: "20:00", zone: "sillones", tableId: "S3", name: "Evento" },
-  { date: "2026-09-11", hour: "20:00", zone: "sillones", tableId: "S5", name: "Prieto" },
-  { date: "2026-09-11", hour: "20:00", zone: "sillones", tableId: "S6", name: "Ortega" },
-  { date: "2026-09-11", hour: "20:00", zone: "terraza", tableId: "T10", name: "Ramos" },
-  { date: "2026-09-11", hour: "20:00", zone: "terraza", tableId: "T11", name: "Suárez" },
-  { date: "2026-09-11", hour: "20:00", zone: "terraza", tableId: "T12", name: "León" },
-  { date: "2026-09-11", hour: "20:00", zone: "terraza", tableId: "T14", name: "Méndez" },
-  { date: "2026-09-11", hour: "20:00", zone: "terraza", tableId: "T15", name: "Ramos" },
+  { date:"2026-09-11", hour:"20:00", zone:"principal", tableId:"B1", name:"Molina" },
+  { date:"2026-09-11", hour:"20:00", zone:"principal", tableId:"B2", name:"Rubio" },
+  { date:"2026-09-11", hour:"20:00", zone:"principal", tableId:"M1", name:"Delgado" },
+  { date:"2026-09-11", hour:"20:00", zone:"principal", tableId:"M2", name:"Medina" },
+  { date:"2026-09-11", hour:"20:00", zone:"principal", tableId:"M5", name:"Guerrero" },
+  { date:"2026-09-11", hour:"20:00", zone:"principal", tableId:"M6", name:"Despedida" },
+  { date:"2026-09-11", hour:"20:00", zone:"principal", tableId:"M8", name:"Fiesta" },
+  { date:"2026-09-11", hour:"20:00", zone:"principal", tableId:"M9", name:"Santos" },
+  { date:"2026-09-11", hour:"20:00", zone:"sillones", tableId:"S1", name:"Herrera" },
+  { date:"2026-09-11", hour:"20:00", zone:"sillones", tableId:"S2", name:"Vargas" },
+  { date:"2026-09-11", hour:"20:00", zone:"sillones", tableId:"S3", name:"Evento" },
+  { date:"2026-09-11", hour:"20:00", zone:"sillones", tableId:"S5", name:"Prieto" },
+  { date:"2026-09-11", hour:"20:00", zone:"sillones", tableId:"S6", name:"Ortega" },
+  { date:"2026-09-11", hour:"20:00", zone:"terraza", tableId:"T10", name:"Ramos" },
+  { date:"2026-09-11", hour:"20:00", zone:"terraza", tableId:"T11", name:"Suárez" },
+  { date:"2026-09-11", hour:"20:00", zone:"terraza", tableId:"T12", name:"León" },
+  { date:"2026-09-11", hour:"20:00", zone:"terraza", tableId:"T14", name:"Méndez" },
+  { date:"2026-09-11", hour:"20:00", zone:"terraza", tableId:"T15", name:"Ramos" },
   // 21:00
-  { date: "2026-09-11", hour: "21:00", zone: "principal", tableId: "M3", name: "Méndez" },
-  { date: "2026-09-11", hour: "21:00", zone: "principal", tableId: "M7", name: "Prieto" },
+  { date:"2026-09-11", hour:"21:00", zone:"principal", tableId:"M3", name:"Méndez" },
+  { date:"2026-09-11", hour:"21:00", zone:"principal", tableId:"M7", name:"Prieto" },
   // 22:00
-  { date: "2026-09-11", hour: "22:00", zone: "principal", tableId: "B1", name: "Carrasco" },
+  { date:"2026-09-11", hour:"22:00", zone:"principal", tableId:"B1", name:"Carrasco" },
 ];
 
 function getOccupied(date, hour, zone) {
-  // Mock fallback — used when API is not available
   return MOCK_RES.filter(r => r.date === date && r.hour === hour && r.zone === zone).map(r => r.tableId);
 }
 
-// ★ API-powered version used by FloorPlan via prop
-function useOccupiedAPI(zone, date, hour) {
-  const [occ, setOcc] = useState([]);
-  const [fromApi, setFromApi] = useState(false);
-  useEffect(() => {
-    if (!zone || !date || !hour) { setOcc([]); return; }
-    api.zones.getAvailability(zone, date, hour).then(data => {
-      if (data) {
-        setOcc(data.tables.filter(t => t.isOccupied).map(t => t.code));
-        setFromApi(true);
-      } else {
-        setOcc(getOccupied(date, hour, zone));
-        setFromApi(false);
-      }
-    });
-  }, [zone, date, hour]);
-  return occ;
-}
-
-function getHourStatus(date, hour, zone, people, apiOccupied = [], floorData) {
-  const floor = floorData || FLOOR[zone];
+function getHourStatus(date, hour, zone, people) {
+  const floor = FLOOR[zone];
   if (!floor) return "neutral";
-
-  const occ = apiOccupied.length > 0
-    ? apiOccupied
-    : getOccupied(date, hour, zone);
-
+  const occ = getOccupied(date, hour, zone);
   if (occ.length === floor.tables.length) return "full";
-
   const free = floor.tables.filter(t => !occ.includes(t.id));
-
   if (free.some(t => t.seats >= people)) return "free";
-
+  // Check combining adjacent free tables
   for (const t of free) {
-    const adjList = Array.isArray(t.adj) ? t.adj : [];
-    const adjFree = adjList.filter(aId => free.some(ft => ft.id === aId));
-
+    const adjFree = t.adj.filter(aId => free.some(ft => ft.id === aId));
     for (const aId of adjFree) {
       const at = free.find(ft => ft.id === aId);
-      if (at && t.seats + at.seats >= people) return "combine";
+      if (t.seats + at.seats >= people) return "combine";
     }
   }
-
   return "warn";
 }
 
 // ---- FLOOR PLAN (2D positioned, bird's-eye view) ----
-function FloorPlan({ zone, date, hour, people, selected, onSelect, apiOccupied, floorData }) {
-  const floor = floorData || FLOOR[zone];
+function FloorPlan({ zone, date, hour, people, selected, onSelect }) {
+  const floor = FLOOR[zone];
   if (!floor || !hour) return null;
-
-  const occ = apiOccupied && apiOccupied.length > 0
-    ? apiOccupied
-    : getOccupied(date, hour, zone);
-
+  const occ = getOccupied(date, hour, zone);
   const numP = parseInt(people) || 0;
   const selTables = floor.tables.filter(t => selected.includes(t.id));
   const totalSel = selTables.reduce((s, t) => s + t.seats, 0);
@@ -1316,23 +1349,23 @@ function FloorPlan({ zone, date, hour, people, selected, onSelect, apiOccupied, 
     const sz = 10;
     const pad = 4;
     if (seats <= 2) {
-      chairs.push({ x: w / 2 - sz / 2, y: -sz - pad }); // top
-      chairs.push({ x: w / 2 - sz / 2, y: h + pad }); // bottom
+      chairs.push({ x: w/2 - sz/2, y: -sz - pad }); // top
+      chairs.push({ x: w/2 - sz/2, y: h + pad }); // bottom
     } else if (seats <= 4) {
-      chairs.push({ x: w / 2 - sz / 2, y: -sz - pad });
-      chairs.push({ x: w / 2 - sz / 2, y: h + pad });
-      chairs.push({ x: -sz - pad, y: h / 2 - sz / 2 });
-      chairs.push({ x: w + pad, y: h / 2 - sz / 2 });
+      chairs.push({ x: w/2 - sz/2, y: -sz - pad });
+      chairs.push({ x: w/2 - sz/2, y: h + pad });
+      chairs.push({ x: -sz - pad, y: h/2 - sz/2 });
+      chairs.push({ x: w + pad, y: h/2 - sz/2 });
     } else {
-      chairs.push({ x: w * 0.25 - sz / 2, y: -sz - pad });
-      chairs.push({ x: w * 0.75 - sz / 2, y: -sz - pad });
-      chairs.push({ x: w * 0.25 - sz / 2, y: h + pad });
-      chairs.push({ x: w * 0.75 - sz / 2, y: h + pad });
-      chairs.push({ x: -sz - pad, y: h * 0.33 - sz / 2 });
-      chairs.push({ x: w + pad, y: h * 0.33 - sz / 2 });
+      chairs.push({ x: w*0.25 - sz/2, y: -sz - pad });
+      chairs.push({ x: w*0.75 - sz/2, y: -sz - pad });
+      chairs.push({ x: w*0.25 - sz/2, y: h + pad });
+      chairs.push({ x: w*0.75 - sz/2, y: h + pad });
+      chairs.push({ x: -sz - pad, y: h*0.33 - sz/2 });
+      chairs.push({ x: w + pad, y: h*0.33 - sz/2 });
       if (seats > 6) {
-        chairs.push({ x: -sz - pad, y: h * 0.66 - sz / 2 });
-        chairs.push({ x: w + pad, y: h * 0.66 - sz / 2 });
+        chairs.push({ x: -sz - pad, y: h*0.66 - sz/2 });
+        chairs.push({ x: w + pad, y: h*0.66 - sz/2 });
       }
     }
     return chairs.slice(0, seats);
@@ -1340,9 +1373,9 @@ function FloorPlan({ zone, date, hour, people, selected, onSelect, apiOccupied, 
 
   const stateColors = {
     free: { bg: "#d5e8d4", border: "#82b366", chair: "#82b366", text: "#2d6a2e" },
-    occ: { bg: "#f8cecc", border: "#b85450", chair: "#e57373", text: "#8b1a1a" },
-    sel: { bg: "#FFE082", border: "#F9A825", chair: "#FFD60A", text: "#1A1A2E" },
-    cmb: { bg: "#BBDEFB", border: "#42A5F5", chair: "#64B5F6", text: "#0D47A1" },
+    occ:  { bg: "#f8cecc", border: "#b85450", chair: "#e57373", text: "#8b1a1a" },
+    sel:  { bg: "#FFE082", border: "#F9A825", chair: "#FFD60A", text: "#1A1A2E" },
+    cmb:  { bg: "#BBDEFB", border: "#42A5F5", chair: "#64B5F6", text: "#0D47A1" },
   };
 
   return (
@@ -1350,10 +1383,10 @@ function FloorPlan({ zone, date, hour, people, selected, onSelect, apiOccupied, 
       <div className="fp2-header">
         <h4>{floor.name} — {hour}</h4>
         <div className="fp2-legend">
-          <span><span className="fp2-ldot" style={{ background: "#d5e8d4", borderColor: "#82b366" }} /> Libre</span>
-          <span><span className="fp2-ldot" style={{ background: "#f8cecc", borderColor: "#b85450" }} /> Reservada</span>
-          <span><span className="fp2-ldot" style={{ background: "#FFE082", borderColor: "#F9A825" }} /> Tu selección</span>
-          <span><span className="fp2-ldot" style={{ background: "#BBDEFB", borderColor: "#42A5F5" }} /> Combinable</span>
+          <span><span className="fp2-ldot" style={{background:"#d5e8d4",borderColor:"#82b366"}}/> Libre</span>
+          <span><span className="fp2-ldot" style={{background:"#f8cecc",borderColor:"#b85450"}}/> Reservada</span>
+          <span><span className="fp2-ldot" style={{background:"#FFE082",borderColor:"#F9A825"}}/> Tu selección</span>
+          <span><span className="fp2-ldot" style={{background:"#BBDEFB",borderColor:"#42A5F5"}}/> Combinable</span>
         </div>
       </div>
 
@@ -1399,7 +1432,7 @@ function FloorPlan({ zone, date, hour, people, selected, onSelect, apiOccupied, 
         <div className={`fp2-summary ${enough ? "fp2-ok" : "fp2-need"}`}>
           {enough ? (
             <>
-              <svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#7CB342" /><path d="M7 12l3 3 7-7" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#7CB342"/><path d="M7 12l3 3 7-7" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
               <div>
                 <strong>{selected.length > 1 ? `${selected.join(" + ")} combinadas` : selected[0]} — {totalSel} plazas</strong>
                 <span>Perfecto para tu grupo de {numP} personas</span>
@@ -1407,7 +1440,7 @@ function FloorPlan({ zone, date, hour, people, selected, onSelect, apiOccupied, 
             </>
           ) : (
             <>
-              <svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#FF9800" /><path d="M12 7v6M12 16v1" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" fill="none" /></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#FF9800"/><path d="M12 7v6M12 16v1" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" fill="none"/></svg>
               <div>
                 <strong>{totalSel} plazas seleccionadas — necesitas {numP}</strong>
                 <span>Haz clic en una mesa adyacente azul para completar las plazas</span>
@@ -1421,52 +1454,38 @@ function FloorPlan({ zone, date, hour, people, selected, onSelect, apiOccupied, 
 }
 
 // ---- HOUR GRID ----
-function HourGrid2({ date, zone, people, selectedHour, onSelect, apiOccupied, floorData }) {
+function HourGrid2({ date, zone, people, selectedHour, onSelect }) {
   if (!date || !zone) return null;
   const numP = parseInt(people) || 0;
-
   return (
     <div className="hour-grid">
-      <label style={{ fontFamily: "'Lilita One',sans-serif", color: "var(--black)", marginBottom: ".5rem", display: "block", fontSize: ".95rem" }}>
-        Selecciona hora *
-      </label>
-
+      <label style={{ fontFamily:"'Lilita One',sans-serif", color:"var(--black)", marginBottom:".5rem", display:"block", fontSize:".95rem" }}>Selecciona hora *</label>
       <div className="hg-slots">
         {HOURS.map(h => {
-          const st = numP > 0
-            ? getHourStatus(date, h, zone, numP, h === selectedHour ? apiOccupied : [], floorData)
-            : "neutral";
-
+          const st = numP > 0 ? getHourStatus(date, h, zone, numP) : "neutral";
           return (
-            <button
-              key={h}
-              className={`hg-slot ${st} ${selectedHour === h ? "sel" : ""}`}
-              onClick={() => onSelect(h)}
-            >
+            <button key={h} className={`hg-slot ${st} ${selectedHour===h?"sel":""}`} onClick={() => onSelect(h)}>
               <span className="hg-time">{h}</span>
               {numP > 0 && <span className={`hg-dot ${st}`} />}
             </button>
           );
         })}
       </div>
-
-      {numP > 0 && (
-        <div className="hg-legend">
-          <span><span className="hg-dot free" /> Disponible</span>
-          <span><span className="hg-dot combine" /> Combinable</span>
-          <span><span className="hg-dot warn" /> Sin hueco</span>
-          <span><span className="hg-dot full" /> Completa</span>
-        </div>
-      )}
+      {numP > 0 && <div className="hg-legend">
+        <span><span className="hg-dot free"/> Disponible</span>
+        <span><span className="hg-dot combine"/> Combinable</span>
+        <span><span className="hg-dot warn"/> Sin hueco</span>
+        <span><span className="hg-dot full"/> Completa</span>
+      </div>}
     </div>
   );
 }
 
 // ---- PReservas PAGE ----
 function PReservas() {
-  const [form, setForm] = useState({ name: "", email: "", phone: "", people: "", date: "", hour: "", zone: "", type: "", notes: "" });
   const FLOOR_LIVE = useApiZones(FLOOR);
   const apiOccupied = useOccupiedAPI(form.zone, form.date, form.hour);
+  const [form, setForm] = useState({ name:"", email:"", phone:"", people:"", date:"", hour:"", zone:"", type:"", notes:"" });
   const [step, setStep] = useState(1);
   const [selectedTables, setSelectedTables] = useState([]);
   const [specialMode, setSpecialMode] = useState(false);
@@ -1483,14 +1502,9 @@ function PReservas() {
   // Check if ANY combination can fit the group in this zone/hour
   const canFitSomehow = () => {
     if (!floor || !form.hour) return true;
-
-    const occ = apiOccupied && apiOccupied.length > 0
-      ? apiOccupied
-      : getOccupied(form.date, form.hour, form.zone);
-
+    const occ = getOccupied(form.date, form.hour, form.zone);
     const free = floor.tables.filter(t => !occ.includes(t.id));
     const totalFree = free.reduce((s, t) => s + t.seats, 0);
-
     return totalFree >= numPeople;
   };
 
@@ -1502,19 +1516,19 @@ function PReservas() {
   // Step 4: special request sent
   if (step === 4) return (<>
     <div className="ph"><h1>Reservar Mesa</h1><p>Solicitud especial</p></div>
-    <section className="sec" style={{ textAlign: "center", maxWidth: 600, margin: "0 auto", padding: "3rem 2rem" }}>
-      <div style={{ background: "var(--white)", borderRadius: "var(--rl)", padding: "2.5rem", boxShadow: "var(--sh)" }}>
-        {I.people(64, "#1A1A2E")}
-        <h3 style={{ fontFamily: "'Lilita One',sans-serif", color: "var(--black)", fontSize: "1.5rem", margin: "1rem 0 .5rem" }}>¡Solicitud enviada!</h3>
-        <p style={{ color: "var(--tm)", fontWeight: 600, marginBottom: "1.5rem", lineHeight: 1.6 }}>
-          Hemos recibido tu solicitud para <strong>{form.people} personas</strong> en <strong>{FLOOR_LIVE[form.zone]?.name}</strong> el <strong>{form.date}</strong> a las <strong>{form.hour}</strong>.<br /><br />
+    <section className="sec" style={{ textAlign:"center", maxWidth:600, margin:"0 auto", padding:"3rem 2rem" }}>
+      <div style={{ background:"var(--white)", borderRadius:"var(--rl)", padding:"2.5rem", boxShadow:"var(--sh)" }}>
+        {I.people(64,"#1A1A2E")}
+        <h3 style={{ fontFamily:"'Lilita One',sans-serif", color:"var(--black)", fontSize:"1.5rem", margin:"1rem 0 .5rem" }}>¡Solicitud enviada!</h3>
+        <p style={{ color:"var(--tm)", fontWeight:600, marginBottom:"1.5rem", lineHeight:1.6 }}>
+          Hemos recibido tu solicitud para <strong>{form.people} personas</strong> en <strong>{FLOOR_LIVE[form.zone]?.name}</strong> el <strong>{form.date}</strong> a las <strong>{form.hour}</strong>.<br/><br/>
           Nuestro equipo valorará si es posible reorganizar mesas y te contactará lo antes posible.
         </p>
-        <div className="av-msg av-no" style={{ textAlign: "left", maxWidth: 450, margin: "0 auto 1.5rem" }}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#FF9800" /><path d="M12 7v6M12 16v1" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" /></svg>
+        <div className="av-msg av-no" style={{ textAlign:"left", maxWidth:450, margin:"0 auto 1.5rem" }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#FF9800"/><path d="M12 7v6M12 16v1" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/></svg>
           <div><strong>Pendiente de confirmación</strong><span>Esto NO es una reserva confirmada. Espera nuestra respuesta.</span></div>
         </div>
-        <button className="btn btn-yellow" onClick={() => { setForm({ name: "", email: "", phone: "", people: "", date: "", hour: "", zone: "", type: "", notes: "" }); setStep(1); setSpecialMode(false); resetTables(); }}>Nueva reserva</button>
+        <button className="btn btn-yellow" onClick={() => { setForm({name:"",email:"",phone:"",people:"",date:"",hour:"",zone:"",type:"",notes:""}); setStep(1); setSpecialMode(false); resetTables(); }}>Nueva reserva</button>
       </div>
     </section>
   </>);
@@ -1522,11 +1536,11 @@ function PReservas() {
   // Step 3: confirmed
   if (step === 3) return (<>
     <div className="ph"><h1>Reservar Mesa</h1><p>¡Tu plan perfecto!</p></div>
-    <section className="sec" style={{ textAlign: "center", maxWidth: 600, margin: "0 auto", padding: "3rem 2rem" }}>
-      <div style={{ background: "var(--white)", borderRadius: "var(--rl)", padding: "2.5rem", boxShadow: "var(--sh)" }}>
+    <section className="sec" style={{ textAlign:"center", maxWidth:600, margin:"0 auto", padding:"3rem 2rem" }}>
+      <div style={{ background:"var(--white)", borderRadius:"var(--rl)", padding:"2.5rem", boxShadow:"var(--sh)" }}>
         {I.party(72)}
-        <h3 style={{ fontFamily: "'Lilita One',sans-serif", color: "var(--black)", fontSize: "1.5rem", margin: "1rem 0 .5rem" }}>¡Reserva confirmada!</h3>
-        <p style={{ color: "var(--tm)", fontWeight: 600, marginBottom: "1.5rem" }}>Te hemos enviado un email de confirmación</p>
+        <h3 style={{ fontFamily:"'Lilita One',sans-serif", color:"var(--black)", fontSize:"1.5rem", margin:"1rem 0 .5rem" }}>¡Reserva confirmada!</h3>
+        <p style={{ color:"var(--tm)", fontWeight:600, marginBottom:"1.5rem" }}>Te hemos enviado un email de confirmación</p>
         <div className="res-summary">
           <div className="res-row"><strong>Fecha</strong><span>{form.date}</span></div>
           <div className="res-row"><strong>Hora</strong><span>{form.hour}</span></div>
@@ -1535,22 +1549,22 @@ function PReservas() {
           <div className="res-row"><strong>Personas</strong><span>{form.people}</span></div>
           <div className="res-row"><strong>Nombre</strong><span>{form.name}</span></div>
         </div>
-        <div style={{ marginTop: "1.5rem" }}><button className="btn btn-yellow" onClick={() => { setForm({ name: "", email: "", phone: "", people: "", date: "", hour: "", zone: "", type: "", notes: "" }); setStep(1); resetTables(); }}>Nueva reserva</button></div>
+        <div style={{ marginTop:"1.5rem" }}><button className="btn btn-yellow" onClick={() => { setForm({name:"",email:"",phone:"",people:"",date:"",hour:"",zone:"",type:"",notes:""}); setStep(1); resetTables(); }}>Nueva reserva</button></div>
       </div>
     </section>
   </>);
 
   return (<>
     <div className="ph"><h1>Reservar Mesa</h1><p>¡Tu plan perfecto a un clic!</p></div>
-    <section className="sec rbg" style={{ background: "var(--cream)" }}>
+    <section className="sec rbg" style={{ background:"var(--cream)" }}>
       <div className="ctn">
         {/* STEP INDICATOR */}
         <div className="res-steps">
-          <div className={`res-step ${step >= 1 ? "active" : ""}`}><div className="rs-num">1</div><span>Elige mesa</span></div>
-          <div className="rs-line" />
-          <div className={`res-step ${step >= 2 ? "active" : ""}`}><div className="rs-num">2</div><span>Tus datos</span></div>
-          <div className="rs-line" />
-          <div className={`res-step ${step >= 3 ? "active" : ""}`}><div className="rs-num">3</div><span>Confirmación</span></div>
+          <div className={`res-step ${step>=1?"active":""}`}><div className="rs-num">1</div><span>Elige mesa</span></div>
+          <div className="rs-line"/>
+          <div className={`res-step ${step>=2?"active":""}`}><div className="rs-num">2</div><span>Tus datos</span></div>
+          <div className="rs-line"/>
+          <div className={`res-step ${step>=3?"active":""}`}><div className="rs-num">3</div><span>Confirmación</span></div>
         </div>
 
         {step === 1 && (
@@ -1559,57 +1573,41 @@ function PReservas() {
             <p className="res-card-sub">Selecciona fecha, zona y personas. Luego elige tu hora y haz clic en la mesa que prefieras.</p>
 
             <div className="res-mock-notice">
-              {I.star(18, "#FF9800")}
+              {I.star(18,"#FF9800")}
               <span>Demo: prueba la fecha <strong>11/09/2026</strong> para ver reservas de ejemplo</span>
             </div>
 
             <div className="res-selectors">
               <div className="fg">
                 <label>Fecha *</label>
-                <input type="date" value={form.date} onChange={e => { set("date", e.target.value); set("hour", ""); resetTables(); }} />
+                <input type="date" value={form.date} onChange={e => { set("date",e.target.value); set("hour",""); resetTables(); }} />
               </div>
               <div className="fg">
                 <label>Zona *</label>
-                <select value={form.zone} onChange={e => { set("zone", e.target.value); set("hour", ""); resetTables(); }}>
+                <select value={form.zone} onChange={e => { set("zone",e.target.value); set("hour",""); resetTables(); }}>
                   <option value="">Selecciona zona</option>
-                  {Object.entries(FLOOR_LIVE).map(([k, z]) => <option key={k} value={k}>{z.name} ({z.tables.length} mesas)</option>)}
+                  {Object.entries(FLOOR_LIVE).map(([k,z]) => <option key={k} value={k}>{z.name} ({z.tables.length} mesas)</option>)}
                 </select>
               </div>
               <div className="fg">
                 <label>Nº de personas *</label>
-                <select value={form.people} onChange={e => { set("people", e.target.value); resetTables(); }}>
+                <select value={form.people} onChange={e => { set("people",e.target.value); resetTables(); }}>
                   <option value="">Selecciona</option>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(n => <option key={n} value={n}>{n} {n === 1 ? "persona" : "personas"}</option>)}
+                  {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16].map(n => <option key={n} value={n}>{n} {n===1?"persona":"personas"}</option>)}
                 </select>
               </div>
             </div>
 
-            <HourGrid2
-              date={form.date}
-              zone={form.zone}
-              people={form.people}
-              selectedHour={form.hour}
-              onSelect={h => { set("hour", h); resetTables(); }}
-              apiOccupied={apiOccupied}
-              floorData={floor}
-            />
+            <HourGrid2 date={form.date} zone={form.zone} people={form.people} selectedHour={form.hour} onSelect={h => { set("hour",h); resetTables(); }} />
+
             {form.hour && form.zone && (
-              <FloorPlan
-                zone={form.zone}
-                date={form.date}
-                hour={form.hour}
-                people={form.people}
-                selected={selectedTables}
-                onSelect={setSelectedTables}
-                apiOccupied={apiOccupied}
-                floorData={floor}
-              />
+              <FloorPlan zone={form.zone} date={form.date} hour={form.hour} people={form.people} selected={selectedTables} onSelect={setSelectedTables} />
             )}
 
             {/* Special request when no combination possible */}
             {showSpecialOption && !specialMode && (
-              <div className="av-special" style={{ marginTop: "1rem" }}>
-                <div className="av-special-icon">{I.people(32, "#1A1A2E")}</div>
+              <div className="av-special" style={{marginTop:"1rem"}}>
+                <div className="av-special-icon">{I.people(32,"#1A1A2E")}</div>
                 <div className="av-special-text">
                   <strong>¿Sois un grupo grande?</strong>
                   <p>No hay plazas suficientes en esta zona/hora. Envía una solicitud y nuestro equipo valorará si puede reorganizar mesas para vosotros.</p>
@@ -1623,25 +1621,25 @@ function PReservas() {
               <div className="special-form">
                 <div className="special-form-head">
                   <h3>Solicitud para grupo grande</h3>
-                  <p>Nuestro equipo valorará si es posible reorganizar mesas para {form.people} personas en {FLOOR[form.zone]?.name} el {form.date} a las {form.hour}.</p>
+                  <p>Nuestro equipo valorará si es posible reorganizar mesas para {form.people} personas en {FLOOR_LIVE[form.zone]?.name} el {form.date} a las {form.hour}.</p>
                 </div>
-                <div className="fgrid" style={{ maxWidth: 600, margin: "0 auto" }}>
-                  <div className="fg"><label>Nombre *</label><input type="text" placeholder="Tu nombre" value={form.name} onChange={e => set("name", e.target.value)} /></div>
-                  <div className="fg"><label>Email *</label><input type="email" placeholder="tu@email.com" value={form.email} onChange={e => set("email", e.target.value)} /></div>
-                  <div className="fg"><label>Teléfono *</label><input type="tel" placeholder="600 123 456" value={form.phone} onChange={e => set("phone", e.target.value)} /></div>
-                  <div className="fg"><label>Tipo de evento</label><select value={form.type} onChange={e => set("type", e.target.value)}><option value="">Selecciona</option><option>Cumpleaños</option><option>Evento privado</option><option>Afterwork</option></select></div>
-                  <div className="fg full"><label>Cuéntanos *</label><textarea placeholder="Ej: Somos 14 amigos que queremos celebrar un cumpleaños, necesitaríamos mesas juntas..." value={form.notes} onChange={e => set("notes", e.target.value)} /></div>
+                <div className="fgrid" style={{ maxWidth:600, margin:"0 auto" }}>
+                  <div className="fg"><label>Nombre *</label><input type="text" placeholder="Tu nombre" value={form.name} onChange={e => set("name",e.target.value)} /></div>
+                  <div className="fg"><label>Email *</label><input type="email" placeholder="tu@email.com" value={form.email} onChange={e => set("email",e.target.value)} /></div>
+                  <div className="fg"><label>Teléfono *</label><input type="tel" placeholder="600 123 456" value={form.phone} onChange={e => set("phone",e.target.value)} /></div>
+                  <div className="fg"><label>Tipo de evento</label><select value={form.type} onChange={e => set("type",e.target.value)}><option value="">Selecciona</option><option>Cumpleaños</option><option>Evento privado</option><option>Afterwork</option></select></div>
+                  <div className="fg full"><label>Cuéntanos *</label><textarea placeholder="Ej: Somos 14 amigos que queremos celebrar un cumpleaños, necesitaríamos mesas juntas..." value={form.notes} onChange={e => set("notes",e.target.value)} /></div>
                 </div>
-                <div style={{ display: "flex", justifyContent: "center", gap: "1rem", marginTop: "1.5rem" }}>
+                <div style={{ display:"flex", justifyContent:"center", gap:"1rem", marginTop:"1.5rem" }}>
                   <button className="btn btn-dark btn-sm" onClick={() => setSpecialMode(false)}>Cancelar</button>
-                  <button className="btn btn-yellow" disabled={!(form.name && form.email && form.phone)} style={{ opacity: form.name && form.email && form.phone ? 1 : .4 }} onClick={() => { setSpecialMode(false); setStep(4); }}>Enviar solicitud</button>
+                  <button className="btn btn-yellow" disabled={!(form.name&&form.email&&form.phone)} style={{opacity:form.name&&form.email&&form.phone?1:.4}} onClick={() => { setSpecialMode(false); setStep(4); }}>Enviar solicitud</button>
                 </div>
               </div>
             )}
 
             {!specialMode && (
-              <div style={{ textAlign: "center", marginTop: "2rem" }}>
-                <button className="btn btn-yellow" disabled={!canProceed1} style={{ opacity: canProceed1 ? 1 : .4, cursor: canProceed1 ? "pointer" : "not-allowed", fontSize: "1.1rem", padding: ".9rem 2.5rem" }} onClick={() => canProceed1 && setStep(2)}>
+              <div style={{ textAlign:"center", marginTop:"2rem" }}>
+                <button className="btn btn-yellow" disabled={!canProceed1} style={{ opacity:canProceed1?1:.4, cursor:canProceed1?"pointer":"not-allowed", fontSize:"1.1rem", padding:".9rem 2.5rem" }} onClick={() => canProceed1 && setStep(2)}>
                   Continuar
                 </button>
               </div>
@@ -1653,18 +1651,18 @@ function PReservas() {
           <div className="res-card">
             <h2 className="res-card-title">Paso 2: Tus datos</h2>
             <p className="res-card-sub">
-              {selectedTables.length > 1 ? `Mesas ${selectedTables.join(" + ")}` : `Mesa ${selectedTables[0]}`} en {FLOOR[form.zone]?.name} · {form.date} a las {form.hour} · {form.people} personas
+              {selectedTables.length > 1 ? `Mesas ${selectedTables.join(" + ")}` : `Mesa ${selectedTables[0]}`} en {FLOOR_LIVE[form.zone]?.name} · {form.date} a las {form.hour} · {form.people} personas
             </p>
-            <div className="fgrid" style={{ maxWidth: 600, margin: "0 auto" }}>
-              <div className="fg"><label>Nombre *</label><input type="text" placeholder="Tu nombre" value={form.name} onChange={e => set("name", e.target.value)} /></div>
-              <div className="fg"><label>Email *</label><input type="email" placeholder="tu@email.com" value={form.email} onChange={e => set("email", e.target.value)} /></div>
-              <div className="fg"><label>Teléfono *</label><input type="tel" placeholder="600 123 456" value={form.phone} onChange={e => set("phone", e.target.value)} /></div>
-              <div className="fg"><label>Tipo de visita</label><select value={form.type} onChange={e => set("type", e.target.value)}><option value="">Selecciona</option><option>Visita normal</option><option>Cumpleaños</option><option>Evento privado</option><option>Afterwork</option></select></div>
-              <div className="fg full"><label>Observaciones</label><textarea placeholder="¿Algo especial?" value={form.notes} onChange={e => set("notes", e.target.value)} /></div>
+            <div className="fgrid" style={{ maxWidth:600, margin:"0 auto" }}>
+              <div className="fg"><label>Nombre *</label><input type="text" placeholder="Tu nombre" value={form.name} onChange={e => set("name",e.target.value)} /></div>
+              <div className="fg"><label>Email *</label><input type="email" placeholder="tu@email.com" value={form.email} onChange={e => set("email",e.target.value)} /></div>
+              <div className="fg"><label>Teléfono *</label><input type="tel" placeholder="600 123 456" value={form.phone} onChange={e => set("phone",e.target.value)} /></div>
+              <div className="fg"><label>Tipo de visita</label><select value={form.type} onChange={e => set("type",e.target.value)}><option value="">Selecciona</option><option>Visita normal</option><option>Cumpleaños</option><option>Evento privado</option><option>Afterwork</option></select></div>
+              <div className="fg full"><label>Observaciones</label><textarea placeholder="¿Algo especial?" value={form.notes} onChange={e => set("notes",e.target.value)} /></div>
             </div>
-            <div style={{ display: "flex", justifyContent: "center", gap: "1rem", marginTop: "2rem" }}>
+            <div style={{ display:"flex", justifyContent:"center", gap:"1rem", marginTop:"2rem" }}>
               <button className="btn btn-dark" onClick={() => setStep(1)}>Volver</button>
-              <button className="btn btn-yellow" disabled={!canProceed2} style={{ opacity: canProceed2 ? 1 : .4, cursor: canProceed2 ? "pointer" : "not-allowed" }} onClick={() => canProceed2 && setStep(3)}>Confirmar reserva</button>
+              <button className="btn btn-yellow" disabled={!canProceed2} style={{ opacity:canProceed2?1:.4, cursor:canProceed2?"pointer":"not-allowed" }} onClick={() => canProceed2 && setStep(3)}>Confirmar reserva</button>
             </div>
           </div>
         )}
@@ -1723,13 +1721,18 @@ function PContacto() {
 export default function App() {
   const [page, setPage] = useState("inicio");
   const [st, setSt] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
+  const auth = useAuth();
   useEffect(() => { const h = () => setSt(window.scrollY > 400); window.addEventListener("scroll", h); return () => window.removeEventListener("scroll", h); }, []);
-  const pages = { inicio: <PInicio setPage={setPage} />, juegos: <PJuegos />, carta: <PCarta />, preguntas: <PPreguntas setPage={setPage} />, reservas: <PReservas />, nosotros: <PNosotros />, contacto: <PContacto /> };
+  useEffect(() => { if (page === "cuenta" && !auth.isLoggedIn) { setShowAuth(true); setPage("inicio"); } }, [page, auth.isLoggedIn]);
+  const pages = { inicio: <PInicio setPage={setPage} />, juegos: <PJuegos />, carta: <PCarta />, preguntas: <PPreguntas setPage={setPage} />, reservas: <PReservas />, nosotros: <PNosotros />, contacto: <PContacto />, cuenta: auth.isLoggedIn ? <PMiCuenta auth={auth} setPage={setPage} /> : null };
   return (<>
     <style>{CSS}</style>
-    <Nav page={page} setPage={setPage} />
+    <Nav page={page} setPage={setPage} auth={auth} onLogin={() => setShowAuth(true)} />
     <main>{pages[page] || pages.inicio}</main>
     <Foot setPage={setPage} />
+    <DexterChat />
     <button className={`sctop ${st ? "vis" : ""}`} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>↑</button>
+    {showAuth && <AuthModal onClose={() => setShowAuth(false)} onAuth={auth} />}
   </>);
 }

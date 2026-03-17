@@ -8,17 +8,33 @@ datasource db {
 }
 
 // ===========================
-// ZONAS Y MESAS
+// CUSTOMERS (auth de clientes)
+// ===========================
+
+model Customer {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  isAutoCreated Boolean @default(false) // true si se creó al reservar
+  reservations Reservation[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ===========================
+// ZONES & TABLES
 // ===========================
 
 model Zone {
   id          String   @id @default(cuid())
-  name        String   // "Zona Principal"
-  slug        String   @unique // "principal"
+  name        String
+  slug        String   @unique
   description String?
-  mapWidth    Int      @default(720) // Ancho del plano visual
-  mapHeight   Int      @default(520) // Alto del plano visual
-  furniture   Json?    // Array de elementos decorativos [{type, x, y, w, h, label}]
+  mapWidth    Int      @default(720)
+  mapHeight   Int      @default(520)
+  furniture   Json?
   isActive    Boolean  @default(true)
   sortOrder   Int      @default(0)
   tables      Table[]
@@ -28,15 +44,15 @@ model Zone {
 
 model Table {
   id           String   @id @default(cuid())
-  code         String   // "M1", "B2", "S3", "T10"
-  label        String   // "Mesa 1", "Barra 2", "Sillón 3"
+  code         String
+  label        String
   seats        Int
-  posX         Float    // Posición X en el plano
-  posY         Float    // Posición Y en el plano
+  posX         Float
+  posY         Float
   width        Float    @default(80)
   height       Float    @default(65)
-  shape        String   @default("rect") // "rect", "round", "long"
-  adjacentIds  String[] // Códigos de mesas adyacentes ["M2","M4"]
+  shape        String   @default("rect")
+  adjacentIds  String[]
   isActive     Boolean  @default(true)
   zoneId       String
   zone         Zone     @relation(fields: [zoneId], references: [id])
@@ -47,32 +63,31 @@ model Table {
 }
 
 // ===========================
-// RESERVAS
+// RESERVATIONS
 // ===========================
 
 model Reservation {
   id               String            @id @default(cuid())
   date             DateTime          @db.Date
-  hour             String            // "12:00", "13:00"
+  hour             String
   people           Int
   status           ReservationStatus @default(CONFIRMED)
-
-  // Cliente
   customerName     String
   customerEmail    String
   customerPhone    String
-  eventType        String?           // "normal", "cumpleanos", "evento", "afterwork"
+  eventType        String?
   notes            String?
-
-  // Meta
   isCombined       Boolean           @default(false)
   isSpecialRequest Boolean           @default(false)
   staffNotes       String?
-  cancelToken      String?           @unique // Token para cancelar sin auth
+  cancelToken      String?           @unique
+
+  // Link to customer account (nullable for backwards compat)
+  customerId       String?
+  customer         Customer?         @relation(fields: [customerId], references: [id])
 
   tables           ReservationTable[]
   emails           EmailLog[]
-
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   cancelledAt      DateTime?
@@ -80,6 +95,7 @@ model Reservation {
   @@index([date, hour])
   @@index([customerEmail])
   @@index([cancelToken])
+  @@index([customerId])
 }
 
 model ReservationTable {
@@ -87,7 +103,6 @@ model ReservationTable {
   tableId       String
   reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
   table         Table       @relation(fields: [tableId], references: [id])
-
   @@id([reservationId, tableId])
 }
 
@@ -106,7 +121,7 @@ enum ReservationStatus {
 
 model EmailLog {
   id            String       @id @default(cuid())
-  type          String       // "confirmation", "cancellation", "staff-notify", "special-request"
+  type          String
   to            String
   subject       String
   sentAt        DateTime     @default(now())
@@ -117,12 +132,12 @@ model EmailLog {
 }
 
 // ===========================
-// JUEGOS
+// GAMES
 // ===========================
 
 model Game {
   id          String  @id @default(cuid())
-  externalId  Int?    @unique // ID del JSON original
+  externalId  Int?    @unique
   name        String
   description String?
   imageUrl    String?
@@ -132,17 +147,14 @@ model Game {
   durationMin Int
   durationMax Int
   ageMin      Int     @default(8)
-  difficulty  Int     @default(0) // 0-5
+  difficulty  Int     @default(0)
   isAvailable Boolean @default(true)
-  location    String? // Ubicación en estantería
-
-  categories GameCategory[]
-  mechanics  GameMechanic[]
-  types      GameType[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  location    String?
+  categories  GameCategory[]
+  mechanics   GameMechanic[]
+  types       GameType[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   @@index([name])
 }
 
@@ -169,7 +181,6 @@ model GameCategory {
   categoryId Int
   game       Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
   category   Category @relation(fields: [categoryId], references: [id])
-
   @@id([gameId, categoryId])
 }
 
@@ -178,7 +189,6 @@ model GameMechanic {
   mechanicId Int
   game       Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
   mechanic   Mechanic @relation(fields: [mechanicId], references: [id])
-
   @@id([gameId, mechanicId])
 }
 
@@ -187,12 +197,11 @@ model GameType {
   typeId Int
   game   Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
   type   Type @relation(fields: [typeId], references: [id])
-
   @@id([gameId, typeId])
 }
 
 // ===========================
-// USERS (Staff/Admin)
+// STAFF USERS
 // ===========================
 
 model User {

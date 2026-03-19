@@ -1483,12 +1483,12 @@ function HourGrid2({ date, zone, people, selectedHour, onSelect }) {
 
 // ---- PReservas PAGE ----
 function PReservas() {
-  const FLOOR_LIVE = useApiZones(FLOOR);
-  const apiOccupied = useOccupiedAPI(form.zone, form.date, form.hour);
   const [form, setForm] = useState({ name:"", email:"", phone:"", people:"", date:"", hour:"", zone:"", type:"", notes:"" });
   const [step, setStep] = useState(1);
   const [selectedTables, setSelectedTables] = useState([]);
   const [specialMode, setSpecialMode] = useState(false);
+  const FLOOR_LIVE = useApiZones(FLOOR);
+  const apiOccupied = useOccupiedAPI(form.zone, form.date, form.hour);
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const floor = FLOOR_LIVE[form.zone];

@@ -78,30 +78,23 @@ export class ChatService {
     }
 
     if (!this.groqApiKey) {
+      // Fallback: sin API key, responder con mensaje genérico
       return {
         reply: 'Lo siento, no puedo responder ahora. Contacta con nosotros en hola@elbunker.es o llama al 912 345 678. ¡Estaremos encantados de ayudarte!',
         source: 'fallback',
       };
     }
-
-    // ✅ FIX: Todas las consultas a Prisma dentro de try/catch
-    // Si la DB no está lista o los juegos no están sembrados, Dexter
-    // sigue funcionando sin contexto de juegos (no lanza 500).
+    // Build context: search for games if the message mentions games
     let gameContext = '';
     const gameMentionRegex = /juego|jugar|partida|recomienda|busco|quiero.*juego/i;
     if (gameMentionRegex.test(message)) {
       try {
-        const searchTerms = message
-          .replace(/[^a-záéíóúñü\s]/gi, '')
-          .split(/\s+/)
-          .filter(w => w.length > 3);
+        const searchTerms = message.replace(/[^a-záéíóúñü\s]/gi, '').split(/\s+/).filter(w => w.length > 3);
 
         if (searchTerms.length > 0) {
           const games = await this.prisma.game.findMany({
             where: {
-              OR: searchTerms.map(term => ({
-                name: { contains: term, mode: 'insensitive' as any },
-              })),
+              OR: searchTerms.map(term => ({ name: { contains: term, mode: 'insensitive' as any } })),
             },
             take: 5,
             include: {
@@ -111,17 +104,13 @@ export class ChatService {
           });
 
           if (games.length > 0) {
-            gameContext =
-              '\n\nJUEGOS ENCONTRADOS RELEVANTES:\n' +
-              games
-                .map(
-                  g =>
-                    `- ${g.name}: ${g.playersMin}-${g.playersMax} jugadores, ${g.durationMin}-${g.durationMax} min, dificultad ${g.difficulty}/5, edad ${g.ageMin}+. Tipos: ${g.types.map(t => t.type.name).join(', ')}. Categorías: ${g.categories.map(c => c.category.name).join(', ')}.`,
-                )
-                .join('\n');
+            gameContext = '\n\nJUEGOS ENCONTRADOS RELEVANTES:\n' + games.map(g =>
+              `- ${g.name}: ${g.playersMin}-${g.playersMax} jugadores, ${g.durationMin}-${g.durationMax} min, dificultad ${g.difficulty}/5, edad ${g.ageMin}+. Tipos: ${g.types.map(t => t.type.name).join(', ')}. Categorías: ${g.categories.map(c => c.category.name).join(', ')}.`
+            ).join('\n');
           }
         }
 
+        // Also get some popular recommendations if no specific game found
         if (!gameContext) {
           const popular = await this.prisma.game.findMany({
             where: { difficulty: { lte: 2 }, isAvailable: true },
@@ -130,29 +119,25 @@ export class ChatService {
             include: { types: { include: { type: true } } },
           });
           if (popular.length > 0) {
-            gameContext =
-              '\n\nJUEGOS POPULARES FÁCILES:\n' +
-              popular
-                .map(
-                  g =>
-                    `- ${g.name}: ${g.playersMin}-${g.playersMax} jugadores, ${g.durationMin} min, dificultad ${g.difficulty}/5`,
-                )
-                .join('\n');
+            gameContext = '\n\nJUEGOS POPULARES FÁCILES:\n' + popular.map(g =>
+              `- ${g.name}: ${g.playersMin}-${g.playersMax} jugadores, ${g.durationMin} min, dificultad ${g.difficulty}/5`
+            ).join('\n');
           }
         }
       } catch (dbErr) {
-        // Si la DB falla, Dexter responde sin contexto de juegos
         console.error('Chat: error al buscar juegos en DB:', dbErr);
       }
     }
 
+    // Build messages array for Groq
     const messages = [
       { role: 'system', content: DEXTER_SYSTEM_PROMPT + gameContext },
-      ...history.slice(-6),
+      ...history.slice(-6), // Keep last 6 messages for context
       { role: 'user', content: message },
     ];
 
     try {
+      // Call Groq API (compatible with OpenAI format)
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {

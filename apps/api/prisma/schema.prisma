@@ -17,7 +17,7 @@ model Customer {
   passwordHash String
   name         String
   phone        String?
-  isAutoCreated Boolean @default(false) // true si se creó al reservar
+  isAutoCreated Boolean @default(false)
   reservations Reservation[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -70,6 +70,8 @@ model Reservation {
   id               String            @id @default(cuid())
   date             DateTime          @db.Date
   hour             String
+  // Duration in hours (1-5 Tue-Thu, 1-4 Fri-Sun)
+  duration         Int               @default(2)
   people           Int
   status           ReservationStatus @default(CONFIRMED)
   customerName     String
@@ -82,7 +84,6 @@ model Reservation {
   staffNotes       String?
   cancelToken      String?           @unique
 
-  // Link to customer account (nullable for backwards compat)
   customerId       String?
   customer         Customer?         @relation(fields: [customerId], references: [id])
 
@@ -140,6 +141,7 @@ model Game {
   externalId  Int?    @unique
   name        String
   description String?
+  gameplay    String?
   imageUrl    String?
   playersMin  Int
   playersMax  Int

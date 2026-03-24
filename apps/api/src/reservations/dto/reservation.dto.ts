@@ -11,16 +11,23 @@ export class CreateReservationDto {
   @Matches(/^\d{2}:\d{2}$/, { message: 'Hour must be in HH:MM format' })
   hour: string;
 
+  @ApiProperty({ example: 2, description: 'Duration in hours (1-5 Tue-Thu, 1-4 Fri-Sun)' })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  duration?: number;
+
   @ApiProperty({ example: 'principal' })
   @IsString()
   zoneSlug: string;
 
-  @ApiProperty({ example: ['M4', 'M5'], description: 'Table codes to reserve' })
+  @ApiProperty({ example: ['M4', 'M5'] })
   @IsArray()
   @IsString({ each: true })
   tableCodes: string[];
 
-  @ApiProperty({ example: 8 })
+  @ApiProperty({ example: 4 })
   @IsInt()
   @Min(1)
   @Max(20)
@@ -43,7 +50,7 @@ export class CreateReservationDto {
   @IsString()
   eventType?: string;
 
-  @ApiPropertyOptional({ example: 'Celebramos el cumple de María' })
+  @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   notes?: string;
@@ -58,6 +65,13 @@ export class SpecialRequestDto {
   @IsString()
   @Matches(/^\d{2}:\d{2}$/)
   hour: string;
+
+  @ApiPropertyOptional({ example: 2 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  duration?: number;
 
   @ApiProperty({ example: 'principal' })
   @IsString()
@@ -81,12 +95,12 @@ export class SpecialRequestDto {
   @IsString()
   customerPhone: string;
 
-  @ApiPropertyOptional({ example: 'cumpleanos' })
+  @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   eventType?: string;
 
-  @ApiProperty({ example: 'Somos 14 amigos y necesitaríamos juntar mesas' })
+  @ApiProperty({ example: 'Somos 14 amigos' })
   @IsString()
   notes: string;
 }
@@ -107,7 +121,7 @@ export class CheckAvailabilityDto {
 }
 
 export class CancelReservationDto {
-  @ApiProperty({ example: 'juan@email.com', description: 'Email used when booking' })
+  @ApiProperty({ example: 'juan@email.com' })
   @IsEmail()
   email: string;
 }

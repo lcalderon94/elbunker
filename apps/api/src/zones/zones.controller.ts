@@ -22,12 +22,14 @@ export class ZonesController {
   @Get(':slug/availability')
   @ApiOperation({ summary: 'Check availability for a zone on a specific date and hour' })
   @ApiQuery({ name: 'date', example: '2026-09-11' })
-  @ApiQuery({ name: 'hour', example: '12:00' })
+  @ApiQuery({ name: 'hour', example: '18:00' })
+  @ApiQuery({ name: 'duration', required: false, type: Number, example: 2, description: 'Duration in hours (1-5)' })
   getAvailability(
     @Param('slug') slug: string,
     @Query('date') date: string,
     @Query('hour') hour: string,
+    @Query('duration') duration?: string,
   ) {
-    return this.zonesService.getAvailability(slug, date, hour);
+    return this.zonesService.getAvailability(slug, date, hour, duration ? +duration : 2);
   }
 }

@@ -33,7 +33,7 @@ const api = {
   chat: (message, history) => apiFetch('/chat', { method: 'POST', body: JSON.stringify({ message, history }) }),
   zones: {
     getAll: () => apiFetch('/zones'),
-    getAvailability: (slug, date, hour) => apiFetch('/zones/' + slug + '/availability?date=' + date + '&hour=' + hour),
+    getAvailability: (slug, date, hour, duration = 2) => apiFetch('/zones/' + slug + '/availability?date=' + date + '&hour=' + hour + '&duration=' + duration),
   },
   reservations: {
     create: (data) => apiFetch('/reservations', { method: 'POST', body: JSON.stringify(data) }),
@@ -65,15 +65,15 @@ function useApiZones(mockFloor) {
   return zones || mockFloor;
 }
 
-function useOccupiedAPI(zone, date, hour) {
+function useOccupiedAPI(zone, date, hour, duration = 2) {
   const [occ, setOcc] = useState([]);
   useEffect(() => {
     if (!zone || !date || !hour) { setOcc([]); return; }
-    api.zones.getAvailability(zone, date, hour).then(data => {
+    api.zones.getAvailability(zone, date, hour, duration).then(data => {
       if (data) setOcc(data.tables.filter(t => t.isOccupied).map(t => t.code));
       else setOcc(getOccupied(date, hour, zone));
     });
-  }, [zone, date, hour]);
+  }, [zone, date, hour, duration]);
   return occ;
 }
 
@@ -507,6 +507,11 @@ h1,h2,h3,h4{font-family:'Lilita One',sans-serif;font-weight:400}
 .gstat small{display:block;font-size:.7rem;color:var(--tl);font-weight:600}
 .gstat strong{display:block;font-size:.9rem;color:var(--black)}
 .gmodal-desc{color:var(--tm);font-size:.9rem;line-height:1.6;font-weight:600;margin-bottom:1rem}
+.gmodal-tab-btns{display:flex;gap:.4rem;margin-bottom:.75rem;border-bottom:2px solid var(--cream);padding-bottom:.4rem}
+.gmodal-tab-btn{background:none;border:none;padding:.35rem .8rem;font-family:'Lilita One',sans-serif;font-size:.82rem;color:var(--tm);cursor:pointer;border-radius:6px 6px 0 0;transition:all .15s}
+.gmodal-tab-btn:hover{background:var(--cream)}
+.gmodal-tab-btn.active{color:var(--black);background:var(--yellow);font-weight:700}
+.gmodal-tab-content{min-height:3rem}
 .gmodal-tags{display:flex;gap:.4rem;flex-wrap:wrap}
 .gtag{padding:.2rem .7rem;border-radius:50px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .gtag.green{background:#E8F5E9;color:#2E7D32}.gtag.red{background:#FFEBEE;color:#C62828}
@@ -540,8 +545,9 @@ h1,h2,h3,h4{font-family:'Lilita One',sans-serif;font-weight:400}
 .res-card-title{font-family:'Lilita One',sans-serif;color:var(--black);font-size:1.4rem;text-align:center;margin-bottom:.3rem}
 .res-card-sub{text-align:center;color:var(--tm);font-weight:600;margin-bottom:2rem;font-size:.9rem}
 .res-mock-notice{display:flex;align-items:center;gap:.6rem;background:#FFF3E0;border:2px solid #FFB74D;border-radius:12px;padding:.7rem 1.2rem;margin-bottom:1.5rem;font-size:.88rem;font-weight:600;color:#E65100}
-.res-selectors{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-bottom:1.5rem}
-@media(max-width:700px){.res-selectors{grid-template-columns:1fr}}
+.res-selectors{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem;margin-bottom:1.5rem}
+@media(max-width:900px){.res-selectors{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.res-selectors{grid-template-columns:1fr}}
 
 /* HOUR GRID */
 .hour-grid{margin-bottom:1.5rem}
@@ -785,6 +791,7 @@ function DexterChat() {
   const [messages, setMessages] = useState([{ role: "assistant", content: "¡Hola! Soy Dexter, el asistente de El Búnker. ¿En qué puedo ayudarte? Puedo resolver dudas sobre el local, la carta, los juegos, cómo reservar..." }]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [gameCard, setGameCard] = useState(null);
   const bottomRef = useRef(null);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
   const quickOptions = [{ label: "¿Cómo funciona?", msg: "¿Cómo funciona El Búnker?" }, { label: "Ver la carta", msg: "¿Qué tenéis para comer?" }, { label: "Juegos para 4", msg: "¿Qué juegos me recomiendas para 4 personas principiantes?" }, { label: "Reservar", msg: "¿Cómo puedo reservar?" }, { label: "Precios", msg: "¿Cuánto cuesta jugar?" }, { label: "Cumpleaños", msg: "¿Puedo celebrar un cumpleaños?" }];
@@ -794,18 +801,21 @@ function DexterChat() {
     setInput(""); setLoading(true);
     const history = messages.slice(-6).map(m => ({ role: m.role, content: m.content }));
     const result = await api.chat(msg.trim(), history);
-    setMessages(prev => [...prev, { role: "assistant", content: result?.reply || "Lo siento, no puedo responder ahora. Contacta con nosotros en hola@elbunker.es." }]);
+    const gamesData = result?.games ?? null;
+    setMessages(prev => [...prev, { role: "assistant", content: result?.reply || "Lo siento, no puedo responder ahora. Contacta con nosotros en hola@elbunker.es.", games: gamesData }]);
     setLoading(false);
   };
   if (!open) return (<button className="dexter-fab" onClick={() => setOpen(true)} title="Habla con Dexter"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 2C7.4 2 2 6.6 2 12.2c0 3.2 1.7 6.1 4.4 8L5 25l5.6-2.8c1.1.3 2.2.4 3.4.4 6.6 0 12-4.6 12-10.2S20.6 2 14 2z" fill="#FFD60A"/><circle cx="9" cy="12" r="1.5" fill="#1A1A2E"/><circle cx="14" cy="12" r="1.5" fill="#1A1A2E"/><circle cx="19" cy="12" r="1.5" fill="#1A1A2E"/></svg></button>);
   return (
+    <>
+    <GameModal game={gameCard} onClose={() => setGameCard(null)} />
     <div className="dexter-panel">
       <div className="dexter-header">
         <div style={{ display: "flex", alignItems: "center", gap: ".6rem" }}>{I.dice(28, "#FFD60A")}<div><div style={{ fontFamily: "'Lilita One',sans-serif", fontSize: "1rem", color: "var(--yellow)" }}>Dexter</div><div style={{ fontSize: ".7rem", color: "rgba(255,255,255,.6)", fontWeight: 600 }}>Asistente de El Búnker</div></div></div>
         <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", color: "rgba(255,255,255,.7)", fontSize: "1.3rem", cursor: "pointer" }}>×</button>
       </div>
       <div className="dexter-messages">
-        {messages.map((m, i) => (<div key={i} className={"dexter-msg dexter-" + m.role}>{m.role === "assistant" && <div className="dexter-avatar">{I.dice(18, "#FFD60A")}</div>}<div className="dexter-bubble">{m.content}</div></div>))}
+        {messages.map((m, i) => (<div key={i} className={"dexter-msg dexter-" + m.role}>{m.role === "assistant" && <div className="dexter-avatar">{I.dice(18, "#FFD60A")}</div>}<div className="dexter-bubble">{m.content}{m.games?.length > 0 && <div style={{ display: "flex", flexDirection: "column", gap: ".3rem", marginTop: ".6rem" }}>{m.games.map((g, gi) => <button key={gi} onClick={() => setGameCard(g)} style={{ background: "var(--yellow)", color: "#1A1A2E", border: "none", borderRadius: "8px", padding: ".35rem .8rem", fontWeight: 700, fontSize: ".8rem", cursor: "pointer", textAlign: "left" }}>🎲 {g.name}</button>)}</div>}</div></div>))}
         {loading && <div className="dexter-msg dexter-assistant"><div className="dexter-avatar">{I.dice(18, "#FFD60A")}</div><div className="dexter-bubble dexter-typing"><span/><span/><span/></div></div>}
         <div ref={bottomRef} />
         {messages.length <= 1 && <div className="dexter-quick">{quickOptions.map((q, i) => <button key={i} onClick={() => sendMsg(q.msg)}>{q.label}</button>)}</div>}
@@ -815,6 +825,7 @@ function DexterChat() {
         <button onClick={() => sendMsg(input)} disabled={loading || !input.trim()}><svg width="20" height="20" viewBox="0 0 20 20"><path d="M2 10l16-8-4 8 4 8z" fill="currentColor"/></svg></button>
       </div>
     </div>
+    </>
   );
 }
 
@@ -906,14 +917,25 @@ const DIFF_LABELS = ["", "Muy fácil", "Fácil", "Media", "Difícil", "Muy difí
 const DIFF_COLORS = ["", "#7CB342", "#7CB342", "#FFD60A", "#FF9800", "#FF6B6B"];
 
 function GameModal({ game, onClose }) {
+  const [activeTab, setActiveTab] = useState('desc');
+  const [detail, setDetail] = useState(null);
+
+  useEffect(() => {
+    if (!game) return;
+    setDetail(null);
+    setActiveTab('desc');
+    api.games.getById(game.id).then(data => { if (data) setDetail(data); });
+  }, [game?.id]);
+
   if (!game) return null;
-  const [id, name, pMin, pMax, pBest, dMin, dMax, diff, age, tids, cids, mids] = game;
-  const durText = dMin === dMax ? `${dMin} min` : `${dMin}-${dMax} min`;
-  const playText = pMin === pMax ? `${pMin}` : `${pMin}-${pMax}`;
-  
-  const typeList = tids ? tids.split(",").map(Number).filter(n => TYPE_NAMES[n]).map(n => ({id:n, name:TYPE_NAMES[n]})) : [];
-  const catList = cids ? cids.split(",").map(Number).filter(n => CAT_NAMES[n]).map(n => ({id:n, name:CAT_NAMES[n]})) : [];
-  const mechList = mids ? mids.split(",").map(Number).filter(n => MECH_NAMES[n]).map(n => ({id:n, name:MECH_NAMES[n]})) : [];
+
+  // Merge: detail (full DB fetch) overrides the basic game object from list/chat
+  const d = detail ? { ...game, ...detail } : game;
+  const durText = d.durationMin === d.durationMax ? `${d.durationMin} min` : `${d.durationMin}-${d.durationMax} min`;
+  const playText = d.playersMin === d.playersMax ? `${d.playersMin}` : `${d.playersMin}-${d.playersMax}`;
+  const typeList = d.types || [];
+  const catList = d.categories || [];
+  const mechList = d.mechanics || [];
 
   return (
     <div className="gmodal-overlay" onClick={onClose}>
@@ -921,28 +943,43 @@ function GameModal({ game, onClose }) {
         <button className="gmodal-close" onClick={onClose}>×</button>
         <div className="gmodal-grid">
           <div className="gmodal-img">
-            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjUFA-6mCcH1ZUv67poysi5QfY6ke4nd9cX57u458jrtInwR90Xoy661W0MMq9xLeXjPeUz7yq1-BYlN873J5583MfI86-4_zIMaKn6jIwoazB_QyxwrdSoKp4L-xqa55VqBG9QaysJYMI/s554/Gloomhaven.png" alt={name} style={{width:"100%",height:"auto",borderRadius:16,display:"block"}} />
+            {d.imageUrl ? (
+              <img src={d.imageUrl} alt={d.name} style={{width:"100%",height:"auto",borderRadius:16,display:"block"}} />
+            ) : (
+              <div style={{height:280,background:"linear-gradient(135deg,#8B5E3C,#E8A33C,#FFD60A)",borderRadius:16,display:"flex",alignItems:"center",justifyContent:"center",color:"rgba(255,255,255,.9)",fontFamily:"'Lilita One',sans-serif",fontSize:"1.1rem",padding:"1rem",textAlign:"center"}}>{d.name}</div>
+            )}
           </div>
           <div className="gmodal-info">
-            <h2>{name}</h2>
-            
+            <h2>{d.name}</h2>
+
             {typeList.length > 0 && <div className="gmodal-tagrow"><span className="gmodal-taglabel">Tipos:</span>{typeList.map(t => <span key={t.id} className="gtag tipo">{t.name}</span>)}</div>}
             {catList.length > 0 && <div className="gmodal-tagrow"><span className="gmodal-taglabel">Categorías:</span>{catList.map(c => <span key={c.id} className="gtag cat">{c.name}</span>)}</div>}
-            
+
             <div className="gmodal-diff">
-              <span className="gdot" style={{ background: DIFF_COLORS[diff] || "#999" }} />
-              <span>Dificultad: {diff}/5 — {DIFF_LABELS[diff] || "—"}</span>
+              <span className="gdot" style={{ background: DIFF_COLORS[d.difficulty] || "#999" }} />
+              <span>Dificultad: {d.difficulty}/5 — {DIFF_LABELS[d.difficulty] || "—"}</span>
             </div>
-            
+
             <div className="gmodal-stats">
               <div className="gstat">{I.clock(20, "#2D2D2D")}<div><small>Duración</small><strong>{durText}</strong></div></div>
               <div className="gstat">{I.people(20, "#2D2D2D")}<div><small>Jugadores</small><strong>{playText}</strong></div></div>
-              <div className="gstat">{I.star(20, "#2D2D2D")}<div><small>Mejor para</small><strong>{pBest}</strong></div></div>
-              <div className="gstat">{I.dice(20, "#2D2D2D")}<div><small>Edad</small><strong>{age}+</strong></div></div>
+              <div className="gstat">{I.star(20, "#2D2D2D")}<div><small>Mejor para</small><strong>{d.playersBest || "—"}</strong></div></div>
+              <div className="gstat">{I.dice(20, "#2D2D2D")}<div><small>Edad</small><strong>{d.ageMin}+</strong></div></div>
             </div>
-            
-            <p className="gmodal-desc">¡Ven a El Búnker y prueba {name}! Pregunta a nuestro equipo y te explicamos las reglas en minutos.</p>
-            
+
+            {detail && (detail.description || detail.gameplay) && (
+              <div>
+                <div className="gmodal-tab-btns">
+                  {detail.description && <button className={`gmodal-tab-btn${activeTab==='desc'?' active':''}`} onClick={() => setActiveTab('desc')}>Descripción</button>}
+                  {detail.gameplay && <button className={`gmodal-tab-btn${activeTab==='play'?' active':''}`} onClick={() => setActiveTab('play')}>Jugabilidad</button>}
+                </div>
+                <div className="gmodal-tab-content">
+                  {activeTab === 'desc' && detail.description && <p className="gmodal-desc">{detail.description}</p>}
+                  {activeTab === 'play' && detail.gameplay && <p className="gmodal-desc">{detail.gameplay}</p>}
+                </div>
+              </div>
+            )}
+
             {mechList.length > 0 && <div className="gmodal-tagrow"><span className="gmodal-taglabel">Mecánicas:</span>{mechList.map(m => <span key={m.id} className="gtag mech">{m.name}</span>)}</div>}
           </div>
         </div>
@@ -959,25 +996,33 @@ function PJuegos() {
   const [typeFilter, setTypeFilter] = useState(0);
   const [selected, setSelected] = useState(null);
   const [page, setPage] = useState(1);
-  const PER_PAGE = 24;
+  const [games, setGames] = useState([]);
+  const [pagination, setPagination] = useState({ total: 0, totalPages: 0 });
+  const [loading, setLoading] = useState(true);
+  const [types, setTypes] = useState([]);
 
-  const filtered = GDATA.filter(g => {
-    const [id, name, pMin, pMax, pBest, dMin, dMax, diff, age, tids] = g;
-    if (search && !name.toLowerCase().includes(search.toLowerCase())) return false;
-    if (players > 0 && !(pMin <= players && pMax >= players)) return false;
-    if (diff > maxDiff) return false;
-    if (dMin > maxDur) return false;
-    if (typeFilter > 0 && !(tids||"").split(",").includes(String(typeFilter))) return false;
-    return true;
-  });
+  useEffect(() => {
+    api.games.getTypes().then(data => { if (data) setTypes(data); });
+  }, []);
 
-  const totalPages = Math.ceil(filtered.length / PER_PAGE);
-  const shown = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  useEffect(() => {
+    setLoading(true);
+    const params = { page, limit: 24 };
+    if (search) params.search = search;
+    if (typeFilter) params.typeId = typeFilter;
+    if (players) params.players = players;
+    if (maxDiff < 5) params.maxDifficulty = maxDiff;
+    if (maxDur < 240) params.maxDuration = maxDur;
+    api.games.search(params).then(data => {
+      if (data) { setGames(data.games); setPagination(data.pagination); }
+      setLoading(false);
+    });
+  }, [search, typeFilter, players, maxDiff, maxDur, page]);
 
   const resetFilters = () => { setSearch(""); setPlayers(0); setMaxDiff(5); setMaxDur(240); setTypeFilter(0); setPage(1); };
 
   return (<>
-    <div className="ph"><h1>Nuestros Juegos</h1><p>¡Una colección de {GDATA.length} juegos merece una exquisita presentación!</p></div>
+    <div className="ph"><h1>Nuestros Juegos</h1><p>¡Una colección de {pagination.total || "500+"} juegos!</p></div>
     <section className="sec rbg" style={{ background: "var(--cream)" }}>
       <div className="ctn">
         <div className="jbrowser">
@@ -1015,33 +1060,37 @@ function PJuegos() {
               <label>Tipo de juego</label>
               <div className="jtype-grid">
                 <button className={`jtype-btn ${typeFilter===0?"on":""}`} onClick={() => {setTypeFilter(0);setPage(1);}}>Todos</button>
-                {Object.entries(TYPE_NAMES).map(([tid,tname]) => (
-                  <button key={tid} className={`jtype-btn ${typeFilter===+tid?"on":""}`} onClick={() => {setTypeFilter(+tid);setPage(1);}}>{tname}</button>
+                {types.map(t => (
+                  <button key={t.id} className={`jtype-btn ${typeFilter===t.id?"on":""}`} onClick={() => {setTypeFilter(t.id);setPage(1);}}>{t.name}</button>
                 ))}
               </div>
             </div>
 
-            <div className="jcount">{filtered.length} juegos encontrados</div>
+            <div className="jcount">{loading ? "Buscando..." : `${pagination.total} juegos encontrados`}</div>
           </aside>
 
           {/* GRID */}
           <div className="jmain">
-            {shown.length === 0 && <div style={{ textAlign: "center", padding: "3rem", color: "var(--tm)" }}><p style={{ fontFamily: "'Lilita One',sans-serif", fontSize: "1.3rem", marginBottom: ".5rem" }}>No hay juegos con esos filtros</p><p style={{ fontWeight: 600 }}>Prueba a cambiar los filtros o limpiar la búsqueda</p></div>}
+            {loading && <div style={{ textAlign: "center", padding: "2rem", color: "var(--tm)" }}>Cargando juegos...</div>}
+            {!loading && games.length === 0 && <div style={{ textAlign: "center", padding: "3rem", color: "var(--tm)" }}><p style={{ fontFamily: "'Lilita One',sans-serif", fontSize: "1.3rem", marginBottom: ".5rem" }}>No hay juegos con esos filtros</p><p style={{ fontWeight: 600 }}>Prueba a cambiar los filtros o limpiar la búsqueda</p></div>}
             <div className="jgrid">
-              {shown.map(g => {
-                const [id, name, pMin, pMax, pBest, dMin, dMax, diff, age] = g;
-                const durText = dMin === dMax ? `${dMin}` : `${dMin}-${dMax}`;
-                const playText = pMin === pMax ? `${pMin}` : `${pMin}-${pMax}`;
+              {games.map(g => {
+                const durText = g.durationMin === g.durationMax ? `${g.durationMin}` : `${g.durationMin}-${g.durationMax}`;
+                const playText = g.playersMin === g.playersMax ? `${g.playersMin}` : `${g.playersMin}-${g.playersMax}`;
                 return (
-                  <div className="jcard" key={id} onClick={() => setSelected(g)}>
-                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjUFA-6mCcH1ZUv67poysi5QfY6ke4nd9cX57u458jrtInwR90Xoy661W0MMq9xLeXjPeUz7yq1-BYlN873J5583MfI86-4_zIMaKn6jIwoazB_QyxwrdSoKp4L-xqa55VqBG9QaysJYMI/s554/Gloomhaven.png" alt={name} style={{width:"100%",height:120,objectFit:"cover",display:"block"}} />
+                  <div className="jcard" key={g.id} onClick={() => setSelected(g)}>
+                    {g.imageUrl ? (
+                      <img src={g.imageUrl} alt={g.name} style={{width:"100%",height:120,objectFit:"cover",display:"block"}} />
+                    ) : (
+                      <div style={{width:"100%",height:120,background:"linear-gradient(135deg,#8B5E3C,#E8A33C,#FFD60A)",display:"flex",alignItems:"center",justifyContent:"center",color:"rgba(255,255,255,.85)",fontFamily:"'Lilita One',sans-serif",fontSize:".8rem",padding:".5rem",textAlign:"center"}}>{g.name}</div>
+                    )}
                     <div className="jcard-body">
-                      <div className="jcard-diff"><span className="gdot" style={{ background: DIFF_COLORS[diff] || "#ccc" }} /></div>
-                      <h4>{name}</h4>
+                      <div className="jcard-diff"><span className="gdot" style={{ background: DIFF_COLORS[g.difficulty] || "#ccc" }} /></div>
+                      <h4>{g.name}</h4>
                       <div className="jcard-meta">
                         <span>{I.clock(13, "#4A4A60")} {durText}'</span>
                         <span>{I.people(13, "#4A4A60")} {playText}</span>
-                        <span>{I.star(13, "#4A4A60")} {age}+</span>
+                        <span>{I.star(13, "#4A4A60")} {g.ageMin}+</span>
                       </div>
                     </div>
                     <div className="jcard-cta">Ver detalles</div>
@@ -1051,11 +1100,11 @@ function PJuegos() {
             </div>
 
             {/* PAGINATION */}
-            {totalPages > 1 && (
+            {pagination.totalPages > 1 && (
               <div className="jpag">
                 <button className="jpag-btn" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Anterior</button>
-                <span className="jpag-info">Página {page} de {totalPages}</span>
-                <button className="jpag-btn" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>Siguiente →</button>
+                <span className="jpag-info">Página {page} de {pagination.totalPages}</span>
+                <button className="jpag-btn" disabled={page >= pagination.totalPages} onClick={() => setPage(p => p + 1)}>Siguiente →</button>
               </div>
             )}
           </div>
@@ -1309,10 +1358,18 @@ function getHourStatus(date, hour, zone, people) {
 }
 
 // ---- FLOOR PLAN (2D positioned, bird's-eye view) ----
-function FloorPlan({ zone, date, hour, people, selected, onSelect }) {
-  const floor = FLOOR[zone];
+function FloorPlan({ zone, date, hour, people, duration = 2, selected, onSelect, liveFloor }) {
+  const floor = (liveFloor && liveFloor[zone]) || FLOOR[zone];
+  const [occ, setOcc] = useState([]);
+  useEffect(() => {
+    if (!zone || !date || !hour) { setOcc([]); return; }
+    api.zones.getAvailability(zone, date, hour, duration).then(data => {
+      if (data) setOcc(data.tables.filter(t => t.isOccupied).map(t => t.code));
+      else setOcc(getOccupied(date, hour, zone));
+    });
+  }, [zone, date, hour, duration]);
+
   if (!floor || !hour) return null;
-  const occ = getOccupied(date, hour, zone);
   const numP = parseInt(people) || 0;
   const selTables = floor.tables.filter(t => selected.includes(t.id));
   const totalSel = selTables.reduce((s, t) => s + t.seats, 0);
@@ -1454,14 +1511,31 @@ function FloorPlan({ zone, date, hour, people, selected, onSelect }) {
 }
 
 // ---- HOUR GRID ----
-function HourGrid2({ date, zone, people, selectedHour, onSelect }) {
+function HourGrid2({ date, zone, people, selectedHour, duration = 2, onSelect }) {
   if (!date || !zone) return null;
   const numP = parseInt(people) || 0;
+
+  // Closing hours per day of week (0=Sun,1=Mon,...,6=Sat)
+  const closingHours = { 0:22, 1:23, 2:23, 3:23, 4:23, 5:24, 6:24 };
+  const dow = date ? new Date(date + 'T12:00:00').getDay() : 1;
+  const closing = closingHours[dow] ?? 23;
+
   return (
     <div className="hour-grid">
       <label style={{ fontFamily:"'Lilita One',sans-serif", color:"var(--black)", marginBottom:".5rem", display:"block", fontSize:".95rem" }}>Selecciona hora *</label>
       <div className="hg-slots">
         {HOURS.map(h => {
+          const startH = parseInt(h);
+          const endH = startH + duration;
+          // Disable hours where reservation would go past closing time
+          if (endH > closing) {
+            return (
+              <button key={h} className="hg-slot" disabled style={{ opacity:.3, cursor:'not-allowed' }}>
+                <span className="hg-time">{h}</span>
+                <span className="hg-dot" style={{background:'#ccc'}} />
+              </button>
+            );
+          }
           const st = numP > 0 ? getHourStatus(date, h, zone, numP) : "neutral";
           return (
             <button key={h} className={`hg-slot ${st} ${selectedHour===h?"sel":""}`} onClick={() => onSelect(h)}>
@@ -1471,6 +1545,7 @@ function HourGrid2({ date, zone, people, selectedHour, onSelect }) {
           );
         })}
       </div>
+      {duration > 1 && <p style={{fontSize:'.78rem',color:'var(--tl)',fontWeight:600,marginTop:'.4rem'}}>⏱ Con {duration}h, la reserva terminaría a las {(parseInt(selectedHour||'0')+duration).toString().padStart(2,'0')}:00</p>}
       {numP > 0 && <div className="hg-legend">
         <span><span className="hg-dot free"/> Disponible</span>
         <span><span className="hg-dot combine"/> Combinable</span>
@@ -1483,13 +1558,25 @@ function HourGrid2({ date, zone, people, selectedHour, onSelect }) {
 
 // ---- PReservas PAGE ----
 function PReservas() {
-  const [form, setForm] = useState({ name:"", email:"", phone:"", people:"", date:"", hour:"", zone:"", type:"", notes:"" });
+  const [form, setForm] = useState({ name:"", email:"", phone:"", people:"", date:"", hour:"", zone:"", type:"", notes:"", duration:2 });
   const [step, setStep] = useState(1);
   const [selectedTables, setSelectedTables] = useState([]);
   const [specialMode, setSpecialMode] = useState(false);
   const FLOOR_LIVE = useApiZones(FLOOR);
-  const apiOccupied = useOccupiedAPI(form.zone, form.date, form.hour);
+  const apiOccupied = useOccupiedAPI(form.zone, form.date, form.hour, form.duration);
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  // Max duration depends on day of week: Fri/Sat/Sun → 4h, Mon-Thu → 5h
+  const maxDuration = (() => {
+    if (!form.date) return 5;
+    const dow = new Date(form.date + 'T12:00:00').getDay();
+    return [0, 5, 6].includes(dow) ? 4 : 5;
+  })();
+
+  // End hour string for display
+  const endHour = form.hour
+    ? (parseInt(form.hour) + form.duration).toString().padStart(2, '0') + ':00'
+    : '';
 
   const floor = FLOOR_LIVE[form.zone];
   const numPeople = parseInt(form.people) || 0;
@@ -1528,7 +1615,7 @@ function PReservas() {
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#FF9800"/><path d="M12 7v6M12 16v1" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/></svg>
           <div><strong>Pendiente de confirmación</strong><span>Esto NO es una reserva confirmada. Espera nuestra respuesta.</span></div>
         </div>
-        <button className="btn btn-yellow" onClick={() => { setForm({name:"",email:"",phone:"",people:"",date:"",hour:"",zone:"",type:"",notes:""}); setStep(1); setSpecialMode(false); resetTables(); }}>Nueva reserva</button>
+        <button className="btn btn-yellow" onClick={() => { setForm({name:"",email:"",phone:"",people:"",date:"",hour:"",zone:"",type:"",notes:"",duration:2}); setStep(1); setSpecialMode(false); resetTables(); }}>Nueva reserva</button>
       </div>
     </section>
   </>);
@@ -1543,13 +1630,14 @@ function PReservas() {
         <p style={{ color:"var(--tm)", fontWeight:600, marginBottom:"1.5rem" }}>Te hemos enviado un email de confirmación</p>
         <div className="res-summary">
           <div className="res-row"><strong>Fecha</strong><span>{form.date}</span></div>
-          <div className="res-row"><strong>Hora</strong><span>{form.hour}</span></div>
+          <div className="res-row"><strong>Hora</strong><span>{form.hour} — {endHour}</span></div>
+          <div className="res-row"><strong>Duración</strong><span>{form.duration} hora{form.duration !== 1 ? 's' : ''}</span></div>
           <div className="res-row"><strong>Zona</strong><span>{FLOOR_LIVE[form.zone]?.name}</span></div>
           <div className="res-row"><strong>{selectedTables.length > 1 ? "Mesas" : "Mesa"}</strong><span>{selectedTables.join(" + ")} ({totalSeats} plazas)</span></div>
           <div className="res-row"><strong>Personas</strong><span>{form.people}</span></div>
           <div className="res-row"><strong>Nombre</strong><span>{form.name}</span></div>
         </div>
-        <div style={{ marginTop:"1.5rem" }}><button className="btn btn-yellow" onClick={() => { setForm({name:"",email:"",phone:"",people:"",date:"",hour:"",zone:"",type:"",notes:""}); setStep(1); resetTables(); }}>Nueva reserva</button></div>
+        <div style={{ marginTop:"1.5rem" }}><button className="btn btn-yellow" onClick={() => { setForm({name:"",email:"",phone:"",people:"",date:"",hour:"",zone:"",type:"",notes:"",duration:2}); setStep(1); resetTables(); }}>Nueva reserva</button></div>
       </div>
     </section>
   </>);
@@ -1580,7 +1668,7 @@ function PReservas() {
             <div className="res-selectors">
               <div className="fg">
                 <label>Fecha *</label>
-                <input type="date" value={form.date} onChange={e => { set("date",e.target.value); set("hour",""); resetTables(); }} />
+                <input type="date" value={form.date} onChange={e => { set("date",e.target.value); set("hour",""); set("duration",2); resetTables(); }} />
               </div>
               <div className="fg">
                 <label>Zona *</label>
@@ -1596,12 +1684,25 @@ function PReservas() {
                   {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16].map(n => <option key={n} value={n}>{n} {n===1?"persona":"personas"}</option>)}
                 </select>
               </div>
+              <div className="fg">
+                <label>Duración *</label>
+                <select value={form.duration} onChange={e => { set("duration", +e.target.value); resetTables(); }}>
+                  {Array.from({length: maxDuration}, (_, i) => i + 1).map(h => (
+                    <option key={h} value={h}>{h} hora{h !== 1 ? 's' : ''}</option>
+                  ))}
+                </select>
+                <small style={{color:'var(--tl)',fontSize:'.75rem',fontWeight:600,marginTop:'.25rem',display:'block'}}>
+                  {form.date
+                    ? ([0,5,6].includes(new Date(form.date+'T12:00:00').getDay()) ? '⏱ Máx. 4h (Vie/Sáb/Dom)' : '⏱ Máx. 5h (Mar–Jue)')
+                    : '⏱ Máx. 4-5h según día'}
+                </small>
+              </div>
             </div>
 
-            <HourGrid2 date={form.date} zone={form.zone} people={form.people} selectedHour={form.hour} onSelect={h => { set("hour",h); resetTables(); }} />
+            <HourGrid2 date={form.date} zone={form.zone} people={form.people} selectedHour={form.hour} duration={form.duration} onSelect={h => { set("hour",h); resetTables(); }} />
 
             {form.hour && form.zone && (
-              <FloorPlan zone={form.zone} date={form.date} hour={form.hour} people={form.people} selected={selectedTables} onSelect={setSelectedTables} />
+              <FloorPlan zone={form.zone} date={form.date} hour={form.hour} people={form.people} duration={form.duration} selected={selectedTables} onSelect={setSelectedTables} liveFloor={FLOOR_LIVE} />
             )}
 
             {/* Special request when no combination possible */}
@@ -1651,7 +1752,7 @@ function PReservas() {
           <div className="res-card">
             <h2 className="res-card-title">Paso 2: Tus datos</h2>
             <p className="res-card-sub">
-              {selectedTables.length > 1 ? `Mesas ${selectedTables.join(" + ")}` : `Mesa ${selectedTables[0]}`} en {FLOOR_LIVE[form.zone]?.name} · {form.date} a las {form.hour} · {form.people} personas
+              {selectedTables.length > 1 ? `Mesas ${selectedTables.join(" + ")}` : `Mesa ${selectedTables[0]}`} en {FLOOR_LIVE[form.zone]?.name} · {form.date} · {form.hour}–{endHour} ({form.duration}h) · {form.people} personas
             </p>
             <div className="fgrid" style={{ maxWidth:600, margin:"0 auto" }}>
               <div className="fg"><label>Nombre *</label><input type="text" placeholder="Tu nombre" value={form.name} onChange={e => set("name",e.target.value)} /></div>
@@ -1662,7 +1763,24 @@ function PReservas() {
             </div>
             <div style={{ display:"flex", justifyContent:"center", gap:"1rem", marginTop:"2rem" }}>
               <button className="btn btn-dark" onClick={() => setStep(1)}>Volver</button>
-              <button className="btn btn-yellow" disabled={!canProceed2} style={{ opacity:canProceed2?1:.4, cursor:canProceed2?"pointer":"not-allowed" }} onClick={() => canProceed2 && setStep(3)}>Confirmar reserva</button>
+              <button className="btn btn-yellow" disabled={!canProceed2} style={{ opacity:canProceed2?1:.4, cursor:canProceed2?"pointer":"not-allowed" }} onClick={async () => {
+                if (!canProceed2) return;
+                const result = await api.reservations.create({
+                  date: form.date,
+                  hour: form.hour,
+                  duration: form.duration,
+                  zoneSlug: form.zone,
+                  tableCodes: selectedTables,
+                  people: +form.people,
+                  customerName: form.name,
+                  customerEmail: form.email,
+                  customerPhone: form.phone,
+                  eventType: form.type || undefined,
+                  notes: form.notes || undefined,
+                });
+                if (result) setStep(3);
+                else alert('Error al crear la reserva. Puede que la mesa ya esté ocupada. Por favor, vuelve atrás y elige otra.');
+              }}>Confirmar reserva</button>
             </div>
           </div>
         )}

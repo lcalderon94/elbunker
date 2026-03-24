@@ -15,6 +15,28 @@ const VALID_HOURS = [
   '17:00', '18:00', '19:00', '20:00', '21:00', '22:00',
 ];
 
+// Convert "18:00" → 18
+function hourToNum(h: string): number {
+  return parseInt(h.split(':')[0], 10);
+}
+
+// Do two time windows overlap?
+function overlaps(aStart: number, aDur: number, bStart: number, bDur: number): boolean {
+  return aStart < bStart + bDur && aStart + aDur > bStart;
+}
+
+// Get day of week (0=Sun,1=Mon,2=Tue,3=Wed,4=Thu,5=Fri,6=Sat) from ISO date string
+function getDayOfWeek(dateStr: string): number {
+  return new Date(dateStr + 'T12:00:00').getDay();
+}
+
+// Max allowed duration based on day
+function maxDurationForDay(dateStr: string): number {
+  const dow = getDayOfWeek(dateStr);
+  // Fri(5), Sat(6), Sun(0) → 4h; Mon(1)-Thu(4) → 5h
+  return [0, 5, 6].includes(dow) ? 4 : 5;
+}
+
 @Injectable()
 export class ReservationsService {
   constructor(
@@ -22,10 +44,6 @@ export class ReservationsService {
     private emailService: EmailService,
   ) {}
 
-  /**
-   * Create a reservation with server-side validation.
-   * Uses a transaction to prevent race conditions.
-   */
   async create(dto: CreateReservationDto) {
     // 1. Validate hour
     if (!VALID_HOURS.includes(dto.hour)) {
@@ -40,16 +58,37 @@ export class ReservationsService {
       throw new BadRequestException('No se puede reservar en una fecha pasada');
     }
 
-    // 3. Execute in transaction (prevents two people reserving same table)
+    // 3. Validate duration
+    const duration = dto.duration ?? 2;
+    const maxDuration = maxDurationForDay(dto.date);
+    if (duration < 1 || duration > maxDuration) {
+      throw new BadRequestException(
+        `La duración para este día es de 1 a ${maxDuration} horas`,
+      );
+    }
+
+    // 4. Validate the reservation doesn't go past closing time
+    const startHour = hourToNum(dto.hour);
+    const endHour = startHour + duration;
+    // Closing hours: Mon-Thu 23, Fri 24(00), Sat 24(00), Sun 22
+    const dow = getDayOfWeek(dto.date);
+    const closingHours: Record<number, number> = { 0: 22, 1: 23, 2: 23, 3: 23, 4: 23, 5: 24, 6: 24 };
+    const closingHour = closingHours[dow] ?? 23;
+    if (endHour > closingHour) {
+      throw new BadRequestException(
+        `Con ${duration}h desde las ${dto.hour} la reserva terminaría a las ${endHour}:00, ` +
+        `pero el local cierra a las ${closingHour === 24 ? '00:00' : closingHour + ':00'}`,
+      );
+    }
+
+    // 5. Transaction
     const reservation = await this.prisma.$transaction(async (tx) => {
-      // Find zone
       const zone = await tx.zone.findUnique({
         where: { slug: dto.zoneSlug },
         include: { tables: true },
       });
       if (!zone) throw new NotFoundException(`Zona '${dto.zoneSlug}' no encontrada`);
 
-      // Find requested tables
       const tables = zone.tables.filter((t) => dto.tableCodes.includes(t.code));
       if (tables.length !== dto.tableCodes.length) {
         const found = tables.map((t) => t.code);
@@ -57,13 +96,13 @@ export class ReservationsService {
         throw new BadRequestException(`Mesas no encontradas: ${missing.join(', ')}`);
       }
 
-      // Validate adjacency if combining tables
+      // Validate adjacency for combined tables
       if (tables.length > 1) {
         for (let i = 1; i < tables.length; i++) {
-          const isAdjToAny = tables.slice(0, i).some((prev) =>
+          const isAdj = tables.slice(0, i).some((prev) =>
             tables[i].adjacentIds.includes(prev.code),
           );
-          if (!isAdjToAny) {
+          if (!isAdj) {
             throw new BadRequestException(
               `Mesa ${tables[i].code} no es adyacente a las demás. Solo puedes combinar mesas contiguas.`,
             );
@@ -79,24 +118,34 @@ export class ReservationsService {
         );
       }
 
-      // Check availability — lock rows to prevent race condition
+      // Check conflicts — overlap-aware
       const tableIds = tables.map((t) => t.id);
-      const conflicts = await tx.reservationTable.findMany({
+      const existingReservations = await tx.reservation.findMany({
         where: {
-          tableId: { in: tableIds },
-          reservation: {
-            date: reservationDate,
-            hour: dto.hour,
-            status: { in: ['CONFIRMED', 'PENDING'] },
-          },
+          date: reservationDate,
+          status: { in: ['CONFIRMED', 'PENDING'] },
+          tables: { some: { tableId: { in: tableIds } } },
         },
-        include: { table: true },
+        include: { tables: { include: { table: true } } },
       });
 
-      if (conflicts.length > 0) {
-        const conflictCodes = [...new Set(conflicts.map((c) => c.table.code))];
+      const conflictCodes: string[] = [];
+      for (const existing of existingReservations) {
+        const existHour = hourToNum(existing.hour);
+        const existDuration = (existing as any).duration ?? 2;
+        if (overlaps(existHour, existDuration, startHour, duration)) {
+          for (const rt of existing.tables) {
+            if (tableIds.includes(rt.tableId)) {
+              conflictCodes.push(rt.table.code);
+            }
+          }
+        }
+      }
+
+      if (conflictCodes.length > 0) {
+        const unique = [...new Set(conflictCodes)];
         throw new ConflictException(
-          `Las siguientes mesas ya están reservadas: ${conflictCodes.join(', ')}`,
+          `Las siguientes mesas ya están reservadas en ese horario: ${unique.join(', ')}`,
         );
       }
 
@@ -106,6 +155,7 @@ export class ReservationsService {
         data: {
           date: reservationDate,
           hour: dto.hour,
+          duration,
           people: dto.people,
           customerName: dto.customerName,
           customerEmail: dto.customerEmail,
@@ -126,19 +176,22 @@ export class ReservationsService {
       return newReservation;
     });
 
-    // 4. Send emails (outside transaction — don't fail reservation if email fails)
+    // 6. Send emails
     try {
       await this.emailService.sendReservationConfirmation(reservation);
       await this.emailService.notifyStaffNewReservation(reservation);
     } catch (error) {
       console.error('Error sending email:', error);
-      // Log but don't fail the reservation
     }
+
+    const endHourStr = `${(startHour + duration).toString().padStart(2, '0')}:00`;
 
     return {
       id: reservation.id,
       date: reservation.date,
       hour: reservation.hour,
+      duration,
+      endHour: endHourStr,
       people: reservation.people,
       status: reservation.status,
       tables: reservation.tables.map((rt) => ({
@@ -150,16 +203,11 @@ export class ReservationsService {
       totalSeats: reservation.tables.reduce((s, rt) => s + rt.table.seats, 0),
       isCombined: reservation.isCombined,
       cancelToken: reservation.cancelToken,
-      message: '¡Reserva confirmada! Te hemos enviado un email de confirmación.',
+      message: `¡Reserva confirmada de ${dto.hour} a ${endHourStr}! Te hemos enviado un email de confirmación.`,
     };
   }
 
-  /**
-   * Create a special request for large groups.
-   * Status = PENDING, staff must confirm.
-   */
   async createSpecialRequest(dto: SpecialRequestDto) {
-    // Validate
     if (!VALID_HOURS.includes(dto.hour)) {
       throw new BadRequestException(`Hora '${dto.hour}' no es válida`);
     }
@@ -167,11 +215,13 @@ export class ReservationsService {
     const zone = await this.prisma.zone.findUnique({ where: { slug: dto.zoneSlug } });
     if (!zone) throw new NotFoundException(`Zona '${dto.zoneSlug}' no encontrada`);
 
+    const duration = dto.duration ?? 2;
     const cancelToken = randomBytes(32).toString('hex');
     const reservation = await this.prisma.reservation.create({
       data: {
         date: new Date(dto.date),
         hour: dto.hour,
+        duration,
         people: dto.people,
         status: 'PENDING',
         customerName: dto.customerName,
@@ -184,7 +234,6 @@ export class ReservationsService {
       },
     });
 
-    // Notify staff
     try {
       await this.emailService.notifyStaffSpecialRequest(reservation, zone.name);
     } catch (error) {
@@ -199,9 +248,6 @@ export class ReservationsService {
     };
   }
 
-  /**
-   * Get reservation by ID (public — requires email match)
-   */
   async findById(id: string) {
     const reservation = await this.prisma.reservation.findUnique({
       where: { id },
@@ -213,9 +259,6 @@ export class ReservationsService {
     return reservation;
   }
 
-  /**
-   * Cancel a reservation using the cancel token
-   */
   async cancel(cancelToken: string, email: string) {
     const reservation = await this.prisma.reservation.findUnique({
       where: { cancelToken },
@@ -232,12 +275,9 @@ export class ReservationsService {
       throw new BadRequestException('La reserva ya está cancelada');
     }
 
-    const updated = await this.prisma.reservation.update({
+    await this.prisma.reservation.update({
       where: { id: reservation.id },
-      data: {
-        status: 'CANCELLED',
-        cancelledAt: new Date(),
-      },
+      data: { status: 'CANCELLED', cancelledAt: new Date() },
     });
 
     try {
@@ -250,9 +290,6 @@ export class ReservationsService {
     return { message: 'Reserva cancelada correctamente' };
   }
 
-  /**
-   * Admin: List reservations for a date
-   */
   async findByDate(date: string) {
     return this.prisma.reservation.findMany({
       where: {
@@ -266,13 +303,9 @@ export class ReservationsService {
     });
   }
 
-  /**
-   * Admin: Update reservation status (for special requests)
-   */
   async updateStatus(id: string, status: 'CONFIRMED' | 'REJECTED', staffNotes?: string) {
     const reservation = await this.prisma.reservation.findUnique({ where: { id } });
     if (!reservation) throw new NotFoundException('Reserva no encontrada');
-
     return this.prisma.reservation.update({
       where: { id },
       data: { status, staffNotes },

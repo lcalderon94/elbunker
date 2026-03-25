@@ -55,8 +55,22 @@ REGLAS ABSOLUTAS SOBRE JUEGOS:
 - Si NO hay bloque DATOS→ sobre juegos, entonces sí puedes sugerir que pregunten al personal.
 - ⚠️ REGLA CRÍTICA: SOLO puedes mencionar juegos que aparezcan TEXTUALMENTE en el bloque DATOS→. ESTÁ PROHIBIDO inventar, añadir o sugerir juegos que NO estén en DATOS→, aunque los conozcas. Si DATOS→ tiene 3 juegos, habla SOLO de esos 3. Si tiene 1, habla SOLO de ese 1. NUNCA completes la lista con juegos de tu conocimiento propio.
 
+EXCEPCIÓN — MODO INSTRUCCIÓN:
+Cuando el contexto diga MODO→INSTRUCCIÓN, significa que el usuario quiere aprender a jugar un juego concreto. En ese caso:
+- SÍ puedes usar TODO tu conocimiento sobre ese juego (reglas, mecánicas, setup, estrategias, etc.)
+- Explica como si fueras un game master paciente enseñando a alguien que NUNCA ha jugado un juego de mesa
+- Sé MUY detallado: preparación del tablero, qué hace cada componente, turno por turno, cómo se gana
+- Usa ejemplos concretos y prácticos ("por ejemplo, si sacas un 8, todos los que tengan un asentamiento junto a un hexágono con el número 8 reciben ese recurso")
+- Si el usuario pide una partida demo/simulada, llévale de la mano turno por turno
+- Haz respuestas LARGAS y COMPLETAS — no te cortes, el usuario quiere aprender
+- If no knowledge of the rules for a specific game, be honest and suggest consulting the manual or asking staff
+- ALWAYS end instruction responses with contextual options in this EXACT format:
+  [OPCIONES] option 1 | option 2 | option 3 [/OPCIONES]
+  These become interactive buttons for the user. Make them relevant to where you are in the explanation.
+
 Para preguntas sobre la carta, horarios o el local: responde con los datos de este prompt.
-Máximo 3 párrafos por respuesta. Responde SIEMPRE en español.
+Para respuestas normales (no instrucciones de juego): máximo 3 párrafos. Responde SIEMPRE en español.
+Para INSTRUCCIONES de juego (MODO→INSTRUCCIÓN): sin límite de longitud, sé todo lo detallado que necesites.
 LÍMITE DE JUEGOS: Muestra MÁXIMO 5 juegos por mensaje. Si el usuario pide "10 juegos" o "todos los que tengas", muestra solo 5 y dile que puede pedirte más. Nunca muestres más de 5 en un solo mensaje.
 
 REGLAS SOBRE RESERVAS Y DISPONIBILIDAD:
@@ -91,7 +105,46 @@ const STOPWORDS = new Set([
   'amigos','personas','persona','juega','sacame','sácame','ponme',
   'muestrame','muéstrame','dime','tener','recomendacion','recomendación',
   'recomiéndame','recomiéndanos','necesito','opciones','alternativas',
+  // ── Verbos y conjugaciones comunes que contaminan A3 fuzzy ──
+  'explica','explicas','explicame','explícame','explicanos','explícanos',
+  'ensename','enséñame','enseñame','ensénanos','enseñanos',
+  'tendras','tendrás','tendreis','tendréis','tendran','tendrán',
+  'habeis','habéis','podeis','podéis','podriais','podríais','podrias','podrías',
+  'cartas','dados','tablero','tableros','fichas','piezas','componentes',
+  'brevemente','luego','despues','después','empezar','empezamos','empezaremos',
+  'funciona','funcionan','trata','tratan','cuéntame','cuentame','dinos',
+  'jugadores','minutos','horas','rapido','rápido','corto','largo',
+  'algun','algún','alguna','ningun','ningún','otro','otra','otros','otras',
 ]);
+
+// ── Helper: Clean captured game name by removing common Spanish filler words ──
+function cleanGameName(raw: string): string {
+  return raw
+    .replace(/\b(el|la|los|las|un|una|unos|unas|de|del|que|es|son|ese|esos?|esas?|juego|juegos|mesa|mesas|cartas?|dados?|tablero|partida|tipo|algo|como|no|nos|ya|y)\b/gi, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+// ── Helper: Detect if user is asking for instructions/rules/how-to-play ──
+function isInstructionRequest(text: string): boolean {
+  const t = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  return /(como\s+se\s+juega|como\s+(?:jugar|funciona)|reglas?(?:\s+(?:del?|de\s+este))?|instrucciones?|ensena(?:me|nos)?\s*(?:a\s+jugar)?|explica(?:me|nos)?\s*(?:(?:las?\s+)?reglas?|como\s+(?:se\s+)?juega|a\s+jugar)?|turno\s+(?:a|por)\s+turno|paso\s+(?:a|por)\s+paso|partida\s+demo|tutorial|guia|manual|montar\s+(?:el|la)|setup|preparar?\s+la\s+partida|como\s+(?:se\s+)?monta|que\s+hace\s+cada|para\s+que\s+sirve|como\s+(?:se\s+)?gana|como\s+empez|simul(?:ar?|emos)|jugamos\s+una|echamos\s+una|lleva(?:me|nos)\s+de\s+la\s+mano|como\s+(?:para|si\s+fuese)\s+tonto|para\s+tontos|desde\s+cero|nos\s+podrias?\s+(?:decir|explicar|ensenar)\s+como|podrias?\s+explic|nos\s+dices?\s+como|dime\s+como|como\s+(?:tenemos|hay)\s+que|que\s+(?:tenemos|hay)\s+que\s+hacer|despues\s+(?:de\s+eso\s+)?que\s+sigue|y\s+(?:despues|luego)\s*\??)/.test(t);
+}
+
+// ── Helper: Detect if user is asking about a specific game (by name in conversation) ──
+function extractGameNameFromContext(message: string, history: Array<{role:string;content:string}>): string | null {
+  // Check last assistant messages for bold game names
+  const lastAssistantMsgs = history.filter(h => h.role === 'assistant').slice(-3).map(h => h.content).join('\n');
+  const boldNames = [...lastAssistantMsgs.matchAll(/\*\*([^*]{3,60}?)\*\*/g)].map(m => m[1].trim());
+  // If there's exactly 1 game being discussed, return it
+  const uniqueNames = [...new Set(boldNames)];
+  if (uniqueNames.length === 1) return uniqueNames[0];
+  // If user references "ese", "ese juego", "el mismo", check last discussed
+  if (/\b(ese|eso|este|el\s+mismo|el\s+anterior)\b/i.test(message) && uniqueNames.length > 0) {
+    return uniqueNames[uniqueNames.length - 1];
+  }
+  return null;
+}
 
 const VALID_HOURS = [12,13,14,15,16,17,18,19,20,21,22,23];
 
@@ -835,6 +888,7 @@ PREGUNTA→ Pregunta cuántas personas van a venir.`;
           // Construir datos detallados por zona
           const zoneLines: string[] = [];
           const zoneSummary: string[] = [];
+          const readableSummaries: string[] = [];  // Pre-built text for LLM
 
           for (const z of zones) {
             const freeTables = z.tables.filter((t: any) => !occupiedTableIds.has(t.id));
@@ -962,40 +1016,58 @@ PREGUNTA→ Pregunta cuántas personas van a venir.`;
             );
 
             if (zoneFits) zoneSummary.push(z.name);
+
+            // ── Build readable summary for LLM ──
+            const freeList = freeTables.map((t: any) => `${t.code}(${t.seats}p)`).join(', ');
+            if (freeTables.length === 0) {
+              readableSummaries.push(`• ${z.name}: COMPLETA, todas las mesas ocupadas.`);
+            } else if (singleFit.length > 0) {
+              readableSummaries.push(`• ${z.name}: SÍ CABEN ${people} personas en mesa ${(singleFit[0] as any).code} (${(singleFit[0] as any).seats} plazas). Libres: ${freeList}.`);
+            } else if (bestCombo) {
+              readableSummaries.push(`• ${z.name}: SÍ CABEN ${people} personas juntando mesas ${bestCombo.codes.join(' + ')} = ${bestCombo.seats} plazas. Libres: ${freeList}.`);
+            } else {
+              readableSummaries.push(`• ${z.name}: NO CABEN ${people} personas (${totalFreeSeats} plazas libres). Libres: ${freeList}.`);
+            }
           }
 
           const availSummary = zoneLines.join('\n');
           const dowName = DOW_NAMES[new Date(validDate).getDay()];
           const durationLine = reqDuration ? `\nDuración solicitada: ${reqDuration}h (máximo ${dowName}: ${maxDur}h)` : `\nDuración máxima ${dowName}: ${maxDur}h`;
+          const readableText = readableSummaries.join('\n');
 
           if (zone) {
             const chosenZone = zones[0];
             const chosenZoneFits = zoneSummary.includes(chosenZone?.name ?? '');
 
             systemContext = `[CONTEXTO DEL SISTEMA]
-CONSULTA DE DISPONIBILIDAD: ${dowName} ${validDate} a las ${hour}, ${people} personas, ${chosenZone?.name ?? zone}.${durationLine}${durationWarning}
+CONSULTA: ${dowName} ${validDate} a las ${hour}, ${people} personas, ${chosenZone?.name ?? zone}.${durationLine}${durationWarning}
 
-DATOS REALES DE LA BASE DE DATOS:
-${availSummary}
+RESULTADO:
+${readableText}
 
-ACCIÓN→ ${chosenZoneFits
-  ? `Confirma que SÍ hay disponibilidad en ${chosenZone?.name} para ${people} personas el ${dowName} a las ${hour}. Menciona las mesas o combinación de mesas donde caben (usa los datos de arriba: mesas individuales o la combinación recomendada 🔗). Diles que pueden hacer la reserva desde la sección "Reservas" de la web.`
-  : `Indica que NO hay suficiente espacio en ${chosenZone?.name} para ${people} personas a esa hora. ${zoneSummary.length > 0 ? `Sugiere que prueben en: ${zoneSummary.join(', ')}, donde SÍ caben combinando mesas.` : 'No hay mesas combinables suficientes en ninguna zona a esa hora. Sugiere probar otro horario o contactar al local: 912 345 678 / hola@elbunker.es.'}`
+ACCIÓN→ Comunica esta información EXACTA al usuario de forma amigable. ${chosenZoneFits
+  ? 'HAY disponibilidad. Di EXACTAMENTE qué mesas o combinación de mesas pueden usar (los nombres de mesa como M1+M2, S1+S2, etc. y cuántas plazas suman).'
+  : `NO hay disponibilidad en ${chosenZone?.name}. ${zoneSummary.length > 0 ? `Sugiere estas zonas donde SÍ caben: ${zoneSummary.join(', ')}, e indica qué mesas concretas.` : 'Sugiere probar otro horario o contactar al local (912 345 678).'}`
 }
-IMPORTANTE: Tú NO haces reservas. Solo informas de la disponibilidad. Siempre dirige al usuario a la sección Reservas de la web para completar su reserva.`;
+Al final dile que puede hacer la reserva desde la sección "Reservas" de la web. Tú NO haces reservas, solo informas.`;
 
           } else {
             systemContext = `[CONTEXTO DEL SISTEMA]
-CONSULTA DE DISPONIBILIDAD: ${dowName} ${validDate} a las ${hour}, ${people} personas.${durationLine}${durationWarning}
+CONSULTA: ${dowName} ${validDate} a las ${hour}, ${people} personas (sin zona específica).${durationLine}${durationWarning}
 
-DATOS REALES DE LA BASE DE DATOS:
-${availSummary}
+RESULTADO POR ZONA:
+${readableText}
 
-ACCIÓN→ Presenta la disponibilidad de cada zona de forma clara y amigable. ${zoneSummary.length > 0
-  ? `Las zonas donde SÍ caben ${people} personas (en mesa individual o combinando mesas adyacentes) son: ${zoneSummary.join(', ')}. Menciona la combinación de mesas concretas (los datos con 🔗). Pregunta cuál prefieren y diles que pueden hacer la reserva desde la sección Reservas de la web.`
-  : `Ninguna zona tiene mesas suficientes (ni combinándolas) para ${people} personas a las ${hour}. Sugiere probar otro horario o contactar al local: 912 345 678 / hola@elbunker.es para que puedan organizar algo especial.`
+${zoneSummary.length > 0
+  ? `ZONAS DONDE CABEN: ${zoneSummary.join(', ')}.`
+  : `NINGUNA ZONA tiene espacio suficiente para ${people} personas a las ${hour}.`
 }
-IMPORTANTE: Tú NO haces reservas. Solo informas. Siempre dirige al usuario a la sección Reservas de la web.`;
+
+ACCIÓN→ Presenta la disponibilidad de CADA zona al usuario. DEBES incluir los NOMBRES EXACTOS de las mesas libres y las combinaciones recomendadas (M1+M2, S1+S2, etc.) tal como aparecen en RESULTADO. ${zoneSummary.length > 0
+  ? 'Pregunta en cuál zona prefieren sentarse.'
+  : 'Sugiere probar otro horario o contactar al local (912 345 678 / hola@elbunker.es).'
+}
+Al final dile que puede hacer la reserva desde la sección "Reservas" de la web. Tú NO haces reservas, solo informas.`;
           }
 
         } catch (err) {
@@ -1011,13 +1083,46 @@ ACCIÓN→ Hubo un error técnico al consultar disponibilidad. Pide al usuario q
       return new Date(dateStr).getDay() === 1;
     }
 
-    // ── 2. BÚSQUEDA DE JUEGOS ─────────────────────────────────────────────────
-    // Si el mensaje actual tiene intención de reserva o horario, NO buscar juegos
+    // ── 1c. CONTINUACIÓN DE INSTRUCCIONES ──────────────────────────────────────
+    // If the bot was teaching a game and user says "y después?", "siguiente turno", "sí dale", etc.
+    // Handle BEFORE the game pipeline so it doesn't try to search for games
     const currentMsgIsReservation = reservationIntent.test(message) || isTelegraphicReservation || isScheduleQuery || isReservationFollowUp;
 
-    const gameIntent = /\b(juegos?\s+(?:de|para|que|cooperativ|tipo)|jugar|partida[s]?|recomienda[s]?|recomendaci[oó]n|busco\s+(?:algo|un|juego)|hay\s+algo|algo\s+(?:de|para|tipo|parecido|similar)|tienes?\s+(?:algo|juegos?|el|un)|tenéis?\s+(?:algo|juegos?|el|un)|sacame|sácame|ponme|dame\s+(?:algo|un)|qu[eé]\s+(?:es|hay|juegos?)|describ|explicar|c[oó]mo\s+se\s+juega|detalle[s]?|ficha|quiero\s+(?:algo|jugar|ver\s+(?:el|un))|necesito\s+(?:algo|un)|buscando|prop[oó]n|sugi[eé]re?|recomiéndame|recomiéndanos|muestr[ao]|opciones?\s+de\s+juego|alternativa[s]?|en[sś][eé][ñn]ame|mu[eé]strame|apetece\s+(?:jugar|algo)|ganas\s+de\s+jugar|para\s+jugar|qu[eé]\s+(?:podemos?|puedo|puedes?|podéis?)\s+jugar|a\s+qu[eé]\s+(?:jugamos?|jugar)|un\s+cooperativ[oa]s?|un\s+(?:juego|party))\b/i;
-    const isNewGameSearch = /\b(busco|recomi[eé]nd|hay\s+\w|algo\s+(?:de|para|como|similar|parecido|en\s+plan|tipo|que)|parecido|similar|juegos?\s+(?:de|para|que)\s+\w|tienes?\s+(?:algo|juegos?|un|de\s+\w)|qu[eé]\s+juegos?|sacame|sácame|ponme|dame\s+(?:algo|un)|necesito\s+(?:algo|un)|quiero\s+(?:algo|un|jugar)|prop[oó]n|sugi[eé]re?|opciones?|muestr[ao]|de\s+\w+\s+tienes?|teneis?\s+\w|de\s+qu[eé]\s+tratan?|cooperativ[oa]s?|un\s+(?:cooperativ|juego)|uno\s+(?:de|en\s+plan|tipo))\b/i;
-    const inGameContext = history.some(h => h.role === 'assistant' && /jugadores|duración|dificultad|\bmin\b|categoría|colecció|tenemos.*juego|juego.*colecció|la\s+ficha/i.test(h.content));
+    if (!systemContext && !currentMsgIsReservation) {
+      const lastBotMsg = history.filter(h => h.role === 'assistant').slice(-1)[0]?.content ?? '';
+      const wasTeaching = lastBotMsg.length > 300 && /(?:turno|preparaci[oó]n|tablero|partida|ronda|setup|montar|componente|ficha|recurso|carta|dado|victoria|paso\s+\d|Turno\s+\d)/i.test(lastBotMsg);
+      const contextGameName = extractGameNameFromContext(message, history);
+
+      // Detect continuation messages
+      const isContinuation = /^[\s¡¿]*(y\s+(?:despu[eé]s|luego|ahora)|siguiente\s+(?:turno|paso|ronda)|contin[uú]a|sigue(?:\s+(?:explicando|con|ense[ñn]ando))?|adelante|pasa(?:mos)?\s+al?\s+(?:siguiente|turno|paso)|m[aá]s|rep[ií]te(?:me)?|no\s+(?:entend[ií]|pill[eé])|otra\s+vez|despu[eé]s\s+(?:de\s+eso\s+)?qu[eé]\s+(?:sigue|pasa|hago)|vale|ok|dale|s[ií]|claro|venga|perfecto|genial)[\s!?,.]*/i.test(message.trim());
+
+      const isInstructionMsg = isInstructionRequest(message);
+
+      if (wasTeaching && (isContinuation || isInstructionMsg) && contextGameName) {
+        systemContext = `[CONTEXTO DEL SISTEMA]
+MODO→INSTRUCCIÓN
+JUEGO: ${contextGameName}
+
+ACCIÓN→ Estás en medio de una explicación de **${contextGameName}**. El usuario quiere que CONTINÚES. Mira tu mensaje anterior y sigue EXACTAMENTE donde lo dejaste. Si estabas en el turno 2, pasa al turno 3. Si estabas en la preparación, pasa al juego. NO repitas lo que ya dijiste.
+
+Si el usuario dice "repíteme" o "no entendí", repite la última parte con más detalle y más ejemplos.
+Si dice "vale", "sí", "dale", "siguiente", continúa al siguiente paso natural.
+
+Sé MUY detallado. Usa ejemplos concretos. Sin límite de longitud.
+
+OPCIONES INTERACTIVAS:
+Al FINAL, incluye opciones contextuales relevantes a donde estás:
+[OPCIONES] opción 1 | opción 2 | opción 3 | opción 4 [/OPCIONES]
+Genera 3-4 opciones cortas y SIEMPRE incluye una de "salir" como "Ya entendí, gracias" o "Buscar otro juego".`;
+      }
+    }
+
+    // ── 2. BÚSQUEDA DE JUEGOS ─────────────────────────────────────────────────
+    // Si el mensaje actual tiene intención de reserva o horario, NO buscar juegos
+
+    const gameIntent = /\b(juegos?\s+(?:de|para|que|cooperativ|tipo)|jugar|partida[s]?|recomienda[s]?|recomendaci[oó]n|busco\s+(?:algo|un|juego)|hay\s+algo|algo\s+(?:de|para|tipo|parecido|similar)|tienes?\s+(?:algo|juegos?|el|un)|tenéis?\s+(?:algo|juegos?|el|un)|tendr[áa]s?\s+(?:algo|juegos?|el|un|alg[uú]n)|tendr[ée]is\s+(?:algo|juegos?|el|un|alg[uú]n)|sacame|sácame|ponme|dame\s+(?:algo|un)|qu[eé]\s+(?:es|hay|juegos?)|describ|explicar|c[oó]mo\s+se\s+juega|detalle[s]?|ficha|quiero\s+(?:algo|jugar|ver\s+(?:el|un))|necesito\s+(?:algo|un)|buscando|prop[oó]n|sugi[eé]re?|recomiéndame|recomiéndanos|muestr[ao]|opciones?\s+de\s+juego|alternativa[s]?|en[sś][eé][ñn]ame|mu[eé]strame|apetece\s+(?:jugar|algo)|ganas\s+de\s+jugar|para\s+jugar|qu[eé]\s+(?:podemos?|puedo|puedes?|podéis?)\s+jugar|a\s+qu[eé]\s+(?:jugamos?|jugar)|un\s+cooperativ[oa]s?|un\s+(?:juego|party)|tendr[áa]s?\s+\w+|tendr[ée]is\s+\w+)\b/i;
+    const isNewGameSearch = /\b(busco|recomi[eé]nd|hay\s+\w|algo\s+(?:de|para|como|similar|parecido|en\s+plan|tipo|que)|parecido|similar|juegos?\s+(?:de|para|que)\s+\w|tienes?\s+(?:algo|juegos?|un|de\s+\w)|tendr[áa]s?\s+(?:algo|juegos?|un|alg[uú]n)|tendr[ée]is\s+\w|qu[eé]\s+juegos?|sacame|sácame|ponme|dame\s+(?:algo|un)|necesito\s+(?:algo|un)|quiero\s+(?:algo|un|jugar)|prop[oó]n|sugi[eé]re?|opciones?|muestr[ao]|de\s+\w+\s+tienes?|teneis?\s+\w|de\s+qu[eé]\s+tratan?|cooperativ[oa]s?|un\s+(?:cooperativ|juego)|uno\s+(?:de|en\s+plan|tipo))\b/i;
+    const inGameContext = history.some(h => h.role === 'assistant' && /jugadores|duración|dificultad|\bmin\b|categoría|colecció|tenemos.*juego|juego.*colecció|la\s+ficha|turno\s+\d|Turno\s+\d|preparaci[oó]n|tablero|partida\s+demo|paso\s+a\s+paso|ronda\s+\d|setup|montar\s+el/i.test(h.content));
     const isFollowUp = inGameContext && !isNewGameSearch.test(message) && !reservationIntent.test(message);
 
     // ── Paginación: "dame más", "muéstrame más", "otros 5", "siguientes" ──
@@ -1067,6 +1172,64 @@ ACCIÓN→ Hubo un error técnico al consultar disponibilidad. Pide al usuario q
         // Si es paginación, usar la query original del usuario (no "dame más")
         const searchMsg = isPaginationRequest ? originalSearchMessage : message;
 
+        // A0) Direct game name extraction — catches patterns A2 misses
+        // "cómo se juega virus", "explícame catan", "y dixit?", "tendrás warcraft?"
+        if (games.length === 0) {
+          let directName: string | null = null;
+
+          // Pattern 1: "cómo se juega X", "como funciona X", "de qué trata X"
+          const instructionNameMatch = searchMsg.match(
+            /(?:c[oó]mo\s+se\s+juega(?:\s+(?:a|al|el))?\s+|c[oó]mo\s+(?:funciona|va)\s+(?:el\s+)?|de\s+qu[eé]\s+(?:trata|va)\s+(?:el\s+)?|expl[ií]ca(?:me|nos)?\s+(?:el\s+|las?\s+reglas?\s+(?:de(?:l)?\s+)?)?|ens[eé][ñn]a(?:me|nos)?\s+(?:a\s+jugar\s+(?:a(?:l)?\s+)?|(?:el\s+)?)?|cu[eé]nta(?:me|nos)?\s+(?:sobre\s+|de\s+)?(?:el\s+)?)["']?([A-Za-z0-9ÁÉÍÓÚáéíóúÑñüÜ][A-Za-z0-9ÁÉÍÓÚáéíóúÑñüÜ\s!:'\-]{1,40}?)["']?\s*(?:[?,!¡¿.]|$)/i,
+          );
+          if (instructionNameMatch) directName = instructionNameMatch[1].trim();
+
+          // Pattern 2: "tendrás/tendréis [algún] [juego de] X"
+          if (!directName) {
+            const futureMatch = searchMsg.match(
+              /(?:tendr[áa]s?|tendr[ée]is)\s+(?:alg[uú]n\s+)?(?:juego\s+(?:de\s+(?:mesa\s+)?)?(?:de\s+|como\s+)?)?["']?([A-Za-z0-9ÁÉÍÓÚáéíóúÑñüÜ][A-Za-z0-9ÁÉÍÓÚáéíóúÑñüÜ\s!:'\-]{1,40}?)["']?\s*(?:[?,!¡¿.]|$)/i,
+            );
+            if (futureMatch) directName = futureMatch[1].trim();
+          }
+
+          // Pattern 3: short follow-up with just a game name: "y dixit?", "y pandemic?"
+          if (!directName && searchMsg.replace(/[¿?¡!.,;:\s]/g, '').length <= 30) {
+            const shortMatch = searchMsg.match(
+              /(?:^|\by\s+)["']?([A-Za-z0-9ÁÉÍÓÚáéíóúÑñüÜ][A-Za-z0-9ÁÉÍÓÚáéíóúÑñüÜ\s!:'\-]{1,30}?)["']?\s*[¿?!.,;:]*$/i,
+            );
+            if (shortMatch) {
+              const candidate = shortMatch[1].trim();
+              const candidateClean = cleanGameName(candidate);
+              if (candidateClean.length >= 3 && !STOPWORDS.has(candidateClean.toLowerCase())) {
+                directName = candidateClean;
+              }
+            }
+          }
+
+          // Clean the extracted name and search
+          if (directName) {
+            directName = cleanGameName(directName);
+            if (directName.length >= 3) {
+              games = await this.prisma.game.findMany({
+                where: { isAvailable: true, name: { contains: directName, mode: 'insensitive' as any } },
+                take: 5,
+                include: gameIncludes,
+              });
+              // If full name fails, try word-by-word (longest first)
+              if (games.length === 0) {
+                const nameWords = directName.split(/\s+/).filter((w: string) => w.length >= 3 && !STOPWORDS.has(w.toLowerCase())).sort((a: string, b: string) => b.length - a.length);
+                for (const word of nameWords) {
+                  games = await this.prisma.game.findMany({
+                    where: { isAvailable: true, name: { contains: word, mode: 'insensitive' as any } },
+                    take: 5,
+                    include: gameIncludes,
+                  });
+                  if (games.length > 0) break;
+                }
+              }
+            }
+          }
+        }
+
         // A1) "algo como X" / "parecido a X" / "del estilo de X" → buscar juego X y luego similares
         const similarMatch = searchMsg.match(
           /(?:algo\s+(?:como|parecido\s+a|similar\s+a|(?:del?\s+)?(?:estilo|rollo|tipo)\s+(?:de?\s+)?)|(?:parecido|similar)\s+a|(?:del?\s+)?mismo\s+rollo\s+(?:que|de)\s+|como\s+(?:los?\s+de\s+)?)\s*["']?([A-Za-z0-9ÁÉÍÓÚáéíóúÑñüÜ][A-Za-z0-9ÁÉÍÓÚáéíóúÑñüÜ\s!:'\-]{1,40}?)["']?\s*(?:[?,!¡¿.]|pero\b|$)/i,
@@ -1100,13 +1263,16 @@ ACCIÓN→ Hubo un error técnico al consultar disponibilidad. Pide al usuario q
           }
         }
 
-        // A2) Nombre exacto: "se llama X", "llamado X", "jugar a X", "¿Tenéis X?", "¿Tienes X?"
+        // A2) Nombre exacto: "se llama X", "llamado X", "jugar a X", "¿Tenéis X?", "¿Tienes X?", "¿Tendrás X?"
         if (games.length === 0) {
           const named = searchMsg.match(
-            /(?:se\s+llama|llamado|jugar\s+(?:al?\s+)?|¿?\s*(?:tenéis|teneis|tienes)\s+(?:el\s+)?(?:juego\s+(?:de\s+mesa\s+)?(?:de\s+)?)?|me\s+pones?\s+(?:el\s+)?|sacame\s+|sácame\s+|nos\s+sacas?\s+)\s*["']?([A-Z][A-Za-z0-9ÁÉÍÓÚáéíóúÑñüÜ\s!:'\-]{1,40}?)["']?\s*(?:[?,!¡¿.]|$)/i,
+            /(?:se\s+llama|llamado|jugar\s+(?:al?\s+)?|¿?\s*(?:tenéis|teneis|tienes|tendr[áa]s?|tendr[ée]is)\s+(?:el\s+)?(?:juego\s+(?:de\s+mesa\s+)?(?:de\s+)?)?|me\s+pones?\s+(?:el\s+)?|sacame\s+|sácame\s+|nos\s+sacas?\s+)\s*["']?([A-Z][A-Za-z0-9ÁÉÍÓÚáéíóúÑñüÜ\s!:'\-]{1,40}?)["']?\s*(?:[?,!¡¿.]|$)/i,
           );
-          const namedClean = named?.[1]?.trim();
+          let namedClean = named?.[1]?.trim();
+          // Clean filler words: "warcraft el juego de mesa" → "warcraft"
+          if (namedClean) namedClean = cleanGameName(namedClean);
           const namedIsValid = namedClean
+            && namedClean.length >= 3
             && namedClean.split(/\s+/).some(w => w.length >= 3 && !STOPWORDS.has(w.toLowerCase()))
             && !/^(?:juegos?|algo|un[oa]?)\s/i.test(namedClean);
           if (namedIsValid) {
@@ -1115,7 +1281,49 @@ ACCIÓN→ Hubo un error técnico al consultar disponibilidad. Pide al usuario q
               take: 5,
               include: gameIncludes,
             });
+
+            // If exact search fails, try each word individually (fuzzy)
+            if (games.length === 0 && namedClean!.split(/\s+/).length >= 1) {
+              const nameWords = namedClean!.split(/\s+/).filter(w => w.length >= 3);
+              for (const word of nameWords) {
+                games = await this.prisma.game.findMany({
+                  where: { isAvailable: true, name: { contains: word, mode: 'insensitive' as any } },
+                  take: 5,
+                  include: gameIncludes,
+                });
+                if (games.length > 0) break;
+              }
+            }
           }
+        }
+
+        // A3) Fuzzy fallback: extract any meaningful word ≥3 chars and search in game names
+        // Catches: "warcraft", "scrble", "pandemik", etc. even without trigger phrases
+        if (games.length === 0) {
+          const allWords = message
+            .replace(/[¿?¡!.,;:'"]/g, '')
+            .split(/\s+/)
+            .filter((w: string) => w.length >= 3 && !STOPWORDS.has(w.toLowerCase()));
+          // Try longer words first (more likely to be game names)
+          const sortedWords = allWords.sort((a: string, b: string) => b.length - a.length);
+          // Try up to 5 words; prefer the match with FEWEST results (most specific)
+          let bestMatch: any[] = [];
+          for (const word of sortedWords.slice(0, 5)) {
+            const fuzzyResults = await this.prisma.game.findMany({
+              where: { isAvailable: true, name: { contains: word, mode: 'insensitive' as any } },
+              take: 10,
+              include: gameIncludes,
+            });
+            if (fuzzyResults.length > 0 && fuzzyResults.length <= 8) {
+              // Prefer fewer results (more specific match)
+              if (bestMatch.length === 0 || fuzzyResults.length < bestMatch.length) {
+                bestMatch = fuzzyResults;
+              }
+              // If we found an exact-ish match (1-2 results), stop early
+              if (fuzzyResults.length <= 2) break;
+            }
+          }
+          if (bestMatch.length > 0) games = bestMatch;
         }
 
         // ── B) Filtros de atributos: jugadores, duración, dificultad, tema, mecánica ──
@@ -1290,6 +1498,13 @@ ACCIÓN→ Hubo un error técnico al consultar disponibilidad. Pide al usuario q
         }
 
         if (games.length > 0) {
+          // ── Detect instruction mode ──
+          const isInstruction = isInstructionRequest(message) || isInstructionRequest(allUserText.slice(-200));
+          // Also check if continuing an instruction conversation
+          const lastBotMsg = history.filter(h => h.role === 'assistant').slice(-1)[0]?.content ?? '';
+          const wasInstructing = /turno|preparaci[oó]n|tablero|partida|dados?|cartas?|fichas?|ronda|paso\s+\d|Turno\s+\d|setup|montar/i.test(lastBotMsg) && lastBotMsg.length > 400;
+          const instructionMode = isInstruction || wasInstructing;
+
           // ── PAGINACIÓN: filtrar juegos ya mostrados ──
           let availableGames = games;
           if (isPaginationRequest && alreadyShownNames.size > 0) {
@@ -1303,26 +1518,69 @@ ACCIÓN→ Hubo un error técnico al consultar disponibilidad. Pide al usuario q
           const totalFound = games.length;
 
           // foundGames = SOLO los que vamos a mostrar (para los botones)
-          foundGames = pageGames.map((g: any) => ({
-            id:          g.id,
-            name:        g.name,
-            playersMin:  g.playersMin,
-            playersMax:  g.playersMax,
-            playersBest: g.playersBest ?? 0,
-            durationMin: g.durationMin,
-            durationMax: g.durationMax,
-            difficulty:  g.difficulty,
-            ageMin:      g.ageMin,
-            typeIds:     g.types?.map((t: any) => t.typeId).join(',') ?? '',
-            categoryIds: g.categories?.map((c: any) => c.categoryId).join(',') ?? '',
-            mechanicIds: g.mechanics?.map((m: any) => m.mechanicId).join(',') ?? '',
-          }));
+          // BUT: suppress buttons if in instruction mode
+          if (!instructionMode) {
+            foundGames = pageGames.map((g: any) => ({
+              id:          g.id,
+              name:        g.name,
+              playersMin:  g.playersMin,
+              playersMax:  g.playersMax,
+              playersBest: g.playersBest ?? 0,
+              durationMin: g.durationMin,
+              durationMax: g.durationMax,
+              difficulty:  g.difficulty,
+              ageMin:      g.ageMin,
+              typeIds:     g.types?.map((t: any) => t.typeId).join(',') ?? '',
+              categoryIds: g.categories?.map((c: any) => c.categoryId).join(',') ?? '',
+              mechanicIds: g.mechanics?.map((m: any) => m.mechanicId).join(',') ?? '',
+            }));
+          }
+          // else: foundGames stays [] → no buttons
 
           if (pageGames.length === 0 && isPaginationRequest) {
-            // Ya se mostraron todos
             systemContext = '[CONTEXTO DEL SISTEMA]\nACCIÓN→ Ya le has mostrado todos los juegos disponibles de esa búsqueda. Díselo con naturalidad y pregunta si quiere buscar otro tipo de juego o si necesita más detalles de alguno de los que ya vio.';
+
+          // ── INSTRUCTION MODE ──
+          } else if (instructionMode && pageGames.length > 0) {
+            const gameName = pageGames[0].name;
+            const gameData = pageGames[0];
+            const dur = gameData.durationMin === gameData.durationMax ? `${gameData.durationMin}min` : `${gameData.durationMin}-${gameData.durationMax}min`;
+            const gameInfo = `**${gameName}**: ${gameData.playersMin}-${gameData.playersMax} jugadores, ${dur}, dificultad ${gameData.difficulty}/5, edad ${gameData.ageMin}+` +
+              (gameData.description ? `\nDescripción de nuestra BD: ${gameData.description}` : '') +
+              ((gameData as any).gameplay ? `\nJugabilidad de nuestra BD: ${(gameData as any).gameplay}` : '');
+
+            systemContext = `[CONTEXTO DEL SISTEMA]
+MODO→INSTRUCCIÓN
+JUEGO: ${gameName}
+DATOS DE NUESTRA BD→ ${gameInfo}
+
+ACCIÓN→ El usuario quiere aprender a jugar a **${gameName}**. UTILIZA TODO TU CONOCIMIENTO sobre este juego para darle una explicación COMPLETA y DETALLADA. Los datos de arriba son solo referencia básica — tú sabes mucho más sobre las reglas de este juego.
+
+Estructura tu explicación así:
+1. **¿De qué va?** — Resumen en 2 frases de la temática y objetivo
+2. **Preparación** — Cómo montar el tablero, repartir componentes, setup inicial
+3. **Turno a turno** — Qué puede hacer un jugador en su turno, paso a paso
+4. **Componentes clave** — Para qué sirve cada tipo de carta/ficha/dado/recurso
+5. **Cómo se gana** — Condición de victoria
+6. **Consejo para novatos** — Un tip práctico para la primera partida
+
+Sé MUY detallado, usa ejemplos concretos. El usuario es nuevo y necesita que le lleves de la mano.
+Si el usuario pide una partida demo/simulada, hazla turno por turno con ejemplos reales.
+Si te pide "después qué sigue" o "y luego?", continúa exactamente donde lo dejaste.
+Puedes hacer la respuesta TAN LARGA como necesites — no hay límite de párrafos para instrucciones.
+
+OPCIONES INTERACTIVAS — MUY IMPORTANTE:
+Al FINAL de tu respuesta, SIEMPRE incluye un bloque de opciones contextuales para que el usuario elija qué quiere hacer a continuación. El formato EXACTO es:
+[OPCIONES] opción 1 | opción 2 | opción 3 | opción 4 [/OPCIONES]
+Las opciones deben ser RELEVANTES al contexto actual. Ejemplos según la situación:
+- Si acabas de explicar de qué va el juego: "Explícame la preparación | Enséñame turno por turno | Juguemos una partida demo | Volver a buscar juegos"
+- Si acabas de explicar la preparación: "¿Cómo es un turno? | ¿Qué hace cada componente? | Juguemos una partida demo | Ya entendí, gracias"
+- Si estás simulando turnos: "Siguiente turno | Repíteme este turno | ¿Qué estrategias hay? | Finalizar la demo"
+- Si acabas de terminar toda la explicación: "Juguemos una partida demo | Dame consejos avanzados | Explícame otra vez desde cero | Buscar otro juego"
+Genera entre 3 y 4 opciones. Sean cortas (máximo 6-7 palabras). SIEMPRE incluye una opción de "salir" como "Buscar otro juego" o "Ya entendí, gracias" o "Finalizar instrucciones".`;
+
           } else {
-            // Construir contexto con los juegos de esta página
+            // ── NORMAL GAME LISTING MODE ──
             const gameLines = pageGames.map(g => {
               const dur = g.durationMin === g.durationMax ? `${g.durationMin}min` : `${g.durationMin}-${g.durationMax}min`;
               return `- **${g.name}**: ${g.playersMin}-${g.playersMax} jugadores, ${dur}, dificultad ${g.difficulty}/5, edad ${g.ageMin}+` +
@@ -1332,16 +1590,15 @@ ACCIÓN→ Hubo un error técnico al consultar disponibilidad. Pide al usuario q
                 ((g as any).gameplay ? `\n  Jugabilidad: ${(g as any).gameplay}` : '');
             }).join('\n');
 
-            // Construir ACCIÓN según el contexto
             const allowedNames = pageGames.map(g => `"${g.name}"`).join(', ');
             let action = '';
             if (isExplicitDetailRequest && pageGames.length <= 2) {
-              action = `ACCIÓN→ El usuario quiere saber más sobre este juego. Usa la Descripción y Jugabilidad de DATOS→ para explicarle de forma natural y cercana de qué va y cómo se juega. No copies el texto tal cual, resúmelo con tu estilo. Incluye datos clave (jugadores, duración, dificultad). Al final pregunta si le interesa o quiere ver más opciones.
+              action = `ACCIÓN→ El usuario quiere saber más sobre este juego. Usa la Descripción y Jugabilidad de DATOS→ para explicarle de forma natural y cercana de qué va y cómo se juega. Da una respuesta COMPLETA y detallada — no te limites a 2 frases, explica bien. Al final pregunta si le interesa, si quiere saber cómo se juega paso a paso, o si quiere ver más opciones.
 JUEGOS PERMITIDOS (SOLO estos, NINGUNO más): ${allowedNames}`;
             } else {
               action = `ACCIÓN→ Presenta EXACTAMENTE estos ${pageGames.length} juegos y NINGUNO más: ${allowedNames}
 REGLA: NO puedes mencionar NI recomendar NINGÚN juego que no esté en esa lista. Si conoces otros juegos como Catan, Dixit, etc., NO los menciones. SOLO los ${pageGames.length} de la lista.
-Muestra cada juego con su nombre exacto en **negrita** y sus datos clave. Luego dile al usuario: "Pulsa el botón con el nombre del juego para ver la ficha completa."`;
+Muestra cada juego con su nombre exacto en **negrita** y sus datos clave. Da una breve descripción de cada uno (2-3 frases). Luego dile al usuario: "Pulsa el botón con el nombre del juego para ver la ficha completa."`;
               if (remainingCount > 0) {
                 action += `\nHay ${remainingCount} juego(s) más que coinciden. Al final pregunta si quiere ver los siguientes ${Math.min(remainingCount, MAX_PER_PAGE)}.`;
               } else {
@@ -1352,24 +1609,58 @@ Muestra cada juego con su nombre exacto en **negrita** y sus datos clave. Luego 
             systemContext = `[CONTEXTO DEL SISTEMA]\nDATOS→ Juegos encontrados (mostrando ${pageGames.length} de ${totalFound} resultados):\n${gameLines}\n${action}`;
           }
         } else {
-          // Detectar si fue una petición vaga sin filtros (ej: "recomiéndame algo") vs. búsqueda con filtros que no devolvió resultados
-          const filters = extractGameFilters(searchMsg);
-          const hadAnyFilters = filters.players !== undefined || filters.durationMax !== undefined || filters.durationMin !== undefined
-            || filters.difficultyMax !== undefined || filters.difficultyMin !== undefined
-            || (filters.categoryKeywords && filters.categoryKeywords.length > 0)
-            || (filters.mechanicKeywords && filters.mechanicKeywords.length > 0)
-            || (filters.typeKeywords && filters.typeKeywords.length > 0);
+          // No games found through pipeline
+          // Check if user is asking for instructions about a game from context
+          const isInstruction = isInstructionRequest(message);
+          const contextGame = extractGameNameFromContext(message, history);
 
-          if (!hadAnyFilters && !isPaginationRequest) {
+          if (isInstruction && contextGame) {
+            // User wants instructions for a game already being discussed
             systemContext = `[CONTEXTO DEL SISTEMA]
+MODO→INSTRUCCIÓN
+JUEGO: ${contextGame}
+
+ACCIÓN→ El usuario quiere aprender a jugar a **${contextGame}**. UTILIZA TODO TU CONOCIMIENTO sobre este juego para darle una explicación COMPLETA y DETALLADA.
+
+Estructura tu explicación así:
+1. **¿De qué va?** — Resumen en 2 frases de la temática y objetivo
+2. **Preparación** — Cómo montar el tablero, repartir componentes, setup inicial
+3. **Turno a turno** — Qué puede hacer un jugador en su turno, paso a paso
+4. **Componentes clave** — Para qué sirve cada tipo de carta/ficha/dado/recurso
+5. **Cómo se gana** — Condición de victoria
+6. **Consejo para novatos** — Un tip práctico para la primera partida
+
+Sé MUY detallado, usa ejemplos concretos. El usuario es nuevo y necesita que le lleves de la mano.
+Puedes hacer la respuesta TAN LARGA como necesites.
+
+OPCIONES INTERACTIVAS — MUY IMPORTANTE:
+Al FINAL de tu respuesta, SIEMPRE incluye opciones contextuales:
+[OPCIONES] opción 1 | opción 2 | opción 3 | opción 4 [/OPCIONES]
+Las opciones deben ser RELEVANTES al punto donde estás de la explicación. Genera 3-4 opciones cortas (máx 7 palabras). SIEMPRE incluye una de "salir" como "Buscar otro juego" o "Ya entendí, gracias".`;
+          } else if (isInstruction && !contextGame) {
+            // User wants instructions but we don't know which game
+            systemContext = `[CONTEXTO DEL SISTEMA]
+ACCIÓN→ El usuario quiere que le enseñes a jugar pero no has identificado qué juego. Pregúntale de forma natural: "¡Claro, encantado de enseñarte! ¿Qué juego queréis aprender?" Si mencionaron un nombre que no reconoces, pregúntale el nombre exacto del juego.`;
+          } else {
+            // Normal no-results handling
+            const filters = extractGameFilters(searchMsg);
+            const hadAnyFilters = filters.players !== undefined || filters.durationMax !== undefined || filters.durationMin !== undefined
+              || filters.difficultyMax !== undefined || filters.difficultyMin !== undefined
+              || (filters.categoryKeywords && filters.categoryKeywords.length > 0)
+              || (filters.mechanicKeywords && filters.mechanicKeywords.length > 0)
+              || (filters.typeKeywords && filters.typeKeywords.length > 0);
+
+            if (!hadAnyFilters && !isPaginationRequest) {
+              systemContext = `[CONTEXTO DEL SISTEMA]
 ACCIÓN→ El usuario quiere una recomendación de juego pero no ha dado detalles. Pregúntale de forma natural qué tipo de juego busca. Puedes preguntar cosas como:
 - ¿Cuántas personas sois?
 - ¿Buscáis algo cooperativo, competitivo, de fiesta...?
 - ¿Preferís algo rápido o algo largo para echar la tarde?
 - ¿Hay algún juego que os guste y queráis algo parecido?
 Tenemos más de 500 juegos y seguro que encontramos algo perfecto para ellos. NO inventes nombres de juegos.`;
-          } else {
-            systemContext = '[CONTEXTO DEL SISTEMA]\nACCIÓN→ No encontramos juegos que coincidan con esa búsqueda en nuestra base de datos. Díselo con naturalidad y sugiere que pregunten directamente al personal del local, que estará encantado de ayudarles. No menciones ni inventes juegos.';
+            } else {
+              systemContext = '[CONTEXTO DEL SISTEMA]\nACCIÓN→ No encontramos juegos que coincidan con esa búsqueda en nuestra base de datos. Díselo con naturalidad y sugiere que pregunten directamente al personal del local, que estará encantado de ayudarles. No menciones ni inventes juegos.';
+            }
           }
         }
       } catch (err) {
@@ -1396,10 +1687,15 @@ Tenemos más de 500 juegos y seguro que encontramos algo perfecto para ellos. NO
     ];
 
     try {
+      // Adjust max_tokens based on context
+      const isInstructionMode = systemContext.includes('MODO→INSTRUCCIÓN');
+      const isDetailMode = systemContext.includes('quiere saber más');
+      const maxTokens = isInstructionMode ? 1500 : isDetailMode ? 700 : 500;
+
       const response = await fetch(this.apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.apiKey}` },
-        body: JSON.stringify({ model: this.apiModel, messages, max_tokens: 500, temperature: 0.3 }),
+        body: JSON.stringify({ model: this.apiModel, messages, max_tokens: maxTokens, temperature: 0.3 }),
       });
 
       if (!response.ok) {
@@ -1409,58 +1705,72 @@ Tenemos más de 500 juegos y seguro que encontramos algo perfecto para ellos. NO
       }
 
       const data = await response.json();
-      const reply = data.choices?.[0]?.message?.content ?? 'No pude generar una respuesta.';
+      let reply = data.choices?.[0]?.message?.content ?? 'No pude generar una respuesta.';
 
-      // ── BOTONES: extraer nombres en **negrita** del reply → verificar en BD ──
-      // Esto es infalible: si el LLM inventa un juego que no existe en la BD, no aparece botón.
-      // Si menciona un juego real, aparece. No dependemos de que foundGames coincida.
-      let buttonGames: any[] = [];
-      const boldNames = [...reply.matchAll(/\*\*([^*]{2,60}?)\*\*/g)].map(m => m[1].trim());
-
-      if (boldNames.length > 0) {
-        // Primero intentar match contra foundGames (rápido, sin query extra)
-        const replyLower = reply.toLowerCase();
-        const fromFoundGames = foundGames.filter(g => {
-          const name = (g.name as string).toLowerCase();
-          return replyLower.includes(name)
-            || reply.includes(`**${g.name}**`)
-            || boldNames.some(bn => bn.toLowerCase() === name);
-        });
-
-        if (fromFoundGames.length >= boldNames.length - 1) {
-          // Casi todos los bold names matchean foundGames — usar esos
-          buttonGames = fromFoundGames;
-        } else {
-          // El LLM mencionó juegos que no están en foundGames — buscar en BD
-          try {
-            const dbLookup = await this.prisma.game.findMany({
-              where: {
-                isAvailable: true,
-                OR: boldNames.map(bn => ({ name: { contains: bn, mode: 'insensitive' as any } })),
-              },
-              take: 5,
-              include: { types: { include: { type: true } }, categories: { include: { category: true } }, mechanics: { include: { mechanic: true } } },
-            });
-            buttonGames = dbLookup.map((g: any) => ({
-              id: g.id, name: g.name,
-              playersMin: g.playersMin, playersMax: g.playersMax,
-              playersBest: g.playersBest ?? 0,
-              durationMin: g.durationMin, durationMax: g.durationMax,
-              difficulty: g.difficulty, ageMin: g.ageMin,
-              typeIds: g.types?.map((t: any) => t.typeId).join(',') ?? '',
-              categoryIds: g.categories?.map((c: any) => c.categoryId).join(',') ?? '',
-              mechanicIds: g.mechanics?.map((m: any) => m.mechanicId).join(',') ?? '',
-            }));
-          } catch {
-            buttonGames = foundGames; // fallback
-          }
-        }
-      } else if (foundGames.length > 0) {
-        // LLM no usó negritas — fallback a foundGames
-        buttonGames = foundGames;
+      // ── PARSE QUICK REPLIES (contextual options from LLM) ──
+      let quickReplies: string[] = [];
+      const optionsMatch = reply.match(/\[OPCIONES\]([\s\S]*?)\[\/OPCIONES\]/);
+      if (optionsMatch) {
+        quickReplies = optionsMatch[1]
+          .split('|')
+          .map((o: string) => o.trim())
+          .filter((o: string) => o.length > 0 && o.length <= 80);
+        // Remove the options block from the visible reply
+        reply = reply.replace(/\[OPCIONES\][\s\S]*?\[\/OPCIONES\]/, '').trim();
       }
 
-      return { reply, source: 'groq', games: buttonGames.length > 0 ? buttonGames : undefined };
+      // ── BOTONES DE JUEGO: solo en modo búsqueda/listado (NO en instrucciones) ──
+      let buttonGames: any[] = [];
+
+      if (!isInstructionMode) {
+        const boldNames = [...reply.matchAll(/\*\*([^*]{2,60}?)\*\*/g)].map(m => m[1].trim());
+
+        if (boldNames.length > 0) {
+          const replyLower = reply.toLowerCase();
+          const fromFoundGames = foundGames.filter(g => {
+            const name = (g.name as string).toLowerCase();
+            return replyLower.includes(name)
+              || reply.includes(`**${g.name}**`)
+              || boldNames.some(bn => bn.toLowerCase() === name);
+          });
+
+          if (fromFoundGames.length >= boldNames.length - 1) {
+            buttonGames = fromFoundGames;
+          } else {
+            try {
+              const dbLookup = await this.prisma.game.findMany({
+                where: {
+                  isAvailable: true,
+                  OR: boldNames.map(bn => ({ name: { contains: bn, mode: 'insensitive' as any } })),
+                },
+                take: 5,
+                include: { types: { include: { type: true } }, categories: { include: { category: true } }, mechanics: { include: { mechanic: true } } },
+              });
+              buttonGames = dbLookup.map((g: any) => ({
+                id: g.id, name: g.name,
+                playersMin: g.playersMin, playersMax: g.playersMax,
+                playersBest: g.playersBest ?? 0,
+                durationMin: g.durationMin, durationMax: g.durationMax,
+                difficulty: g.difficulty, ageMin: g.ageMin,
+                typeIds: g.types?.map((t: any) => t.typeId).join(',') ?? '',
+                categoryIds: g.categories?.map((c: any) => c.categoryId).join(',') ?? '',
+                mechanicIds: g.mechanics?.map((m: any) => m.mechanicId).join(',') ?? '',
+              }));
+            } catch {
+              buttonGames = foundGames;
+            }
+          }
+        } else if (foundGames.length > 0) {
+          buttonGames = foundGames;
+        }
+      }
+
+      return {
+        reply,
+        source: 'groq',
+        games: buttonGames.length > 0 ? buttonGames : undefined,
+        quickReplies: quickReplies.length > 0 ? quickReplies : undefined,
+      };
 
     } catch {
       return { reply: 'Tengo un problema técnico. Contacta con el local: hola@elbunker.es o 912 345 678.', source: 'error' };

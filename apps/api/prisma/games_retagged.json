@@ -1,0 +1,5857 @@
+{
+  "generated_at": "2026-03-23T00:53:15.930Z",
+  "total_games": 585,
+  "retagged_count": 585,
+  "games": [
+    {
+      "id": "1",
+      "name": "Pandemic Legacy: Season 1",
+      "type_ids_new": "9,7",
+      "category_ids_new": "26,27,43,12,1",
+      "mechanic_ids_new": "40,52,3,13,48,112,141,140,114,115",
+      "type_ids_old": "1",
+      "category_ids_old": "27,43",
+      "mechanic_ids_old": "3,40,62,80,118,140,163,175"
+    },
+    {
+      "id": "2",
+      "name": "Terraforming Mars",
+      "type_ids_new": "1,7",
+      "category_ids_new": "12,17,19,20,32",
+      "mechanic_ids_new": "3,13,24,28,66,76,63,87,117,121",
+      "type_ids_old": "1",
+      "category_ids_old": "24,27,37,69,70,73",
+      "mechanic_ids_old": "51,54,62,63,71,140,146,155,160,170,175"
+    },
+    {
+      "id": "3",
+      "name": "Through the Ages: A New Story of Civilization",
+      "type_ids_new": "1",
+      "category_ids_new": "19,61,17,18,9",
+      "mechanic_ids_new": "3,13,66,63,116,104,134,21,71,87",
+      "type_ids_old": "1",
+      "category_ids_old": "15,19,24",
+      "mechanic_ids_old": "3,13,15,28,55,71,155"
+    },
+    {
+      "id": "4",
+      "name": "Twilight Struggle",
+      "type_ids_new": "1,4",
+      "category_ids_new": "47,80,61,32,46",
+      "mechanic_ids_new": "13,20,27,21,72,75,39,137,98,118",
+      "type_ids_old": "4",
+      "category_ids_old": "47,60,80",
+      "mechanic_ids_old": "7,8,10,27,48,55,62,141,142,154,166"
+    },
+    {
+      "id": "5",
+      "name": "Los castillos de Borgoña",
+      "type_ids_new": "1",
+      "category_ids_new": "18,17,20,32,61",
+      "mechanic_ids_new": "1,61,62,63,102,134,3,37,121,87",
+      "type_ids_old": "1,3",
+      "category_ids_old": "23,44,73",
+      "mechanic_ids_old": "48,60,63,140,160,173,180"
+    },
+    {
+      "id": "6",
+      "name": "7 Wonders Duel",
+      "type_ids_new": "1",
+      "category_ids_new": "9,19,13",
+      "mechanic_ids_new": "25,28,62,63,137,140,163",
+      "type_ids_old": "1",
+      "category_ids_old": "9,15,17,19,24",
+      "mechanic_ids_old": "28,79,140,154,166"
+    },
+    {
+      "id": "7",
+      "name": "Terra Mystica",
+      "type_ids_new": "1",
+      "category_ids_new": "8,19,23,45",
+      "mechanic_ids_new": "87,27,66,104,122,63,174,164",
+      "type_ids_old": "1",
+      "category_ids_old": "19,24,31,73",
+      "mechanic_ids_old": "54,63,71,72,104,158,169,175,176,177"
+    },
+    {
+      "id": "8",
+      "name": "Puerto Rico",
+      "type_ids_new": "1",
+      "category_ids_new": "17,32,61,71",
+      "mechanic_ids_new": "55,66,107,160,63,11,164,140",
+      "type_ids_old": "1",
+      "category_ids_old": "17,24,32",
+      "mechanic_ids_old": "2,54,58,66,72,170,174"
+    },
+    {
+      "id": "9",
+      "name": "Agricola",
+      "type_ids_new": "1",
+      "category_ids_new": "17,71,62",
+      "mechanic_ids_new": "54,66,164,63,141,169,96,140",
+      "type_ids_old": "1",
+      "category_ids_old": "10,24,32",
+      "mechanic_ids_old": "8,22,51,53,62,72,146,168,175,179"
+    },
+    {
+      "id": "10",
+      "name": "La Tripulación",
+      "type_ids_new": "9,3",
+      "category_ids_new": "13,26,12,1",
+      "mechanic_ids_new": "40,16,114,155,63,51,148,138",
+      "type_ids_old": "3,5,1",
+      "category_ids_old": "15,69,70",
+      "mechanic_ids_old": "36,40,62,135,165"
+    },
+    {
+      "id": "11",
+      "name": "Tzolk'in: The Mayan Calendar",
+      "type_ids_new": "1",
+      "category_ids_new": "9,19,75",
+      "mechanic_ids_new": "54,3,66,63,21,104,121,140",
+      "type_ids_old": "1",
+      "category_ids_old": "9,19,24,32,51",
+      "mechanic_ids_old": "24,54,168,179"
+    },
+    {
+      "id": "12",
+      "name": "Alta tensión",
+      "type_ids_new": "1",
+      "category_ids_new": "17,70,64",
+      "mechanic_ids_new": "5,75,110,63,20,142,66,172",
+      "type_ids_old": "1,3",
+      "category_ids_old": "24,37",
+      "mechanic_ids_old": "13,21,30,71,89,104,173"
+    },
+    {
+      "id": "13",
+      "name": "Star Wars: Imperial Assault",
+      "type_ids_new": "7,9",
+      "category_ids_new": "1,12,33,26",
+      "mechanic_ids_new": "40,1,9,46,10,111,158,113,87",
+      "type_ids_old": "2",
+      "category_ids_old": "3,29,33,46,48,69,80",
+      "mechanic_ids_old": "48,49,61,82,95,131,135,148,157,175"
+    },
+    {
+      "id": "14",
+      "name": "Le Havre",
+      "type_ids_new": "1",
+      "category_ids_new": "17,51,32,20",
+      "mechanic_ids_new": "55,66,63,62,169,110,96,71,104",
+      "type_ids_old": "1",
+      "category_ids_old": "17,24,37,53",
+      "mechanic_ids_old": "22,54,72,83,107,146,179"
+    },
+    {
+      "id": "15",
+      "name": "Azul",
+      "type_ids_new": "2,3",
+      "category_ids_new": "63,25,61,73",
+      "mechanic_ids_new": "61,83,62,63,153,37,122,25",
+      "type_ids_old": "5",
+      "category_ids_old": "1,64,68",
+      "mechanic_ids_old": "28,54,110,140,160,168"
+    },
+    {
+      "id": "16",
+      "name": "Through the Ages: A Story of Civilization",
+      "type_ids_new": "1",
+      "category_ids_new": "19,9,61,17",
+      "mechanic_ids_new": "3,13,48,63,112,66,116,134,175",
+      "type_ids_old": "1",
+      "category_ids_old": "19,24",
+      "mechanic_ids_old": "3,13,15,28,62"
+    },
+    {
+      "id": "17",
+      "name": "7 Wonders",
+      "type_ids_new": "3,1",
+      "category_ids_new": "9,19,20,61",
+      "mechanic_ids_new": "25,28,62,63,32,75,155",
+      "type_ids_old": "1",
+      "category_ids_old": "9,15,17,19,24",
+      "mechanic_ids_old": "51,62,140,142,175"
+    },
+    {
+      "id": "18",
+      "name": "Agricola (Revised Edition)",
+      "type_ids_new": "1",
+      "category_ids_new": "18,71,17,62",
+      "mechanic_ids_new": "54,3,66,104,169,63,117,121",
+      "type_ids_old": "1",
+      "category_ids_old": "10,24,32",
+      "mechanic_ids_old": "53,62,179,8,22,51,72,146,157,168,175"
+    },
+    {
+      "id": "19",
+      "name": "Caylus",
+      "type_ids_new": "1",
+      "category_ids_new": "18,20,17,61",
+      "mechanic_ids_new": "54,66,20,63,142,82,164,121",
+      "type_ids_old": "1",
+      "category_ids_old": "17,24,44",
+      "mechanic_ids_old": "107,168,169,176,179"
+    },
+    {
+      "id": "20",
+      "name": "Troyes",
+      "type_ids_new": "1",
+      "category_ids_new": "18,9,61,17",
+      "mechanic_ids_new": "1,23,3,112,11,75,164,63",
+      "type_ids_old": "1",
+      "category_ids_old": "23,24,44",
+      "mechanic_ids_old": "10,48,54,66,84,107,140,146,170,179,180,181"
+    },
+    {
+      "id": "21",
+      "name": "Mombasa",
+      "type_ids_new": "1",
+      "category_ids_new": "17,32,61,2,75,19",
+      "mechanic_ids_new": "3,13,54,24,87,27,98,63,66,138",
+      "type_ids_old": "1",
+      "category_ids_old": "24",
+      "mechanic_ids_old": "4,10,28,45,62,75,142,152,175,179"
+    },
+    {
+      "id": "22",
+      "name": "Dominion: Intrigue",
+      "type_ids_new": "1,3",
+      "category_ids_new": "13,18,47,46,44",
+      "mechanic_ids_new": "24,13,48,26,39,45,62,63,163,78",
+      "type_ids_old": "1",
+      "category_ids_old": "15,44",
+      "mechanic_ids_old": "45,62"
+    },
+    {
+      "id": "23",
+      "name": "Patchwork",
+      "type_ids_new": "1,3",
+      "category_ids_new": "25,63",
+      "mechanic_ids_new": "61,105,83,102,104,118,63,21,53",
+      "type_ids_old": "5",
+      "category_ids_old": "1,64",
+      "mechanic_ids_old": "28,60,71,148,160,161,177"
+    },
+    {
+      "id": "24",
+      "name": "Russian Railroads",
+      "type_ids_new": "1",
+      "category_ids_new": "17,50,70,61,82",
+      "mechanic_ids_new": "54,3,82,117,63,66,123,124,121,104",
+      "type_ids_old": "1",
+      "category_ids_old": "37,74",
+      "mechanic_ids_old": "54,179"
+    },
+    {
+      "id": "25",
+      "name": "Código Secreto",
+      "type_ids_new": "5,3",
+      "category_ids_new": "3,46,54,80",
+      "mechanic_ids_new": "16,38,88,74,65,39,137,113,89",
+      "type_ids_old": "3,8",
+      "category_ids_old": "15,22,57,71,81",
+      "mechanic_ids_old": "36,93,122,157"
+    },
+    {
+      "id": "26",
+      "name": "Dominion",
+      "type_ids_new": "1,3",
+      "category_ids_new": "13,18,17,20",
+      "mechanic_ids_new": "24,13,48,62,63,37,35,76,140",
+      "type_ids_old": "1",
+      "category_ids_old": "15,44",
+      "mechanic_ids_old": "45,47,62,155,176"
+    },
+    {
+      "id": "27",
+      "name": "Pandemic",
+      "type_ids_new": "9,1,3",
+      "category_ids_new": "26,43,19,12",
+      "mechanic_ids_new": "40,3,54,19,16,38,112,141,115,148",
+      "type_ids_old": "1",
+      "category_ids_old": "43",
+      "mechanic_ids_old": "3,40,62,118,140,163,175"
+    },
+    {
+      "id": "28",
+      "name": "Yokohama",
+      "type_ids_new": "1,7",
+      "category_ids_new": "17,32,75,61,20,42",
+      "mechanic_ids_new": "54,3,9,66,53,63,37,108,87,106",
+      "type_ids_old": "1",
+      "category_ids_old": "24",
+      "mechanic_ids_old": "39,54,61,95,104,140,176,179,181"
+    },
+    {
+      "id": "29",
+      "name": "Alchemists",
+      "type_ids_new": "1,7",
+      "category_ids_new": "3,8,43,48,25,61",
+      "mechanic_ids_new": "54,3,64,105,85,87,63,37,77,158",
+      "type_ids_old": "1",
+      "category_ids_old": "22,31",
+      "mechanic_ids_old": "2,28,38,46,54,55,62,170"
+    },
+    {
+      "id": "30",
+      "name": "Stone Age",
+      "type_ids_new": "1,3",
+      "category_ids_new": "9,71,19,62,20",
+      "mechanic_ids_new": "54,1,3,66,63,37,104,123,169,62",
+      "type_ids_old": "1",
+      "category_ids_old": "23,24,62",
+      "mechanic_ids_old": "39,48,54,140,170,179"
+    },
+    {
+      "id": "31",
+      "name": "Star Realms",
+      "type_ids_new": "1,7",
+      "category_ids_new": "12,13,40",
+      "mechanic_ids_new": "24,13,48,40,63,78,162",
+      "type_ids_old": "1",
+      "category_ids_old": "15,33,69",
+      "mechanic_ids_old": "28,45,47,62,155"
+    },
+    {
+      "id": "32",
+      "name": "Ticket to Ride: Europe",
+      "type_ids_new": "1,3",
+      "category_ids_new": "50,62,17,61",
+      "mechanic_ids_new": "62,82,76,44,9,80,163",
+      "type_ids_old": "5",
+      "category_ids_old": "74",
+      "mechanic_ids_old": "28,37,54,62,104,122,140"
+    },
+    {
+      "id": "33",
+      "name": "Istanbul",
+      "type_ids_new": "1",
+      "category_ids_new": "17,32,18,61",
+      "mechanic_ids_new": "54,9,80,66,53,106,87,63",
+      "type_ids_old": "1",
+      "category_ids_old": "24",
+      "mechanic_ids_old": "39,48,61,95,104,114,123,176,179"
+    },
+    {
+      "id": "34",
+      "name": "Azul: Summer Pavilion",
+      "type_ids_new": "2,3",
+      "category_ids_new": "25,63,61",
+      "mechanic_ids_new": "61,28,83,105,63,37,78,122",
+      "type_ids_old": "5",
+      "category_ids_old": "1,64",
+      "mechanic_ids_old": "28,54,110,140,160,168"
+    },
+    {
+      "id": "35",
+      "name": "Jaipur",
+      "type_ids_new": "1,10",
+      "category_ids_new": "13,32,17",
+      "mechanic_ids_new": "13,48,62,53,77,107,102,150",
+      "type_ids_old": "5",
+      "category_ids_old": "10,15,24",
+      "mechanic_ids_old": "28,62,66,89,136,140"
+    },
+    {
+      "id": "36",
+      "name": "The Resistance: Avalon",
+      "type_ids_new": "5",
+      "category_ids_new": "3,18,49,57,64",
+      "mechanic_ids_new": "39,45,65,16,40,77,158",
+      "type_ids_old": "8",
+      "category_ids_old": "13,15,22,31,44,54,57,71",
+      "mechanic_ids_old": "56,65,132,142,157,164,175,178"
+    },
+    {
+      "id": "37",
+      "name": "Cosmic Encounter",
+      "type_ids_new": "1,7",
+      "category_ids_new": "12,23,2,40",
+      "mechanic_ids_new": "87,75,136,20,9,47,158,159,178",
+      "type_ids_old": "2",
+      "category_ids_old": "13,54,69,70",
+      "mechanic_ids_old": "9,29,62,74,103,120,123,142,155,163,175"
+    },
+    {
+      "id": "38",
+      "name": "Just One",
+      "type_ids_new": "5,3",
+      "category_ids_new": "57,22,59,62",
+      "mechanic_ids_new": "40,88,16,31,148,153",
+      "type_ids_old": "8",
+      "category_ids_old": "57,81",
+      "mechanic_ids_old": "36,40"
+    },
+    {
+      "id": "39",
+      "name": "T.I.M.E Stories",
+      "type_ids_new": "9,7",
+      "category_ids_new": "1,29,42,26,61",
+      "mechanic_ids_new": "40,64,138,114,10,52,112,113",
+      "type_ids_old": "2",
+      "category_ids_old": "3,41,64,69",
+      "mechanic_ids_old": "40,48,96,102,153,175"
+    },
+    {
+      "id": "40",
+      "name": "Código Secreto: Dúo",
+      "type_ids_new": "5,3",
+      "category_ids_new": "3,13,46,57,62",
+      "mechanic_ids_new": "40,16,3,25,89,148",
+      "type_ids_old": "3,5",
+      "category_ids_old": "15,22,71,81",
+      "mechanic_ids_old": "36,40,122,157"
+    },
+    {
+      "id": "41",
+      "name": "Splendor",
+      "type_ids_new": "1,3",
+      "category_ids_new": "17,32,61,73",
+      "mechanic_ids_new": "3,13,48,62,63,66,102,121,134,169",
+      "type_ids_old": "5",
+      "category_ids_old": "15,24,68",
+      "mechanic_ids_old": "28,39,123,140"
+    },
+    {
+      "id": "42",
+      "name": "Ticket to Ride",
+      "type_ids_new": "3,1",
+      "category_ids_new": "50,42,61,83",
+      "mechanic_ids_new": "13,48,76,82,84,108,137,144,164,176",
+      "type_ids_old": "5",
+      "category_ids_old": "74",
+      "mechanic_ids_old": "28,39,54,62,104,122,140"
+    },
+    {
+      "id": "43",
+      "name": "Ra",
+      "type_ids_new": "1",
+      "category_ids_new": "9,61,76",
+      "mechanic_ids_new": "5,7,20,36,62,63,120,137,162,175",
+      "type_ids_old": "1",
+      "category_ids_old": "9,51",
+      "mechanic_ids_old": "13,19,33,38,122,140"
+    },
+    {
+      "id": "44",
+      "name": "Carcassonne",
+      "type_ids_new": "3,1",
+      "category_ids_new": "18,20,61,63",
+      "mechanic_ids_new": "27,46,54,61,63,80,87,98,122,157",
+      "type_ids_old": "5",
+      "category_ids_old": "17,44,73",
+      "mechanic_ids_old": "10,86,160"
+    },
+    {
+      "id": "45",
+      "name": "Sushi Go Party!",
+      "type_ids_new": "5,10,3",
+      "category_ids_new": "13,57,62,72",
+      "mechanic_ids_new": "13,25,28,35,48,62,63,131,155,162",
+      "type_ids_old": "5",
+      "category_ids_old": "15,57",
+      "mechanic_ids_old": "28,51,54,62,140,142"
+    },
+    {
+      "id": "46",
+      "name": "Isle of Skye: From Chieftain to King",
+      "type_ids_new": "1,3",
+      "category_ids_new": "18,23,61,64",
+      "mechanic_ids_new": "5,129,61,63,153,37,172,158",
+      "type_ids_old": "5",
+      "category_ids_old": "24,73",
+      "mechanic_ids_old": "13,30,140,160,170"
+    },
+    {
+      "id": "47",
+      "name": "Power Grid Deluxe: Europe/North America",
+      "type_ids_new": "1",
+      "category_ids_new": "17,70,47,60",
+      "mechanic_ids_new": "5,75,110,160,9,20,118,142,63,3",
+      "type_ids_old": "1",
+      "category_ids_old": "24,37",
+      "mechanic_ids_old": "21,71,89,104"
+    },
+    {
+      "id": "48",
+      "name": "Dixit: Odyssey",
+      "type_ids_new": "5,3",
+      "category_ids_new": "8,57,22,54",
+      "mechanic_ids_new": "38,65,88,89,64,36,85,130",
+      "type_ids_old": "8",
+      "category_ids_old": "15,36,57",
+      "mechanic_ids_old": "153,156,178"
+    },
+    {
+      "id": "49",
+      "name": "Kingdomino",
+      "type_ids_new": "3,10",
+      "category_ids_new": "18,20,25,62",
+      "mechanic_ids_new": "28,61,83,37,63,142,33",
+      "type_ids_old": "5",
+      "category_ids_old": "17,44,73",
+      "mechanic_ids_old": "28,51,160"
+    },
+    {
+      "id": "50",
+      "name": "Imperial Settlers",
+      "type_ids_new": "1,7",
+      "category_ids_new": "19,9,17,32,66",
+      "mechanic_ids_new": "13,24,87,66,146,63,15,117,11,3",
+      "type_ids_old": "1",
+      "category_ids_old": "9,15,17,19",
+      "mechanic_ids_old": "28,39,51,62,155,175"
+    },
+    {
+      "id": "51",
+      "name": "Hive",
+      "type_ids_new": "1,2",
+      "category_ids_new": "63,39",
+      "mechanic_ids_new": "9,61,80,83,87",
+      "type_ids_old": "7",
+      "category_ids_old": "1,10",
+      "mechanic_ids_old": "53,61,63,115,145,159,160"
+    },
+    {
+      "id": "52",
+      "name": "Small World",
+      "type_ids_new": "1,3,7",
+      "category_ids_new": "8,23,27,40",
+      "mechanic_ids_new": "1,20,98,87,63,140",
+      "type_ids_old": "5",
+      "category_ids_old": "31,33,73",
+      "mechanic_ids_old": "10,11,16,48,175,176,177"
+    },
+    {
+      "id": "53",
+      "name": "Arboretum",
+      "type_ids_new": "1",
+      "category_ids_new": "13,25,71",
+      "mechanic_ids_new": "13,48,62,76,163,137",
+      "type_ids_old": "5",
+      "category_ids_old": "13,15",
+      "mechanic_ids_old": "62,110,140,160"
+    },
+    {
+      "id": "54",
+      "name": "Sid Meier's Civilization: The Board Game",
+      "type_ids_new": "1,7",
+      "category_ids_new": "19,61,12,45",
+      "mechanic_ids_new": "1,46,98,66,116,104,117,19",
+      "type_ids_old": "1",
+      "category_ids_old": "17,19,29,54,78",
+      "mechanic_ids_old": "28,45,61,62,95,130,148,163,175"
+    },
+    {
+      "id": "55",
+      "name": "La Resistencia",
+      "type_ids_new": "5,3",
+      "category_ids_new": "3,12,57,46",
+      "mechanic_ids_new": "39,45,65,38,64,126",
+      "type_ids_old": "8",
+      "category_ids_old": "13,15,22,54,57,69,71",
+      "mechanic_ids_old": "65,93,132,142,157,164,178"
+    },
+    {
+      "id": "56",
+      "name": "Love Letter",
+      "type_ids_new": "3,10",
+      "category_ids_new": "3,13,18,25",
+      "mechanic_ids_new": "7,13,26,48,77,85,88,153,158,175",
+      "type_ids_old": "5",
+      "category_ids_old": "15,22,68",
+      "mechanic_ids_old": "46,62,116,136"
+    },
+    {
+      "id": "57",
+      "name": "Dixit",
+      "type_ids_new": "3,5",
+      "category_ids_new": "13,22,57,64",
+      "mechanic_ids_new": "16,36,64,65,85,88,113,153,175",
+      "type_ids_old": "8",
+      "category_ids_old": "15,36,57",
+      "mechanic_ids_old": "123,142,153,156,178"
+    },
+    {
+      "id": "58",
+      "name": "Takenoko",
+      "type_ids_new": "1,3",
+      "category_ids_new": "39,61,75",
+      "mechanic_ids_new": "1,9,46,55,61,63,76,108,175",
+      "type_ids_old": "5",
+      "category_ids_old": "10,27,32,73",
+      "mechanic_ids_old": "3,39,48,54,61,63,95,104,110,140,160"
+    },
+    {
+      "id": "59",
+      "name": "The Island",
+      "type_ids_new": "3,7",
+      "category_ids_new": "1,51",
+      "mechanic_ids_new": "1,9,26,37,46,47,80,98,108,115",
+      "type_ids_old": "5",
+      "category_ids_old": "3,10,13,53",
+      "mechanic_ids_old": "3,48,61,63,88,93,95,137,155"
+    },
+    {
+      "id": "60",
+      "name": "Arkham Horror (Third Edition)",
+      "type_ids_new": "7,9",
+      "category_ids_new": "1,11,26,29,61",
+      "mechanic_ids_new": "1,10,19,40,46,74,111,112,113,115,138,148",
+      "type_ids_old": "2",
+      "category_ids_old": "3,33,35,55",
+      "mechanic_ids_old": "40,48,95,118,150,175"
+    },
+    {
+      "id": "61",
+      "name": "Se Vende",
+      "type_ids_new": "3,10",
+      "category_ids_new": "17,32,62",
+      "mechanic_ids_new": "5,7,77,106,107,110,160,75",
+      "type_ids_old": "5",
+      "category_ids_old": "15,24",
+      "mechanic_ids_old": "13,20,21,62,138"
+    },
+    {
+      "id": "62",
+      "name": "Exploradores",
+      "type_ids_new": "1,3",
+      "category_ids_new": "1,2,62",
+      "mechanic_ids_new": "9,63,138,117,80,176",
+      "type_ids_old": "5",
+      "category_ids_old": "15,29",
+      "mechanic_ids_old": "62,122,136,140"
+    },
+    {
+      "id": "63",
+      "name": "Azul: Stained Glass of Sintra",
+      "type_ids_new": "2,1",
+      "category_ids_new": "63,25,61,73",
+      "mechanic_ids_new": "28,61,83,62,63,44,117,122",
+      "type_ids_old": "5",
+      "category_ids_old": "1,64,68",
+      "mechanic_ids_old": "28,54,95,110,140,160,168"
+    },
+    {
+      "id": "64",
+      "name": "King of Tokyo",
+      "type_ids_new": "5,3",
+      "category_ids_new": "10,40,22,62",
+      "mechanic_ids_new": "1,26,98,63,77,158,162,119",
+      "type_ids_old": "5",
+      "category_ids_old": "23,33,48,69",
+      "mechanic_ids_old": "28,48,49,77,116,122,126"
+    },
+    {
+      "id": "65",
+      "name": "Código Secreto: Imágenes",
+      "type_ids_new": "5,9",
+      "category_ids_new": "3,46,57,62",
+      "mechanic_ids_new": "16,38,39,88,89,40,130,65",
+      "type_ids_old": "8,3",
+      "category_ids_old": "15,22,57,71",
+      "mechanic_ids_old": "36,93,122,157"
+    },
+    {
+      "id": "66",
+      "name": "El Padrino: El imperio Corleone",
+      "type_ids_new": "1,7",
+      "category_ids_new": "23,47,61,64,83",
+      "mechanic_ids_new": "27,75,98,20,159,165,136,87,63,178",
+      "type_ids_old": "1",
+      "category_ids_old": "24,39,48",
+      "mechanic_ids_old": "10,13,28,62,93,155,175,179,181"
+    },
+    {
+      "id": "67",
+      "name": "Dice Forge",
+      "type_ids_new": "3,10",
+      "category_ids_new": "10,8,35,25",
+      "mechanic_ids_new": "1,24,66,62,63,37,121,135,134",
+      "type_ids_old": "5",
+      "category_ids_old": "9,23,31,51",
+      "mechanic_ids_old": "28,45,48,124"
+    },
+    {
+      "id": "68",
+      "name": "Pandemic: Fall of Rome",
+      "type_ids_new": "9,3,1",
+      "category_ids_new": "26,9,61,18,19",
+      "mechanic_ids_new": "40,11,159,98,19,87,115,112,114,148",
+      "type_ids_old": "1",
+      "category_ids_old": "9",
+      "mechanic_ids_old": "3,40,48,62,118,140,146,175"
+    },
+    {
+      "id": "69",
+      "name": "Incómodos Invitados",
+      "type_ids_new": "5,3",
+      "category_ids_new": "3,29,61,22,54",
+      "mechanic_ids_new": "74,36,39,9,64,85,137,45,88,65",
+      "type_ids_old": "3,5,2",
+      "category_ids_old": "15,22,36,48,49",
+      "mechanic_ids_old": "28,46,62,163"
+    },
+    {
+      "id": "70",
+      "name": "Firefly: The Game",
+      "type_ids_new": "7,1",
+      "category_ids_new": "1,12,2,34,6,42",
+      "mechanic_ids_new": "114,11,66,53,77,9,112,113,63,106",
+      "type_ids_old": "2",
+      "category_ids_old": "3,48,69,70,76",
+      "mechanic_ids_old": "11,28,48,114,146,155,163,175"
+    },
+    {
+      "id": "71",
+      "name": "Flash Point: Fire Rescue",
+      "type_ids_new": "9,7,3",
+      "category_ids_new": "26,1,43,2",
+      "mechanic_ids_new": "40,3,87,58,19,114,76,145,148,175",
+      "type_ids_old": "5",
+      "category_ids_old": "3",
+      "mechanic_ids_old": "3,40,48,61,114,141,146,148,175"
+    },
+    {
+      "id": "72",
+      "name": "Quadropolis",
+      "type_ids_new": "1,3",
+      "category_ids_new": "45,17,25,62",
+      "mechanic_ids_new": "61,55,63,66,117,71,20,144,175",
+      "type_ids_old": "5",
+      "category_ids_old": "17,27",
+      "mechanic_ids_old": "62,110,140,160"
+    },
+    {
+      "id": "73",
+      "name": "Pandemic: The Cure",
+      "type_ids_new": "9,3",
+      "category_ids_new": "26,43,12,2",
+      "mechanic_ids_new": "40,1,87,62,19,115,77,148,175",
+      "type_ids_old": "1",
+      "category_ids_old": "23,27,43",
+      "mechanic_ids_old": "40,48,62,118,122,126,140,146,175"
+    },
+    {
+      "id": "74",
+      "name": "Skull",
+      "type_ids_new": "5,10",
+      "category_ids_new": "57,22,3",
+      "mechanic_ids_new": "7,8,39,88,65,77,26,175",
+      "type_ids_old": "8",
+      "category_ids_old": "13,15,57",
+      "mechanic_ids_old": "13,62,116"
+    },
+    {
+      "id": "75",
+      "name": "El Desierto Prohibido (Forbidden Desert)",
+      "type_ids_new": "9,7",
+      "category_ids_new": "26,1,2,9",
+      "mechanic_ids_new": "40,87,138,114,115,19,71,148,46,175",
+      "type_ids_old": "5",
+      "category_ids_old": "3,31,69",
+      "mechanic_ids_old": "3,24,40,61,62,88,95,114,140,146,148,175"
+    },
+    {
+      "id": "76",
+      "name": "Colt Express",
+      "type_ids_new": "3,7",
+      "category_ids_new": "1,42,61,83",
+      "mechanic_ids_new": "36,81,9,113,26,80,45,92",
+      "type_ids_old": "5",
+      "category_ids_old": "8,33,74",
+      "mechanic_ids_old": "4,5,62,93,121,155,175"
+    },
+    {
+      "id": "77",
+      "name": "Hanabi",
+      "type_ids_new": "9,3",
+      "category_ids_new": "13,26,66,75",
+      "mechanic_ids_new": "40,16,48,74,150,148,153",
+      "type_ids_old": "5",
+      "category_ids_old": "15,22,45",
+      "mechanic_ids_old": "36,40,62,93,140"
+    },
+    {
+      "id": "78",
+      "name": "Catan",
+      "type_ids_new": "1,3",
+      "category_ids_new": "17,19,45,75,62",
+      "mechanic_ids_new": "1,46,66,75,82,63,20,106",
+      "type_ids_old": "1",
+      "category_ids_old": "24,54",
+      "mechanic_ids_old": "48,63,71,95,104,123,124,163,176"
+    },
+    {
+      "id": "79",
+      "name": "Legends of Andor",
+      "type_ids_new": "9,7,1",
+      "category_ids_new": "1,8,26,2,6",
+      "mechanic_ids_new": "40,10,138,19,159,114,111,113,115",
+      "type_ids_old": "2",
+      "category_ids_old": "3,31,33,64",
+      "mechanic_ids_old": "11,40,48,135,175"
+    },
+    {
+      "id": "80",
+      "name": "Citadels",
+      "type_ids_new": "1,3",
+      "category_ids_new": "18,3,45,47,64",
+      "mechanic_ids_new": "39,45,55,7,62,63,87,118",
+      "type_ids_old": "1",
+      "category_ids_old": "13,15,17,22,31,44",
+      "mechanic_ids_old": "2,28,51,84,140,172,175"
+    },
+    {
+      "id": "81",
+      "name": "Small World Underground",
+      "type_ids_new": "1,3,7",
+      "category_ids_new": "8,18,23,2,33",
+      "mechanic_ids_new": "27,87,20,63,98,144,26,142,158",
+      "type_ids_old": "1",
+      "category_ids_old": "31,33,73",
+      "mechanic_ids_old": "10,11,48,77,175"
+    },
+    {
+      "id": "82",
+      "name": "Friday",
+      "type_ids_new": "1,10",
+      "category_ids_new": "1,42,13",
+      "mechanic_ids_new": "24,96,77,78,115,63,140,151",
+      "type_ids_old": "1",
+      "category_ids_old": "3,15,33,55,59",
+      "mechanic_ids_old": "45,62,122,146"
+    },
+    {
+      "id": "83",
+      "name": "Imhotep",
+      "type_ids_new": "1,3",
+      "category_ids_new": "9,76,20,45",
+      "mechanic_ids_new": "54,55,13,37,63,62,175,121",
+      "type_ids_old": "5",
+      "category_ids_old": "9,75",
+      "mechanic_ids_old": "10,54,95,140,179"
+    },
+    {
+      "id": "84",
+      "name": "Ajedrez (Chess)",
+      "type_ids_new": "2,1",
+      "category_ids_new": "63,18,40",
+      "mechanic_ids_new": "47,80,26,105,143,83,175",
+      "type_ids_old": "7",
+      "category_ids_old": "1",
+      "mechanic_ids_old": "61,111,148,151"
+    },
+    {
+      "id": "85",
+      "name": "Las mil y una noches (Tales of the Arabian Nights)",
+      "type_ids_new": "7,5,3",
+      "category_ids_new": "1,2,49,29,22,42",
+      "mechanic_ids_new": "9,64,113,85,162,138,137,175",
+      "type_ids_old": "2",
+      "category_ids_old": "3,11,29,31,76",
+      "mechanic_ids_old": "48,102,118,131,146,153,175"
+    },
+    {
+      "id": "86",
+      "name": "Sushi Go!",
+      "type_ids_new": "3,10",
+      "category_ids_new": "13,62,75",
+      "mechanic_ids_new": "25,28,62,63,155",
+      "type_ids_old": "5",
+      "category_ids_old": "15",
+      "mechanic_ids_old": "28,51,54,62,140,142"
+    },
+    {
+      "id": "87",
+      "name": "Bohnanza",
+      "type_ids_new": "3,5",
+      "category_ids_new": "13,17,32,62,71",
+      "mechanic_ids_new": "13,48,53,64,75,107,150,163",
+      "type_ids_old": "5",
+      "category_ids_old": "15,32,54",
+      "mechanic_ids_old": "62,92,103,140,163"
+    },
+    {
+      "id": "88",
+      "name": "Pathfinder Adventure Card Game: Rise of the Runelords – Base Set",
+      "type_ids_new": "7,9",
+      "category_ids_new": "1,6,8,26,40",
+      "mechanic_ids_new": "1,10,13,24,40,52,114,115,138,175",
+      "type_ids_old": "3,2",
+      "category_ids_old": "3,15,31,33",
+      "mechanic_ids_old": "40,45,48,62,131,135,146,175"
+    },
+    {
+      "id": "89",
+      "name": "Port Royal",
+      "type_ids_new": "1,3,10",
+      "category_ids_new": "13,17,34,42,51",
+      "mechanic_ids_new": "13,48,53,63,77,106,162,169",
+      "type_ids_old": "5",
+      "category_ids_old": "15,24,53,59",
+      "mechanic_ids_old": "28,39,122,140"
+    },
+    {
+      "id": "90",
+      "name": "Karuba",
+      "type_ids_new": "3,10",
+      "category_ids_new": "1,2,25,39,62",
+      "mechanic_ids_new": "33,36,61,82,84,138,157,176",
+      "type_ids_old": "5",
+      "category_ids_old": "29,64",
+      "mechanic_ids_old": "25,37,61,104,123,142,160"
+    },
+    {
+      "id": "91",
+      "name": "Colosseum",
+      "type_ids_new": "1",
+      "category_ids_new": "9,17,61,64",
+      "mechanic_ids_new": "5,53,63,66,110,121,160,162",
+      "type_ids_old": "5",
+      "category_ids_old": "9,54",
+      "mechanic_ids_old": "13,48,133,140,163"
+    },
+    {
+      "id": "92",
+      "name": "Hadara",
+      "type_ids_new": "1,3",
+      "category_ids_new": "13,17,19,61",
+      "mechanic_ids_new": "13,25,28,63,76,117,134,163",
+      "type_ids_old": "1",
+      "category_ids_old": "17,19",
+      "mechanic_ids_old": "28,54,93,140,142"
+    },
+    {
+      "id": "93",
+      "name": "Alhambra",
+      "type_ids_new": "1,3",
+      "category_ids_new": "13,18,20,45,61",
+      "mechanic_ids_new": "33,61,62,63,110,122,156,172",
+      "type_ids_old": "1",
+      "category_ids_old": "11,17,44",
+      "mechanic_ids_old": "28,62,93,140,160"
+    },
+    {
+      "id": "94",
+      "name": "A Game of Thrones",
+      "type_ids_new": "1,4",
+      "category_ids_new": "8,18,23,40,47,61",
+      "mechanic_ids_new": "9,27,36,44,75,98,126,132,136,153",
+      "type_ids_old": "1",
+      "category_ids_old": "13,31,54,55,60,80",
+      "mechanic_ids_old": "11,13,55,62,93,106,116,142,175"
+    },
+    {
+      "id": "95",
+      "name": "Carcassonne: Hunters and Gatherers",
+      "type_ids_new": "3,10",
+      "category_ids_new": "2,39,61,63",
+      "mechanic_ids_new": "33,61,63,80,122,140,175",
+      "type_ids_old": "5",
+      "category_ids_old": "62",
+      "mechanic_ids_old": "10,86,160"
+    },
+    {
+      "id": "96",
+      "name": "Quantum",
+      "type_ids_new": "1,7",
+      "category_ids_new": "12,23,40,61",
+      "mechanic_ids_new": "1,9,23,46,47,63,80,98,159,178",
+      "type_ids_old": "1",
+      "category_ids_old": "23,33,69,70",
+      "mechanic_ids_old": "10,48,61,95,148"
+    },
+    {
+      "id": "97",
+      "name": "Coup",
+      "type_ids_new": "5,10",
+      "category_ids_new": "3,13,47,57",
+      "mechanic_ids_new": "7,39,45,65,88,126,165,175",
+      "type_ids_old": "8",
+      "category_ids_old": "13,15,22,57,60",
+      "mechanic_ids_old": "65,93,116,155,175"
+    },
+    {
+      "id": "98",
+      "name": "Valeria: Card Kingdoms",
+      "type_ids_new": "1,3",
+      "category_ids_new": "8,13,17,18,32",
+      "mechanic_ids_new": "1,11,13,24,36,63,66,71,104,121",
+      "type_ids_old": "1",
+      "category_ids_old": "15,23,31",
+      "mechanic_ids_old": "28,48,124,176"
+    },
+    {
+      "id": "99",
+      "name": "Magic Maze",
+      "type_ids_new": "9,3",
+      "category_ids_new": "8,26,21,25",
+      "mechanic_ids_new": "40,16,92,36,9,105,111,148,80,149",
+      "type_ids_old": "5",
+      "category_ids_old": "29,31,42,66",
+      "mechanic_ids_old": "36,40,52,61,86,95,127,146,175"
+    },
+    {
+      "id": "100",
+      "name": "Dixit: Journey",
+      "type_ids_new": "5,3",
+      "category_ids_new": "13,57,22,66",
+      "mechanic_ids_new": "64,65,88,85,36,113,175",
+      "type_ids_old": "8",
+      "category_ids_old": "15,36,57",
+      "mechanic_ids_old": "1,142,153,156,178"
+    },
+    {
+      "id": "101",
+      "name": "Mr. Jack",
+      "type_ids_new": "1,3",
+      "category_ids_new": "3,29,46,61",
+      "mechanic_ids_new": "9,39,45,47,74,103,126,137,165",
+      "type_ids_old": "1",
+      "category_ids_old": "22,49",
+      "mechanic_ids_old": "51,61,175"
+    },
+    {
+      "id": "102",
+      "name": "Coloretto",
+      "type_ids_new": "3,10",
+      "category_ids_new": "13,62",
+      "mechanic_ids_new": "13,48,62,63,78,155",
+      "type_ids_old": "5",
+      "category_ids_old": "10,15",
+      "mechanic_ids_old": "28,122,140"
+    },
+    {
+      "id": "103",
+      "name": "The Red Cathedral",
+      "type_ids_new": "1",
+      "category_ids_new": "17,20,61,73",
+      "mechanic_ids_new": "1,23,54,63,66,87,117,121,180",
+      "type_ids_old": "1",
+      "category_ids_old": "23,24",
+      "mechanic_ids_old": "10,48,54,128,134,146,177,179,180"
+    },
+    {
+      "id": "104",
+      "name": "Kingdom Builder",
+      "type_ids_new": "1,3",
+      "category_ids_new": "18,20,23,45",
+      "mechanic_ids_new": "13,27,46,49,61,63,76,111,140",
+      "type_ids_old": "1",
+      "category_ids_old": "44,73",
+      "mechanic_ids_old": "10,31,53,63,95,176"
+    },
+    {
+      "id": "105",
+      "name": "Elder Sign",
+      "type_ids_new": "7,9",
+      "category_ids_new": "1,11,26,55",
+      "mechanic_ids_new": "1,19,40,92,112,115,143,148,162",
+      "type_ids_old": "2",
+      "category_ids_old": "3,15,23,31,33,35,55",
+      "mechanic_ids_old": "40,48,49,95,126,146,175"
+    },
+    {
+      "id": "106",
+      "name": "Cacao",
+      "type_ids_new": "1,3",
+      "category_ids_new": "17,9,32,71",
+      "mechanic_ids_new": "61,54,62,63,121,178",
+      "type_ids_old": "5",
+      "category_ids_old": "24,32,73",
+      "mechanic_ids_old": "10,62,86,160"
+    },
+    {
+      "id": "107",
+      "name": "Tokaido",
+      "type_ids_new": "3,1",
+      "category_ids_new": "42,75,62",
+      "mechanic_ids_new": "9,80,63,108,122,144,142",
+      "type_ids_old": "5",
+      "category_ids_old": "76",
+      "mechanic_ids_old": "54,140,161,162,175,179"
+    },
+    {
+      "id": "108",
+      "name": "The Oracle of Delphi",
+      "type_ids_new": "1,7",
+      "category_ids_new": "49,9,1,2",
+      "mechanic_ids_new": "1,9,80,62,63,84,114,138,77",
+      "type_ids_old": "1",
+      "category_ids_old": "9,51,53",
+      "mechanic_ids_old": "3,48,61,95,114,122,123,175"
+    },
+    {
+      "id": "109",
+      "name": "HeroQuest",
+      "type_ids_new": "7,9",
+      "category_ids_new": "8,1,6,2,40",
+      "mechanic_ids_new": "40,1,9,47,64,39,113,114,115,138",
+      "type_ids_old": "2",
+      "category_ids_old": "3,29,31,33",
+      "mechanic_ids_old": "48,49,61,95,131,133,135,148,157,175"
+    },
+    {
+      "id": "110",
+      "name": "BANG! The Dice Game",
+      "type_ids_new": "5,10",
+      "category_ids_new": "57,83,3,22",
+      "mechanic_ids_new": "1,45,39,26,36,88,165,38,77",
+      "type_ids_old": "8",
+      "category_ids_old": "8,13,22,23,33,57",
+      "mechanic_ids_old": "48,65,116,122,126,157,175"
+    },
+    {
+      "id": "111",
+      "name": "Toma 6!",
+      "type_ids_new": "3,5",
+      "category_ids_new": "13,35,57,62",
+      "mechanic_ids_new": "13,36,37,48,63,77,153,162",
+      "type_ids_old": "5",
+      "category_ids_old": "15,56",
+      "mechanic_ids_old": "62,76,136,142"
+    },
+    {
+      "id": "112",
+      "name": "Ascension: Deckbuilding Game",
+      "type_ids_new": "1,7",
+      "category_ids_new": "8,13,40",
+      "mechanic_ids_new": "13,24,25,37,48,62,63,78,159",
+      "type_ids_old": "1",
+      "category_ids_old": "15,31",
+      "mechanic_ids_old": "28,45,62"
+    },
+    {
+      "id": "113",
+      "name": "Disney Villainous",
+      "type_ids_new": "1,3,7",
+      "category_ids_new": "1,8,13,62,69",
+      "mechanic_ids_new": "3,9,13,48,58,63,80,87,114,137",
+      "type_ids_old": "5",
+      "category_ids_old": "15,31,44,48,51,55,59",
+      "mechanic_ids_old": "62,155,175"
+    },
+    {
+      "id": "114",
+      "name": "Oh My Goods!",
+      "type_ids_new": "1",
+      "category_ids_new": "17,18,32,70,71",
+      "mechanic_ids_new": "13,37,48,63,66,76,131,139,164,172",
+      "type_ids_old": "1",
+      "category_ids_old": "15,24,44",
+      "mechanic_ids_old": "4,62,122,140"
+    },
+    {
+      "id": "115",
+      "name": "Deep Sea Adventure",
+      "type_ids_new": "3,5,10",
+      "category_ids_new": "1,2,39,42,57,62",
+      "mechanic_ids_new": "1,37,60,63,77,84,115,144,148,154",
+      "type_ids_old": "5",
+      "category_ids_old": "23,29,53,57",
+      "mechanic_ids_old": "114,122,133"
+    },
+    {
+      "id": "116",
+      "name": "Blue Moon City",
+      "type_ids_new": "1,7",
+      "category_ids_new": "8,20,19,17,13",
+      "mechanic_ids_new": "13,48,20,63,66,54,76,132,140",
+      "type_ids_old": "1",
+      "category_ids_old": "17,31",
+      "mechanic_ids_old": "10,61,62,95,140"
+    },
+    {
+      "id": "117",
+      "name": "The Mind",
+      "type_ids_new": "9,10",
+      "category_ids_new": "26,13,62",
+      "mechanic_ids_new": "40,29,92,36,148,150,38,175",
+      "type_ids_old": "8",
+      "category_ids_old": "15,56",
+      "mechanic_ids_old": "36,40"
+    },
+    {
+      "id": "118",
+      "name": "Finca",
+      "type_ids_new": "1,3",
+      "category_ids_new": "71,17,32,62",
+      "mechanic_ids_new": "9,80,66,47,63,107,110,175",
+      "type_ids_old": "5",
+      "category_ids_old": "24,32",
+      "mechanic_ids_old": "39,85,105,134,140"
+    },
+    {
+      "id": "119",
+      "name": "13 Days: The Cuban Missile Crisis",
+      "type_ids_new": "1,4",
+      "category_ids_new": "61,47,80,46",
+      "mechanic_ids_new": "13,27,76,51,141,37,75,98,112",
+      "type_ids_old": "4",
+      "category_ids_old": "13,47,60,80",
+      "mechanic_ids_old": "7,8,10,27,54,62,166"
+    },
+    {
+      "id": "120",
+      "name": "Red7",
+      "type_ids_new": "10,3",
+      "category_ids_new": "13,62",
+      "mechanic_ids_new": "13,48,26,150,62,133,140,175",
+      "type_ids_old": "5",
+      "category_ids_old": "15,56",
+      "mechanic_ids_old": "62,116,140,176"
+    },
+    {
+      "id": "121",
+      "name": "Not Alone",
+      "type_ids_new": "7,9",
+      "category_ids_new": "12,3,29,26",
+      "mechanic_ids_new": "40,39,7,36,153,87,126,148,115,138",
+      "type_ids_old": "1",
+      "category_ids_old": "13,15,22,69",
+      "mechanic_ids_old": "45,62,142,157"
+    },
+    {
+      "id": "122",
+      "name": "Rhino Hero: Super Battle",
+      "type_ids_new": "3,10",
+      "category_ids_new": "21,22,13,62",
+      "mechanic_ids_new": "30,32,1,26,40,119,158,84",
+      "type_ids_old": "5",
+      "category_ids_old": "2,10,16",
+      "mechanic_ids_old": "48,144,149"
+    },
+    {
+      "id": "123",
+      "name": "Ca$h 'n Guns (Second Edition)",
+      "type_ids_new": "5",
+      "category_ids_new": "57,22,32,40,64",
+      "mechanic_ids_new": "7,36,153,77,8,38,65,130",
+      "type_ids_old": "8",
+      "category_ids_old": "13,33,36,39,54,57",
+      "mechanic_ids_old": "28,116,142,155,175"
+    },
+    {
+      "id": "124",
+      "name": "Santiago",
+      "type_ids_new": "1",
+      "category_ids_new": "17,71,66,75,47",
+      "mechanic_ids_new": "75,5,66,71,142,132,17,164,110",
+      "type_ids_old": "1",
+      "category_ids_old": "32,54",
+      "mechanic_ids_old": "10,13,26,35,160"
+    },
+    {
+      "id": "125",
+      "name": "Fungi",
+      "type_ids_new": "1",
+      "category_ids_new": "13,39,17,72",
+      "mechanic_ids_new": "13,48,62,9,150,37,21,164",
+      "type_ids_old": "5",
+      "category_ids_old": "15,25",
+      "mechanic_ids_old": "28,62,140"
+    },
+    {
+      "id": "126",
+      "name": "Diamant",
+      "type_ids_new": "3,5",
+      "category_ids_new": "1,2,57,62",
+      "mechanic_ids_new": "77,153,63,29,162",
+      "type_ids_old": "5",
+      "category_ids_old": "3,13,29",
+      "mechanic_ids_old": "96,122,142"
+    },
+    {
+      "id": "127",
+      "name": "Rhino Hero",
+      "type_ids_new": "3,8,10",
+      "category_ids_new": "21,39,62,22",
+      "mechanic_ids_new": "30,78,26,143,1,175",
+      "type_ids_old": "5",
+      "category_ids_old": "2,10,16,57",
+      "mechanic_ids_old": "62,84,149"
+    },
+    {
+      "id": "128",
+      "name": "La Isla Prohibida",
+      "type_ids_new": "9,3",
+      "category_ids_new": "1,2,26,8,62",
+      "mechanic_ids_new": "40,3,48,138,115,112,63",
+      "type_ids_old": "5",
+      "category_ids_old": "3,31",
+      "mechanic_ids_old": "3,40,61,62,88,95,114,140,146,175"
+    },
+    {
+      "id": "129",
+      "name": "Dale of Merchants",
+      "type_ids_new": "1,3",
+      "category_ids_new": "17,32,39,13,62",
+      "mechanic_ids_new": "24,13,48,62,63,53,87",
+      "type_ids_old": "1",
+      "category_ids_old": "10,15,31",
+      "mechanic_ids_old": "28,45,48,62,123,140,155"
+    },
+    {
+      "id": "130",
+      "name": "Tragedy Looper",
+      "type_ids_new": "1,7",
+      "category_ids_new": "3,11,29,61,6",
+      "mechanic_ids_new": "39,128,64,74,113,138,87,111",
+      "type_ids_old": "2",
+      "category_ids_old": "13,15,22,49",
+      "mechanic_ids_old": "36,46,61,62,93,157"
+    },
+    {
+      "id": "131",
+      "name": "The Others",
+      "type_ids_new": "7,9",
+      "category_ids_new": "1,11,33,40,53",
+      "mechanic_ids_new": "1,9,40,87,111,114,115,126,159,180",
+      "type_ids_old": "2",
+      "category_ids_old": "31,33,35,46",
+      "mechanic_ids_old": "10,11,48,74,95,157,175"
+    },
+    {
+      "id": "132",
+      "name": "Wizard",
+      "type_ids_new": "3,1",
+      "category_ids_new": "13,62",
+      "mechanic_ids_new": "7,13,48,63,77,85,129,153,155",
+      "type_ids_old": "5",
+      "category_ids_old": "15",
+      "mechanic_ids_old": "23,62,119,165"
+    },
+    {
+      "id": "133",
+      "name": "La Posada Sangrienta",
+      "type_ids_new": "5,7",
+      "category_ids_new": "3,11,29,46,57",
+      "mechanic_ids_new": "39,45,65,85,115,126,137,165,175",
+      "type_ids_old": "1",
+      "category_ids_old": "15,24,35,61",
+      "mechanic_ids_old": "28,54,62,71,107,141,146"
+    },
+    {
+      "id": "134",
+      "name": "Flick 'em Up!",
+      "type_ids_new": "3,5",
+      "category_ids_new": "21,40,57,83",
+      "mechanic_ids_new": "30,38,80,84,111,143,157,175",
+      "type_ids_old": "2",
+      "category_ids_old": "2,8,33",
+      "mechanic_ids_old": "57,114,157"
+    },
+    {
+      "id": "135",
+      "name": "Concept",
+      "type_ids_new": "5,3",
+      "category_ids_new": "22,57,59",
+      "mechanic_ids_new": "16,35,38,85,88,113,130,153",
+      "type_ids_old": "8",
+      "category_ids_old": "22,57",
+      "mechanic_ids_old": "36,157"
+    },
+    {
+      "id": "136",
+      "name": "Parade",
+      "type_ids_new": "10,3",
+      "category_ids_new": "13,62",
+      "mechanic_ids_new": "13,48,62,63,140,151",
+      "type_ids_old": "5",
+      "category_ids_old": "15,55",
+      "mechanic_ids_old": "62,140"
+    },
+    {
+      "id": "137",
+      "name": "Qwirkle",
+      "type_ids_new": "2,3",
+      "category_ids_new": "25,63,66",
+      "mechanic_ids_new": "61,83,122,63,105,144",
+      "type_ids_old": "5",
+      "category_ids_old": "1",
+      "mechanic_ids_old": "62,110,160"
+    },
+    {
+      "id": "138",
+      "name": "Mr. Jack Pocket",
+      "type_ids_new": "1,7",
+      "category_ids_new": "3,11,29,61",
+      "mechanic_ids_new": "9,39,45,126,159,165",
+      "type_ids_old": "1",
+      "category_ids_old": "13,22,49,61",
+      "mechanic_ids_old": "87,95"
+    },
+    {
+      "id": "139",
+      "name": "Valley of the Kings",
+      "type_ids_new": "1",
+      "category_ids_new": "13,9,76",
+      "mechanic_ids_new": "24,13,48,62,63,78,164",
+      "type_ids_old": "1",
+      "category_ids_old": "9,15,51,67",
+      "mechanic_ids_old": "28,45,62,140"
+    },
+    {
+      "id": "140",
+      "name": "El Gran Libro de la Locura",
+      "type_ids_new": "9,7",
+      "category_ids_new": "26,11,29,1",
+      "mechanic_ids_new": "40,64,138,115,74,112,113,148",
+      "type_ids_old": "1",
+      "category_ids_old": "15,31",
+      "mechanic_ids_old": "40,45,62,116,175"
+    },
+    {
+      "id": "141",
+      "name": "When I Dream",
+      "type_ids_new": "5,3",
+      "category_ids_new": "57,59,62,22",
+      "mechanic_ids_new": "39,16,92,38,88,64,158,137",
+      "type_ids_old": "8",
+      "category_ids_old": "22,57,66,81",
+      "mechanic_ids_old": "36,93,131,153,157"
+    },
+    {
+      "id": "142",
+      "name": "Loony Quest",
+      "type_ids_new": "3,10",
+      "category_ids_new": "21,25,62,22",
+      "mechanic_ids_new": "30,92,36,143,84,105,37,29",
+      "type_ids_old": "5",
+      "category_ids_old": "2,16,31,66",
+      "mechanic_ids_old": "81"
+    },
+    {
+      "id": "143",
+      "name": "Mr. Jack in New York",
+      "type_ids_new": "1,2",
+      "category_ids_new": "3,29,61,46",
+      "mechanic_ids_new": "45,9,87,126,159,98,137,47",
+      "type_ids_old": "1",
+      "category_ids_old": "22,49",
+      "mechanic_ids_old": "61,175"
+    },
+    {
+      "id": "144",
+      "name": "Riverboat",
+      "type_ids_new": "1,7",
+      "category_ids_new": "17,83,50,32,61",
+      "mechanic_ids_new": "54,82,66,76,63,110,104,57",
+      "type_ids_old": "1",
+      "category_ids_old": "32",
+      "mechanic_ids_old": "28,140,160"
+    },
+    {
+      "id": "145",
+      "name": "Fauna",
+      "type_ids_new": "3,10",
+      "category_ids_new": "55,39,66,62",
+      "mechanic_ids_new": "36,85,8,77,37,74,153,89",
+      "type_ids_old": "5",
+      "category_ids_old": "10,25,77",
+      "mechanic_ids_old": "23"
+    },
+    {
+      "id": "146",
+      "name": "Smash Up",
+      "type_ids_new": "7,10",
+      "category_ids_new": "13,22,12,53,39",
+      "mechanic_ids_new": "24,15,20,63,36,131,141,48",
+      "type_ids_old": "1",
+      "category_ids_old": "15,31,36,59,69,84",
+      "mechanic_ids_old": "10,28,29,44,62,155,175,176"
+    },
+    {
+      "id": "147",
+      "name": "Dream Home",
+      "type_ids_new": "3,10",
+      "category_ids_new": "20,62,25",
+      "mechanic_ids_new": "28,117,25,62,63,76,155",
+      "type_ids_old": "5",
+      "category_ids_old": "15",
+      "mechanic_ids_old": "28,93,110,140,174"
+    },
+    {
+      "id": "148",
+      "name": "Animal Sobre Animal",
+      "type_ids_new": "8,3",
+      "category_ids_new": "39,21,62",
+      "mechanic_ids_new": "30,1,32,26,143",
+      "type_ids_old": "9",
+      "category_ids_old": "2,10,16",
+      "mechanic_ids_old": "48,149"
+    },
+    {
+      "id": "149",
+      "name": "Steam Park",
+      "type_ids_new": "1,3",
+      "category_ids_new": "70,20,17,10",
+      "mechanic_ids_new": "1,92,20,66,54,117,63,21",
+      "type_ids_old": "5",
+      "category_ids_old": "17,23,66,69",
+      "mechanic_ids_old": "28,48,93,95"
+    },
+    {
+      "id": "150",
+      "name": "Caylus 1303",
+      "type_ids_new": "1",
+      "category_ids_new": "17,18,20,19",
+      "mechanic_ids_new": "54,66,20,63,117,71,118,149,122",
+      "type_ids_old": "1",
+      "category_ids_old": "17,24,44",
+      "mechanic_ids_old": "107,168,169,176,179"
+    },
+    {
+      "id": "151",
+      "name": "Catan Card Game",
+      "type_ids_new": "1,3",
+      "category_ids_new": "13,17,20,19",
+      "mechanic_ids_new": "1,13,48,24,66,63,54,121",
+      "type_ids_old": "1",
+      "category_ids_old": "15,17,73",
+      "mechanic_ids_old": "28,48,62,163"
+    },
+    {
+      "id": "152",
+      "name": "Machi Koro",
+      "type_ids_new": "3,10",
+      "category_ids_new": "10,17,45,62",
+      "mechanic_ids_new": "1,169,117,63,66,37,119",
+      "type_ids_old": "5",
+      "category_ids_old": "17,23",
+      "mechanic_ids_old": "48,124"
+    },
+    {
+      "id": "153",
+      "name": "Cockroach Poker",
+      "type_ids_new": "5,10",
+      "category_ids_new": "57,39,13",
+      "mechanic_ids_new": "7,39,48,155,26,88,35",
+      "type_ids_old": "8",
+      "category_ids_old": "13,15,57",
+      "mechanic_ids_old": "62,140,144"
+    },
+    {
+      "id": "154",
+      "name": "Colossal Arena",
+      "type_ids_new": "1,7",
+      "category_ids_new": "8,40,49,13",
+      "mechanic_ids_new": "8,48,26,20,39,87,137,58",
+      "type_ids_old": "1",
+      "category_ids_old": "15,31,51",
+      "mechanic_ids_old": "23,62"
+    },
+    {
+      "id": "155",
+      "name": "Mission: Red Planet",
+      "type_ids_new": "1,7",
+      "category_ids_new": "12,2,23,12",
+      "mechanic_ids_new": "87,153,98,27,118,142,122,126,80",
+      "type_ids_old": "1",
+      "category_ids_old": "69,70",
+      "mechanic_ids_old": "5,10,11,54,62,142,155,172"
+    },
+    {
+      "id": "156",
+      "name": "Santiago de Cuba",
+      "type_ids_new": "1,3",
+      "category_ids_new": "17,32,42,61",
+      "mechanic_ids_new": "9,48,62,63,66,80,106,110,169",
+      "type_ids_old": "1",
+      "category_ids_old": "24",
+      "mechanic_ids_old": "35,48,93,95,114,129,162,179"
+    },
+    {
+      "id": "157",
+      "name": "Ponzi Scheme",
+      "type_ids_new": "1,5",
+      "category_ids_new": "17,22,47,61",
+      "mechanic_ids_new": "7,75,77,85,112,113,140,154,161",
+      "type_ids_old": "1",
+      "category_ids_old": "24",
+      "mechanic_ids_old": "140,163"
+    },
+    {
+      "id": "158",
+      "name": "Poker Set",
+      "type_ids_new": "5",
+      "category_ids_new": "8,13,57",
+      "mechanic_ids_new": "1,7,8,48,74,75,77,129,162",
+      "type_ids_old": "1",
+      "category_ids_old": "13,15",
+      "mechanic_ids_old": "23,116,140"
+    },
+    {
+      "id": "159",
+      "name": "The Werewolves of Miller's Hollow",
+      "type_ids_new": "5",
+      "category_ids_new": "3,11,18,57",
+      "mechanic_ids_new": "26,39,58,64,65,88,130,165,175",
+      "type_ids_old": "8",
+      "category_ids_old": "13,22,35,49,57",
+      "mechanic_ids_old": "116,131,157,175,178"
+    },
+    {
+      "id": "160",
+      "name": "Virrey (Viceroy)",
+      "type_ids_new": "1,7",
+      "category_ids_new": "8,20,25,62",
+      "mechanic_ids_new": "13,25,48,62,63,76,87,96,117,131",
+      "type_ids_old": "1",
+      "category_ids_old": "13,15,17,19,31,54",
+      "mechanic_ids_old": "20,28,62,93,140,160"
+    },
+    {
+      "id": "161",
+      "name": "Evo",
+      "type_ids_new": "1,7",
+      "category_ids_new": "9,39,61",
+      "mechanic_ids_new": "5,9,49,57,75,84,115,138,140,180",
+      "type_ids_old": "1",
+      "category_ids_old": "10,62,69",
+      "mechanic_ids_old": "10,11,13,48,62,173,175,177"
+    },
+    {
+      "id": "162",
+      "name": "Rialto",
+      "type_ids_new": "1",
+      "category_ids_new": "17,18,32,45,73",
+      "mechanic_ids_new": "13,20,48,54,63,76,131,163,164,169",
+      "type_ids_old": "1",
+      "category_ids_old": "60,68",
+      "mechanic_ids_old": "10,13,28"
+    },
+    {
+      "id": "163",
+      "name": "Ubongo",
+      "type_ids_new": "3,10",
+      "category_ids_new": "25,62",
+      "mechanic_ids_new": "1,29,62,74,92,105,143,153",
+      "type_ids_old": "5",
+      "category_ids_old": "64,66",
+      "mechanic_ids_old": "60,110,140"
+    },
+    {
+      "id": "164",
+      "name": "The Magic Labyrinth",
+      "type_ids_new": "3,8",
+      "category_ids_new": "8,62,66",
+      "mechanic_ids_new": "9,47,57,74,80,126,138",
+      "type_ids_old": "5",
+      "category_ids_old": "16,31,42,45",
+      "mechanic_ids_old": "48,61,93,104,133"
+    },
+    {
+      "id": "165",
+      "name": "Timeline: Inventions",
+      "type_ids_new": "3,5",
+      "category_ids_new": "55,61,66",
+      "mechanic_ids_new": "13,48,74,85,89,150,175",
+      "type_ids_old": "5",
+      "category_ids_old": "15,25,77",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "166",
+      "name": "Saboteur",
+      "type_ids_new": "5,9",
+      "category_ids_new": "3,13,57,8",
+      "mechanic_ids_new": "39,165,7,13,61,48,137,140,175",
+      "type_ids_old": "8",
+      "category_ids_old": "13,15,29,31,57",
+      "mechanic_ids_old": "62,65,86,104,155,157,164"
+    },
+    {
+      "id": "167",
+      "name": "Fantasma Blitz",
+      "type_ids_new": "5,10",
+      "category_ids_new": "21,57,62,11",
+      "mechanic_ids_new": "30,89,36,92,143,35,29",
+      "type_ids_old": "5",
+      "category_ids_old": "2,15,16,66",
+      "mechanic_ids_old": "112,147"
+    },
+    {
+      "id": "168",
+      "name": "Dobble",
+      "type_ids_new": "5,10,3",
+      "category_ids_new": "21,57,62,25",
+      "mechanic_ids_new": "30,89,36,92,143,35,29,74",
+      "type_ids_old": "8",
+      "category_ids_old": "15,16,25,57,66,72",
+      "mechanic_ids_old": "112,147"
+    },
+    {
+      "id": "169",
+      "name": "Bienvenido a la Mazmorra",
+      "type_ids_new": "3,1,7",
+      "category_ids_new": "8,20,22,6,33",
+      "mechanic_ids_new": "25,61,153,55,63,87,117,121",
+      "type_ids_old": "8",
+      "category_ids_old": "13,15,31,33",
+      "mechanic_ids_old": "23,93,116,122"
+    },
+    {
+      "id": "170",
+      "name": "Aton",
+      "type_ids_new": "2,1",
+      "category_ids_new": "63,76,9,23",
+      "mechanic_ids_new": "98,20,80,27,37,63,9,122",
+      "type_ids_old": "1",
+      "category_ids_old": "9",
+      "mechanic_ids_old": "10,62,142"
+    },
+    {
+      "id": "171",
+      "name": "Mascarade",
+      "type_ids_new": "5",
+      "category_ids_new": "3,13,57,61,65",
+      "mechanic_ids_new": "7,39,45,48,74,75,78,88,137,153",
+      "type_ids_old": "8",
+      "category_ids_old": "13,15,44,57",
+      "mechanic_ids_old": "65,93,175"
+    },
+    {
+      "id": "172",
+      "name": "Timeline: Events",
+      "type_ids_new": "3,10",
+      "category_ids_new": "55,61,66",
+      "mechanic_ids_new": "35,48,62,74,85,143,150,169",
+      "type_ids_old": "5",
+      "category_ids_old": "15,25,57,77",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "173",
+      "name": "Agricola: Family Edition",
+      "type_ids_new": "1,3",
+      "category_ids_new": "17,18,62,66,71",
+      "mechanic_ids_new": "3,54,63,66,96,117,164,169,175",
+      "type_ids_old": "1",
+      "category_ids_old": "10,32",
+      "mechanic_ids_old": "22,179"
+    },
+    {
+      "id": "174",
+      "name": "Quoridor",
+      "type_ids_new": "2,1",
+      "category_ids_new": "25,63",
+      "mechanic_ids_new": "9,44,47,80,98,105,143,157,173,178",
+      "type_ids_old": "7",
+      "category_ids_old": "1,42",
+      "mechanic_ids_old": "61,148"
+    },
+    {
+      "id": "175",
+      "name": "Piko Piko El Gusanito",
+      "type_ids_new": "3,10",
+      "category_ids_new": "10,35,39,62",
+      "mechanic_ids_new": "1,29,77,84,143,162,166,175",
+      "type_ids_old": "5",
+      "category_ids_old": "10,23",
+      "mechanic_ids_old": "48,122,126"
+    },
+    {
+      "id": "176",
+      "name": "Bar Bestial",
+      "type_ids_new": "3,10",
+      "category_ids_new": "13,22,39,62",
+      "mechanic_ids_new": "13,48,62,63,78,150,155",
+      "type_ids_old": "5",
+      "category_ids_old": "10,15,36",
+      "mechanic_ids_old": "4,62,155"
+    },
+    {
+      "id": "177",
+      "name": "Scotland Yard",
+      "type_ids_new": "1,3",
+      "category_ids_new": "3,29,46,61",
+      "mechanic_ids_new": "9,16,40,47,126,147,157,158",
+      "type_ids_old": "5",
+      "category_ids_old": "22,76",
+      "mechanic_ids_old": "64,118,137,157"
+    },
+    {
+      "id": "178",
+      "name": "BANG!",
+      "type_ids_new": "5,3",
+      "category_ids_new": "13,22,39,57,83",
+      "mechanic_ids_new": "13,26,39,45,48,158,165",
+      "type_ids_old": "8",
+      "category_ids_old": "8,13,15,22,33",
+      "mechanic_ids_old": "62,65,76,116,155,157,175"
+    },
+    {
+      "id": "179",
+      "name": "Backgammon",
+      "type_ids_new": "2,3",
+      "category_ids_new": "9,35,63",
+      "mechanic_ids_new": "1,44,80,84,126,143,162",
+      "type_ids_old": "7",
+      "category_ids_old": "1,23",
+      "mechanic_ids_old": "8,23,48,133,162"
+    },
+    {
+      "id": "180",
+      "name": "Ishtar: Gardens of Babylon",
+      "type_ids_new": "1,3",
+      "category_ids_new": "9,20,25,71",
+      "mechanic_ids_new": "61,63,66,76,117,122,131,164",
+      "type_ids_old": "5",
+      "category_ids_old": "9",
+      "mechanic_ids_old": "10,134,160"
+    },
+    {
+      "id": "181",
+      "name": "Fireteam Zero",
+      "type_ids_new": "9,7",
+      "category_ids_new": "11,26,40,61,1,33",
+      "mechanic_ids_new": "40,1,46,114,115,10,87,38,57,148",
+      "type_ids_old": "1",
+      "category_ids_old": "3,31,33,35,46,83",
+      "mechanic_ids_old": "40,45,48,153,175"
+    },
+    {
+      "id": "182",
+      "name": "Dice Settlers",
+      "type_ids_new": "1,3",
+      "category_ids_new": "19,17,45,66,61",
+      "mechanic_ids_new": "28,1,3,66,116,63,20,121,134,172",
+      "type_ids_old": "1",
+      "category_ids_old": "8,19,23,29,73",
+      "mechanic_ids_old": "10,45,48,86,140,146,160"
+    },
+    {
+      "id": "183",
+      "name": "Pitch Car",
+      "type_ids_new": "5,3,10",
+      "category_ids_new": "52,21,65,57,62",
+      "mechanic_ids_new": "30,84,143,29,158,162,175",
+      "type_ids_old": "8",
+      "category_ids_old": "2,65",
+      "mechanic_ids_old": "57,123"
+    },
+    {
+      "id": "184",
+      "name": "El Diablo de la Botella",
+      "type_ids_new": "5,3",
+      "category_ids_new": "13,11,49,62,3",
+      "mechanic_ids_new": "13,48,77,74,127,37,150,78,175",
+      "type_ids_old": "1",
+      "category_ids_old": "15,55",
+      "mechanic_ids_old": "136,165"
+    },
+    {
+      "id": "185",
+      "name": "Jungle Speed",
+      "type_ids_new": "5,3,10",
+      "category_ids_new": "57,35,65,21,62",
+      "mechanic_ids_new": "35,89,92,29,26,143,91,175",
+      "type_ids_old": "8",
+      "category_ids_old": "2,15,57,66",
+      "mechanic_ids_old": "112,147"
+    },
+    {
+      "id": "186",
+      "name": "Small World of Warcraft",
+      "type_ids_new": "1,7",
+      "category_ids_new": "8,23,33,40,61",
+      "mechanic_ids_new": "9,20,27,87,98,102,140,158,178",
+      "type_ids_old": "1",
+      "category_ids_old": "31,33,73,78",
+      "mechanic_ids_old": "10,11,48,72,157,175,177"
+    },
+    {
+      "id": "187",
+      "name": "Timeline: Música y Cine",
+      "type_ids_new": "5,3,10",
+      "category_ids_new": "55,57,62,66",
+      "mechanic_ids_new": "74,85,89,93,153,162",
+      "type_ids_old": "3,8,5",
+      "category_ids_old": "15,25,50,57,77",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "188",
+      "name": "El Favor del Faraón (Favor of the Pharaoh)",
+      "type_ids_new": "1,3",
+      "category_ids_new": "9,10,17,61,76",
+      "mechanic_ids_new": "1,13,23,63,77,104,121,164",
+      "type_ids_old": "3,5",
+      "category_ids_old": "23",
+      "mechanic_ids_old": "45,48"
+    },
+    {
+      "id": "189",
+      "name": "Tranvía (Trambahn)",
+      "type_ids_new": "1,2",
+      "category_ids_new": "13,42,50,62",
+      "mechanic_ids_new": "13,48,62,63,75,131,150",
+      "type_ids_old": "3,5",
+      "category_ids_old": "15,74,75",
+      "mechanic_ids_old": "28,140"
+    },
+    {
+      "id": "190",
+      "name": "Duplik",
+      "type_ids_new": "5,3",
+      "category_ids_new": "21,22,57,62,65",
+      "mechanic_ids_new": "16,30,64,85,92,143",
+      "type_ids_old": "8",
+      "category_ids_old": "36,57",
+      "mechanic_ids_old": "81"
+    },
+    {
+      "id": "191",
+      "name": "Niagara",
+      "type_ids_new": "3,1",
+      "category_ids_new": "1,2,62,10",
+      "mechanic_ids_new": "153,36,9,77,84,119,158,174",
+      "type_ids_old": "5",
+      "category_ids_old": "53",
+      "mechanic_ids_old": "24,62,114,140,142"
+    },
+    {
+      "id": "192",
+      "name": "Trapwords",
+      "type_ids_new": "5,3",
+      "category_ids_new": "57,8,22,54",
+      "mechanic_ids_new": "38,16,88,85,137,65,130,74",
+      "type_ids_old": "8",
+      "category_ids_old": "29,31,57,81",
+      "mechanic_ids_old": "95,153,157,161"
+    },
+    {
+      "id": "193",
+      "name": "A Game of Thrones: Hand of the King",
+      "type_ids_new": "1,10",
+      "category_ids_new": "13,47,18,62",
+      "mechanic_ids_new": "13,20,62,9,47,98,158,175",
+      "type_ids_old": "5",
+      "category_ids_old": "1,15,31",
+      "mechanic_ids_old": "28,61,140"
+    },
+    {
+      "id": "194",
+      "name": "Treasure Hunter",
+      "type_ids_new": "1,3",
+      "category_ids_new": "1,2,32,10",
+      "mechanic_ids_new": "5,77,8,142,26,139,63,160",
+      "type_ids_old": "5",
+      "category_ids_old": "3,15,31",
+      "mechanic_ids_old": "28,62,142"
+    },
+    {
+      "id": "195",
+      "name": "Carcassonne Junior",
+      "type_ids_new": "8,3",
+      "category_ids_new": "18,62,66,20",
+      "mechanic_ids_new": "61,63,80,44,175,176,140",
+      "type_ids_old": "9",
+      "category_ids_old": "16,44",
+      "mechanic_ids_old": "53,95,160"
+    },
+    {
+      "id": "196",
+      "name": "Criaturas de serie B",
+      "type_ids_new": "3,5,10",
+      "category_ids_new": "11,13,22,57",
+      "mechanic_ids_new": "13,48,62,78,142,158,163",
+      "type_ids_old": "5",
+      "category_ids_old": "13,15,22,35",
+      "mechanic_ids_old": "13,62,140,142"
+    },
+    {
+      "id": "197",
+      "name": "Time's Up! Edición Azul",
+      "type_ids_new": "5",
+      "category_ids_new": "55,57,59",
+      "mechanic_ids_new": "16,38,85,88,89,92",
+      "type_ids_old": "3,8",
+      "category_ids_old": "36,48,57",
+      "mechanic_ids_old": "1,36,93,157"
+    },
+    {
+      "id": "198",
+      "name": "2 de Mayo",
+      "type_ids_new": "1,4",
+      "category_ids_new": "13,47,61",
+      "mechanic_ids_new": "13,27,48,87,98,159",
+      "type_ids_old": "4",
+      "category_ids_old": "52,80",
+      "mechanic_ids_old": "11,62,108,141,142"
+    },
+    {
+      "id": "199",
+      "name": "Time's Up! Edición Amarilla",
+      "type_ids_new": "5",
+      "category_ids_new": "55,57,59",
+      "mechanic_ids_new": "16,38,85,88,89,92",
+      "type_ids_old": "3,8",
+      "category_ids_old": "36,57",
+      "mechanic_ids_old": "1,36,93,157"
+    },
+    {
+      "id": "200",
+      "name": "Samurai Sword",
+      "type_ids_new": "1,7",
+      "category_ids_new": "3,18,75",
+      "mechanic_ids_new": "7,26,39,45,48,103,165",
+      "type_ids_old": "5",
+      "category_ids_old": "13,15,22,33,44",
+      "mechanic_ids_old": "62,157,175"
+    },
+    {
+      "id": "201",
+      "name": "Rumbo a la India",
+      "type_ids_new": "1",
+      "category_ids_new": "17,32,42,61,73",
+      "mechanic_ids_new": "3,20,54,63,66,82,98,110,122,178",
+      "type_ids_old": "1",
+      "category_ids_old": "24,29,53,68",
+      "mechanic_ids_old": "3,11,140,179"
+    },
+    {
+      "id": "202",
+      "name": "Virus!",
+      "type_ids_new": "5,3,10",
+      "category_ids_new": "13,22,43,57",
+      "mechanic_ids_new": "13,26,48,62,78,145,155,158,163,165",
+      "type_ids_old": "8",
+      "category_ids_old": "15,43",
+      "mechanic_ids_old": "62,140,155"
+    },
+    {
+      "id": "203",
+      "name": "Rummikub",
+      "type_ids_new": "3,2",
+      "category_ids_new": "62,63",
+      "mechanic_ids_new": "35,48,62,83,119,131,135,150,153,175",
+      "type_ids_old": "5",
+      "category_ids_old": "1,15,56",
+      "mechanic_ids_old": "92,140,160"
+    },
+    {
+      "id": "204",
+      "name": "Labyrinth",
+      "type_ids_new": "3,8",
+      "category_ids_new": "8,25,41,62",
+      "mechanic_ids_new": "9,46,57,61,80,105,138,139,157,175",
+      "type_ids_old": "5",
+      "category_ids_old": "16,42,64",
+      "mechanic_ids_old": "87,95,104,118,160"
+    },
+    {
+      "id": "205",
+      "name": "Zombie 15'",
+      "type_ids_new": "9,7",
+      "category_ids_new": "26,53",
+      "mechanic_ids_new": "19,36,40,92,111,114,115,138,148,175",
+      "type_ids_old": "2",
+      "category_ids_old": "33,35,66,84",
+      "mechanic_ids_old": "3,40,61,95,175"
+    },
+    {
+      "id": "206",
+      "name": "Mafia de Cuba",
+      "type_ids_new": "5",
+      "category_ids_new": "3,46,47,57,61",
+      "mechanic_ids_new": "7,39,45,65,88,130,137,165",
+      "type_ids_old": "8",
+      "category_ids_old": "13,22,39,57",
+      "mechanic_ids_old": "131,157,175"
+    },
+    {
+      "id": "207",
+      "name": "Machi Koro: Legacy",
+      "type_ids_new": "3,1",
+      "category_ids_new": "17,20,27,45,75",
+      "mechanic_ids_new": "1,24,52,63,66,104,121,140,141",
+      "type_ids_old": "5",
+      "category_ids_old": "",
+      "mechanic_ids_old": "48,80"
+    },
+    {
+      "id": "208",
+      "name": "Poli Bueno Poli Malo",
+      "type_ids_new": "5",
+      "category_ids_new": "3,46,47,57,61",
+      "mechanic_ids_new": "7,38,39,45,65,88,137,165",
+      "type_ids_old": "8",
+      "category_ids_old": "13,15,22,57,71",
+      "mechanic_ids_old": "9,62,65,93,116,155"
+    },
+    {
+      "id": "209",
+      "name": "Escape from Colditz",
+      "type_ids_new": "7,1",
+      "category_ids_new": "1,61,81",
+      "mechanic_ids_new": "1,9,87,96,111,114,126,138,143",
+      "type_ids_old": "2",
+      "category_ids_old": "3,83",
+      "mechanic_ids_old": "28,52,61,63,133,140,141"
+    },
+    {
+      "id": "210",
+      "name": "After The Virus",
+      "type_ids_new": "9,7",
+      "category_ids_new": "1,12,26,53",
+      "mechanic_ids_new": "1,40,46,87,96,105,115,138,159",
+      "type_ids_old": "2",
+      "category_ids_old": "15,35,84",
+      "mechanic_ids_old": "40,45,62,146"
+    },
+    {
+      "id": "211",
+      "name": "Crónicas (Chronicle)",
+      "type_ids_new": "5,7",
+      "category_ids_new": "1,6,19,69",
+      "mechanic_ids_new": "13,38,64,113,114,137,175",
+      "type_ids_old": "3,1,5",
+      "category_ids_old": "15,31",
+      "mechanic_ids_old": "5,140,155,165"
+    },
+    {
+      "id": "212",
+      "name": "Drako: Dragon & Dwarves",
+      "type_ids_new": "1,4",
+      "category_ids_new": "8,18,33,40,78",
+      "mechanic_ids_new": "9,13,26,46,47,87,159,175",
+      "type_ids_old": "2",
+      "category_ids_old": "31,33",
+      "mechanic_ids_old": "3,27,61,62,63,175"
+    },
+    {
+      "id": "213",
+      "name": "Catan: Junior",
+      "type_ids_new": "3,8",
+      "category_ids_new": "34,39,45,62,66",
+      "mechanic_ids_new": "1,20,60,62,66,104,121,175",
+      "type_ids_old": "5",
+      "category_ids_old": "16,24,53,59",
+      "mechanic_ids_old": "48,104"
+    },
+    {
+      "id": "214",
+      "name": "Scrabble",
+      "type_ids_new": "3,10",
+      "category_ids_new": "54,62,66",
+      "mechanic_ids_new": "22,32,48,62,63,74,83,105",
+      "type_ids_old": "5",
+      "category_ids_old": "81",
+      "mechanic_ids_old": "54,62,148,160"
+    },
+    {
+      "id": "215",
+      "name": "Timebomb",
+      "type_ids_new": "5,9",
+      "category_ids_new": "3,46,57,59",
+      "mechanic_ids_new": "7,38,39,40,65,88,92,139,175",
+      "type_ids_old": "8",
+      "category_ids_old": "13,15,57,71",
+      "mechanic_ids_old": "65,131,157,164"
+    },
+    {
+      "id": "216",
+      "name": "Time of Soccer",
+      "type_ids_new": "1,7",
+      "category_ids_new": "68,47,61",
+      "mechanic_ids_new": "1,3,13,48,63,81,111,112,159",
+      "type_ids_old": "1",
+      "category_ids_old": "24,72",
+      "mechanic_ids_old": "48,140,141"
+    },
+    {
+      "id": "217",
+      "name": "Fuji Flush",
+      "type_ids_new": "5,10",
+      "category_ids_new": "13,57,62",
+      "mechanic_ids_new": "13,26,29,36,48,62,78,153",
+      "type_ids_old": "5",
+      "category_ids_old": "15,56",
+      "mechanic_ids_old": "62,155"
+    },
+    {
+      "id": "218",
+      "name": "Código Secreto: Disney – Family Edition",
+      "type_ids_new": "3,5",
+      "category_ids_new": "3,13,62,66",
+      "mechanic_ids_new": "16,38,45,64,85,88,137",
+      "type_ids_old": "3,8",
+      "category_ids_old": "15,22,48,57,81",
+      "mechanic_ids_old": "36,93,112,122,157"
+    },
+    {
+      "id": "219",
+      "name": "My First Stone Age",
+      "type_ids_new": "3,8",
+      "category_ids_new": "9,10,20,39,62,66",
+      "mechanic_ids_new": "1,9,20,62,63,66,80,119",
+      "type_ids_old": "9",
+      "category_ids_old": "16,45,62",
+      "mechanic_ids_old": "93,140"
+    },
+    {
+      "id": "220",
+      "name": "Pandemic: Rapid Response",
+      "type_ids_new": "9,10",
+      "category_ids_new": "26,43",
+      "mechanic_ids_new": "1,19,29,36,40,87,92,148,175",
+      "type_ids_old": "1",
+      "category_ids_old": "43,66",
+      "mechanic_ids_old": "39,40,48,126,175"
+    },
+    {
+      "id": "221",
+      "name": "Epic Card Game",
+      "type_ids_new": "1,7",
+      "category_ids_new": "8,13,41,40",
+      "mechanic_ids_new": "13,48,78,26,159,63,37,158,121",
+      "type_ids_old": "8",
+      "category_ids_old": "15,31,33,62,84",
+      "mechanic_ids_old": "28,62,155"
+    },
+    {
+      "id": "222",
+      "name": "Muse",
+      "type_ids_new": "5,3",
+      "category_ids_new": "57,59,22,66",
+      "mechanic_ids_new": "16,38,85,88,89,65,113,175",
+      "type_ids_old": "8",
+      "category_ids_old": "15,36,57",
+      "mechanic_ids_old": "36,40,156,157,178"
+    },
+    {
+      "id": "223",
+      "name": "Pandemic: Hot Zone – North America",
+      "type_ids_new": "9,1",
+      "category_ids_new": "26,43,61",
+      "mechanic_ids_new": "40,3,48,87,138,115,141,112,148",
+      "type_ids_old": "5,3",
+      "category_ids_old": "43,63",
+      "mechanic_ids_old": "3,40,62,118,140"
+    },
+    {
+      "id": "224",
+      "name": "Boss Monster: The Dungeon Building Card Game",
+      "type_ids_new": "7,1",
+      "category_ids_new": "8,13,22,20,8",
+      "mechanic_ids_new": "13,48,20,26,158,78,121,63,76,112",
+      "type_ids_old": "5",
+      "category_ids_old": "15,31,78",
+      "mechanic_ids_old": "62,116,155,175"
+    },
+    {
+      "id": "225",
+      "name": "Famiglia",
+      "type_ids_new": "1,7",
+      "category_ids_new": "13,47,23,17",
+      "mechanic_ids_new": "13,48,27,98,63,75,20,158",
+      "type_ids_old": "1",
+      "category_ids_old": "15,39",
+      "mechanic_ids_old": "5,28,45,62"
+    },
+    {
+      "id": "226",
+      "name": "Mundus Novus",
+      "type_ids_new": "1,3",
+      "category_ids_new": "17,32,2,61",
+      "mechanic_ids_new": "13,77,75,110,153,63,140,162",
+      "type_ids_old": "1",
+      "category_ids_old": "15,24,53,68",
+      "mechanic_ids_old": "28,62,140,163"
+    },
+    {
+      "id": "227",
+      "name": "Dungeon Raiders",
+      "type_ids_new": "3,7",
+      "category_ids_new": "1,8,26,13",
+      "mechanic_ids_new": "153,36,48,40,114,63,78,175",
+      "type_ids_old": "2",
+      "category_ids_old": "3,13,15,29,31,33",
+      "mechanic_ids_old": "62,116,142,155,175"
+    },
+    {
+      "id": "228",
+      "name": "¿Alcachofas? ¡No, gracias!",
+      "type_ids_new": "3,5,10",
+      "category_ids_new": "13,62,57",
+      "mechanic_ids_new": "13,77,8,63,150,175,164,78",
+      "type_ids_old": "3,5",
+      "category_ids_old": "15,32",
+      "mechanic_ids_old": "28,45"
+    },
+    {
+      "id": "229",
+      "name": "Micropolis",
+      "type_ids_new": "1,3",
+      "category_ids_new": "17,45,39,20",
+      "mechanic_ids_new": "54,66,63,117,33,76,175,164",
+      "type_ids_old": "5",
+      "category_ids_old": "10,73",
+      "mechanic_ids_old": "28,140,160"
+    },
+    {
+      "id": "230",
+      "name": "Cave Troll",
+      "type_ids_new": "1,7",
+      "category_ids_new": "8,40,23,33,1",
+      "mechanic_ids_new": "9,27,98,159,26,63,13,80",
+      "type_ids_old": "2",
+      "category_ids_old": "31",
+      "mechanic_ids_old": "3,10,62,118,175"
+    },
+    {
+      "id": "231",
+      "name": "Pandemic: Contagion",
+      "type_ids_new": "1,7",
+      "category_ids_new": "13,43,12,53",
+      "mechanic_ids_new": "13,27,20,141,63,57,112,87,98",
+      "type_ids_old": "1",
+      "category_ids_old": "15,43",
+      "mechanic_ids_old": "10,62"
+    },
+    {
+      "id": "232",
+      "name": "De mudanzas",
+      "type_ids_new": "3,10",
+      "category_ids_new": "62,21,22",
+      "mechanic_ids_new": "30,84,63,29,175",
+      "type_ids_old": "5",
+      "category_ids_old": "2,64,66",
+      "mechanic_ids_old": "48,142"
+    },
+    {
+      "id": "233",
+      "name": "Zombie Dice",
+      "type_ids_new": "10,5",
+      "category_ids_new": "10,53,57",
+      "mechanic_ids_new": "1,77,63,36,62,154",
+      "type_ids_old": "8",
+      "category_ids_old": "23,35,36,57,84",
+      "mechanic_ids_old": "48,122,126"
+    },
+    {
+      "id": "234",
+      "name": "Monza",
+      "type_ids_new": "8,3",
+      "category_ids_new": "52,62,66",
+      "mechanic_ids_new": "1,84,80,9,51,175",
+      "type_ids_old": "9",
+      "category_ids_old": "16,23,65,72",
+      "mechanic_ids_old": "48,123,133,162"
+    },
+    {
+      "id": "235",
+      "name": "Cheating Moth",
+      "type_ids_new": "5,3",
+      "category_ids_new": "13,57,22",
+      "mechanic_ids_new": "13,78,126,103,36,39,143,165",
+      "type_ids_old": "8",
+      "category_ids_old": "2,15",
+      "mechanic_ids_old": "62"
+    },
+    {
+      "id": "236",
+      "name": "The Fury of Dracula",
+      "type_ids_new": "7,9",
+      "category_ids_new": "1,11,29,26,61",
+      "mechanic_ids_new": "40,126,3,45,98,138,159,87,113,104",
+      "type_ids_old": "2",
+      "category_ids_old": "3,22,33,35,55",
+      "mechanic_ids_old": "64,118,137,157,175"
+    },
+    {
+      "id": "237",
+      "name": "Gift Trap",
+      "type_ids_new": "5,3",
+      "category_ids_new": "57,22,62",
+      "mechanic_ids_new": "36,153,85,65,130,88,143",
+      "type_ids_old": "8",
+      "category_ids_old": "36,57",
+      "mechanic_ids_old": "142,178"
+    },
+    {
+      "id": "238",
+      "name": "Scattergories",
+      "type_ids_new": "5,3",
+      "category_ids_new": "54,57,66,62",
+      "mechanic_ids_new": "92,31,85,65,29,143,93",
+      "type_ids_old": "8",
+      "category_ids_old": "57,66,81",
+      "mechanic_ids_old": "48,108"
+    },
+    {
+      "id": "239",
+      "name": "Rory's Story Cubes",
+      "type_ids_new": "3,5",
+      "category_ids_new": "57,22,66,62",
+      "mechanic_ids_new": "1,64,31,113,89,88,96",
+      "type_ids_old": "8",
+      "category_ids_old": "16,23",
+      "mechanic_ids_old": "40,48,112,153"
+    },
+    {
+      "id": "240",
+      "name": "Blood Bound",
+      "type_ids_new": "5,7",
+      "category_ids_new": "3,46,11,57,8",
+      "mechanic_ids_new": "45,39,7,40,26,38,75,165,143,89",
+      "type_ids_old": "8",
+      "category_ids_old": "13,22,31,35,54,57",
+      "mechanic_ids_old": "131,157,175"
+    },
+    {
+      "id": "241",
+      "name": "Sherlock: Last Call",
+      "type_ids_new": "9,3,7",
+      "category_ids_new": "3,29,26,6,61",
+      "mechanic_ids_new": "40,64,114,104,174,153,148,138,76",
+      "type_ids_old": "2",
+      "category_ids_old": "15,22,49",
+      "mechanic_ids_old": "36,40,62,93"
+    },
+    {
+      "id": "242",
+      "name": "Topoum",
+      "type_ids_new": "1",
+      "category_ids_new": "63,23,17,20",
+      "mechanic_ids_new": "3,63,54,66,51,117,122,175",
+      "type_ids_old": "1",
+      "category_ids_old": "73,82",
+      "mechanic_ids_old": "10,160"
+    },
+    {
+      "id": "243",
+      "name": "Sonora",
+      "type_ids_new": "3,10",
+      "category_ids_new": "21,65,62,25",
+      "mechanic_ids_new": "30,143,37,63,76,32,162,77",
+      "type_ids_old": "7",
+      "category_ids_old": "1,2,10",
+      "mechanic_ids_old": "3,10,31,53,57,104,108,140"
+    },
+    {
+      "id": "244",
+      "name": "Shark",
+      "type_ids_new": "7,3",
+      "category_ids_new": "51,39,57,64",
+      "mechanic_ids_new": "75,77,104,63,26,165,129,158,175",
+      "type_ids_old": "1",
+      "category_ids_old": "24",
+      "mechanic_ids_old": "35,48,152"
+    },
+    {
+      "id": "245",
+      "name": "Fight for Olympus",
+      "type_ids_new": "1,7",
+      "category_ids_new": "40,49,33,8,23",
+      "mechanic_ids_new": "87,13,48,9,159,47,158,63,24,80",
+      "type_ids_old": "1",
+      "category_ids_old": "9,15,51",
+      "mechanic_ids_old": "62,155,166"
+    },
+    {
+      "id": "246",
+      "name": "Aliens",
+      "type_ids_new": "9,7",
+      "category_ids_new": "11,12,26,40,33",
+      "mechanic_ids_new": "1,40,9,126,39,112,141,115,158,148",
+      "type_ids_old": "2",
+      "category_ids_old": "33,35,48,69",
+      "mechanic_ids_old": "40,48,135,148,175"
+    },
+    {
+      "id": "247",
+      "name": "Mi Primer Frutal",
+      "type_ids_new": "8,9,3",
+      "category_ids_new": "26,62,39,66",
+      "mechanic_ids_new": "1,40,35,148,175",
+      "type_ids_old": "9",
+      "category_ids_old": "16,25,32",
+      "mechanic_ids_old": "40,48"
+    },
+    {
+      "id": "248",
+      "name": "Stratego",
+      "type_ids_new": "1,2",
+      "category_ids_new": "3,63,40",
+      "mechanic_ids_new": "45,47,9,74,159,137,80,98",
+      "type_ids_old": "5",
+      "category_ids_old": "1,13,22,33,45,52,80",
+      "mechanic_ids_old": "61,93,137,148,176"
+    },
+    {
+      "id": "249",
+      "name": "Camel Up Cards",
+      "type_ids_new": "3,10",
+      "category_ids_new": "13,52,8,57",
+      "mechanic_ids_new": "8,13,84,77,1,48,141,163",
+      "type_ids_old": "5",
+      "category_ids_old": "15",
+      "mechanic_ids_old": "23,62"
+    },
+    {
+      "id": "250",
+      "name": "Byzanz",
+      "type_ids_new": "1,3",
+      "category_ids_new": "17,32,9,64,61",
+      "mechanic_ids_new": "75,5,53,106,110,121,141,160,132",
+      "type_ids_old": "5",
+      "category_ids_old": "9,11,15,24",
+      "mechanic_ids_old": "13,21,28,33,38,62,140"
+    },
+    {
+      "id": "251",
+      "name": "La Torre Encantada",
+      "type_ids_new": "8,9",
+      "category_ids_new": "8,26,56,21",
+      "mechanic_ids_new": "1,30,40,74,92,143,148",
+      "type_ids_old": "9",
+      "category_ids_old": "13,16,23,31",
+      "mechanic_ids_old": "48,133"
+    },
+    {
+      "id": "252",
+      "name": "Exploding Kittens: NSFW Deck",
+      "type_ids_new": "5,10",
+      "category_ids_new": "13,22,57,39",
+      "mechanic_ids_new": "13,26,48,77,150,162,175",
+      "type_ids_old": "8",
+      "category_ids_old": "10,15,21,36,41",
+      "mechanic_ids_old": "62,116,122,140,155"
+    },
+    {
+      "id": "253",
+      "name": "Pairs",
+      "type_ids_new": "5,10",
+      "category_ids_new": "13,35,57",
+      "mechanic_ids_new": "13,26,77,129,150,162,175",
+      "type_ids_old": "5",
+      "category_ids_old": "15",
+      "mechanic_ids_old": "122"
+    },
+    {
+      "id": "254",
+      "name": "Dungeon Roll",
+      "type_ids_new": "1,7",
+      "category_ids_new": "1,10,8,35,25",
+      "mechanic_ids_new": "1,77,96,62,63,87,158,175",
+      "type_ids_old": "5",
+      "category_ids_old": "23,31,33",
+      "mechanic_ids_old": "48,62,122,175"
+    },
+    {
+      "id": "255",
+      "name": "1911 Amundsen vs Scott",
+      "type_ids_new": "1,4",
+      "category_ids_new": "2,61,42",
+      "mechanic_ids_new": "3,55,81,126,153,104,175,113",
+      "type_ids_old": "2",
+      "category_ids_old": "15,29",
+      "mechanic_ids_old": "28,62,123"
+    },
+    {
+      "id": "256",
+      "name": "La Escalera Encantada",
+      "type_ids_new": "8,3",
+      "category_ids_new": "8,56,84,39",
+      "mechanic_ids_new": "1,9,60,74,45,162",
+      "type_ids_old": "9",
+      "category_ids_old": "16,31,45",
+      "mechanic_ids_old": "93,133"
+    },
+    {
+      "id": "257",
+      "name": "El cuco Kiko estrena nido",
+      "type_ids_new": "9,8,3",
+      "category_ids_new": "26,66,39,62",
+      "mechanic_ids_new": "40,1,13,62,148,19",
+      "type_ids_old": "5",
+      "category_ids_old": "2,16,57",
+      "mechanic_ids_old": "149"
+    },
+    {
+      "id": "258",
+      "name": "Unstable Unicorns",
+      "type_ids_new": "5,3",
+      "category_ids_new": "8,13,22,57,39",
+      "mechanic_ids_new": "13,48,26,158,77,163,78,44",
+      "type_ids_old": "8",
+      "category_ids_old": "15,36,57",
+      "mechanic_ids_old": "62,140,155"
+    },
+    {
+      "id": "259",
+      "name": "Haru Ichiban",
+      "type_ids_new": "2",
+      "category_ids_new": "63,75",
+      "mechanic_ids_new": "9,83,32,98,127,175",
+      "type_ids_old": "7",
+      "category_ids_old": "1,10,64",
+      "mechanic_ids_old": "61,62,93,110,142"
+    },
+    {
+      "id": "260",
+      "name": "Sherlock: La tumba del arqueólogo (Sherlock: The Tomb of the Archaeologist)",
+      "type_ids_new": "9,3",
+      "category_ids_new": "3,29,26,76,61",
+      "mechanic_ids_new": "40,19,148,89,16,113,64,85",
+      "type_ids_old": "3,10",
+      "category_ids_old": "15,22,49",
+      "mechanic_ids_old": "36,40,62,93"
+    },
+    {
+      "id": "261",
+      "name": "Game of Trains",
+      "type_ids_new": "3,10",
+      "category_ids_new": "50,62,13",
+      "mechanic_ids_new": "13,48,62,63,82,138",
+      "type_ids_old": "5",
+      "category_ids_old": "15,64,74",
+      "mechanic_ids_old": "28,110"
+    },
+    {
+      "id": "262",
+      "name": "Catan Histories: Struggle for Rome",
+      "type_ids_new": "1,4",
+      "category_ids_new": "61,9,23,40,64",
+      "mechanic_ids_new": "1,9,20,27,53,75,98,159,178",
+      "type_ids_old": "1",
+      "category_ids_old": "9,19",
+      "mechanic_ids_old": "11,163"
+    },
+    {
+      "id": "263",
+      "name": "El Séptimo Héroe",
+      "type_ids_new": "5,3",
+      "category_ids_new": "8,3,6,26",
+      "mechanic_ids_new": "39,45,64,65,87,130,165",
+      "type_ids_old": "5,3",
+      "category_ids_old": "13,15,31",
+      "mechanic_ids_old": "62,140,155"
+    },
+    {
+      "id": "264",
+      "name": "Star Wars: Empire vs. Rebellion",
+      "type_ids_new": "1,7",
+      "category_ids_new": "12,13,40,23",
+      "mechanic_ids_new": "13,48,27,87,20,141,159,98",
+      "type_ids_old": "5",
+      "category_ids_old": "13,15,48,69",
+      "mechanic_ids_old": "45,62,175"
+    },
+    {
+      "id": "265",
+      "name": "Concept Kids: Animals",
+      "type_ids_new": "8,5,3",
+      "category_ids_new": "39,66,57,54",
+      "mechanic_ids_new": "40,16,88,89,38,85",
+      "type_ids_old": "9",
+      "category_ids_old": "10,16,22",
+      "mechanic_ids_old": "40"
+    },
+    {
+      "id": "266",
+      "name": "Time's Up! Family",
+      "type_ids_new": "5,3",
+      "category_ids_new": "57,59,62,66",
+      "mechanic_ids_new": "16,38,85,88,92,175",
+      "type_ids_old": "5",
+      "category_ids_old": "45,57",
+      "mechanic_ids_old": "1,36,93,157"
+    },
+    {
+      "id": "267",
+      "name": "Munchkin Zombies",
+      "type_ids_new": "7,5",
+      "category_ids_new": "13,22,53,40",
+      "mechanic_ids_new": "1,13,48,75,132,158,165",
+      "type_ids_old": "2",
+      "category_ids_old": "15,33,36,84",
+      "mechanic_ids_old": "48,62,175"
+    },
+    {
+      "id": "268",
+      "name": "13 Minutes: The Cuban Missile Crisis, 1962",
+      "type_ids_new": "1",
+      "category_ids_new": "13,47,61,80",
+      "mechanic_ids_new": "13,48,36,95,142,170",
+      "type_ids_old": "1",
+      "category_ids_old": "15,60",
+      "mechanic_ids_old": "10,27,62"
+    },
+    {
+      "id": "269",
+      "name": "Ensalada de Bichos",
+      "type_ids_new": "3,10",
+      "category_ids_new": "13,39,62,65",
+      "mechanic_ids_new": "13,29,35,48,62,143",
+      "type_ids_old": "8",
+      "category_ids_old": "2,15,36,66",
+      "mechanic_ids_old": "112"
+    },
+    {
+      "id": "270",
+      "name": "Rolling Ranch",
+      "type_ids_new": "3,10",
+      "category_ids_new": "39,62,71,83",
+      "mechanic_ids_new": "1,31,36,63,117,135",
+      "type_ids_old": "5",
+      "category_ids_old": "10,23,73",
+      "mechanic_ids_old": "48,108"
+    },
+    {
+      "id": "271",
+      "name": "Alcatraz: El Chivo Expiatorio",
+      "type_ids_new": "5,7",
+      "category_ids_new": "3,46,57,61",
+      "mechanic_ids_new": "7,39,45,65,75,137,165",
+      "type_ids_old": "2",
+      "category_ids_old": "13,39,54",
+      "mechanic_ids_old": "3,61,95,114,140,144,163,178"
+    },
+    {
+      "id": "272",
+      "name": "Ritmo y Bola",
+      "type_ids_new": "5",
+      "category_ids_new": "21,22,57,65,67",
+      "mechanic_ids_new": "26,29,30,36,91,92",
+      "type_ids_old": "8",
+      "category_ids_old": "2,36,50,57,66",
+      "mechanic_ids_old": "1,93,112"
+    },
+    {
+      "id": "273",
+      "name": "Exploding Kittens",
+      "type_ids_new": "5,10",
+      "category_ids_new": "13,22,39,57,62",
+      "mechanic_ids_new": "13,48,77,78,162,175",
+      "type_ids_old": "8",
+      "category_ids_old": "10,15,21,36",
+      "mechanic_ids_old": "62,68,116,122,140,155"
+    },
+    {
+      "id": "274",
+      "name": "Lobo (Wooly Wars)",
+      "type_ids_new": "3,7",
+      "category_ids_new": "23,39,62",
+      "mechanic_ids_new": "9,20,27,63,98,119",
+      "type_ids_old": "5",
+      "category_ids_old": "10,13,32,64",
+      "mechanic_ids_old": "53,62,116,160"
+    },
+    {
+      "id": "275",
+      "name": "Zombicide: Dark Side",
+      "type_ids_new": "9,7",
+      "category_ids_new": "11,26,33,53",
+      "mechanic_ids_new": "1,9,40,80,111,114,115,119,148",
+      "type_ids_old": "2",
+      "category_ids_old": "46,69,84",
+      "mechanic_ids_old": "3,40,48,95,175"
+    },
+    {
+      "id": "276",
+      "name": "Colt Super Express",
+      "type_ids_new": "3,10",
+      "category_ids_new": "1,83,13,57,65",
+      "mechanic_ids_new": "13,81,36,9,80,77,7,153",
+      "type_ids_old": "7",
+      "category_ids_old": "8,74",
+      "mechanic_ids_old": "4,62,93,116,121,142"
+    },
+    {
+      "id": "277",
+      "name": "Versailles",
+      "type_ids_new": "1",
+      "category_ids_new": "61,73,47,17,20,32",
+      "mechanic_ids_new": "54,55,3,66,63,76,111,117",
+      "type_ids_old": "1",
+      "category_ids_old": "73",
+      "mechanic_ids_old": "118,134,160"
+    },
+    {
+      "id": "278",
+      "name": "Hex",
+      "type_ids_new": "2",
+      "category_ids_new": "63,25",
+      "mechanic_ids_new": "61,98,176,44,83,105",
+      "type_ids_old": "7",
+      "category_ids_old": "1",
+      "mechanic_ids_old": "63,104"
+    },
+    {
+      "id": "279",
+      "name": "Cerberus",
+      "type_ids_new": "5,9",
+      "category_ids_new": "3,49,29,57,26",
+      "mechanic_ids_new": "39,40,45,19,65,7,38,64",
+      "type_ids_old": "8",
+      "category_ids_old": "3,51,54",
+      "mechanic_ids_old": "62,95,139"
+    },
+    {
+      "id": "280",
+      "name": "Cthulhu Fluxx",
+      "type_ids_new": "5,10",
+      "category_ids_new": "11,49,13,57,22",
+      "mechanic_ids_new": "13,48,140,141,62,133,150,155",
+      "type_ids_old": "8",
+      "category_ids_old": "15",
+      "mechanic_ids_old": "62,140"
+    },
+    {
+      "id": "281",
+      "name": "Rory's Story Cubes: Actions",
+      "type_ids_new": "3,5,8",
+      "category_ids_new": "13,54,57,62,66",
+      "mechanic_ids_new": "1,16,40,64,74,85,89,113",
+      "type_ids_old": "5",
+      "category_ids_old": "23",
+      "mechanic_ids_old": "40,48,112,153"
+    },
+    {
+      "id": "282",
+      "name": "Bubblee Pop",
+      "type_ids_new": "3,8,10",
+      "category_ids_new": "21,35,62,65",
+      "mechanic_ids_new": "29,30,35,36,83,89,91,92,143",
+      "type_ids_old": "5",
+      "category_ids_old": "",
+      "mechanic_ids_old": "110"
+    },
+    {
+      "id": "283",
+      "name": "Speed Cups",
+      "type_ids_new": "3,8,10",
+      "category_ids_new": "21,35,62,65",
+      "mechanic_ids_new": "29,30,32,35,36,83,89,91,92,143",
+      "type_ids_old": "8",
+      "category_ids_old": "2,16,66",
+      "mechanic_ids_old": "110"
+    },
+    {
+      "id": "284",
+      "name": "El Valle de los Vikingos",
+      "type_ids_new": "3,8",
+      "category_ids_new": "21,62,65,74",
+      "mechanic_ids_new": "1,30,37,63,80,102,143,162,164,175",
+      "type_ids_old": "9",
+      "category_ids_old": "2,16",
+      "mechanic_ids_old": "133,179"
+    },
+    {
+      "id": "285",
+      "name": "Arcana",
+      "type_ids_new": "1,7",
+      "category_ids_new": "1,8,18,40,49",
+      "mechanic_ids_new": "3,27,37,63,66,71,98,116,117,159",
+      "type_ids_old": "1",
+      "category_ids_old": "13,15,31",
+      "mechanic_ids_old": "10,45,62,137,140,165,175"
+    },
+    {
+      "id": "286",
+      "name": "10' to Kill",
+      "type_ids_new": "5,10",
+      "category_ids_new": "3,11,29,45,57",
+      "mechanic_ids_new": "39,45,7,92,126,153,29,165",
+      "type_ids_old": "8",
+      "category_ids_old": "10,13,22,49",
+      "mechanic_ids_old": "4,93,95,116,137"
+    },
+    {
+      "id": "287",
+      "name": "Zombie Fluxx",
+      "type_ids_new": "3,5",
+      "category_ids_new": "13,22,53,57,62",
+      "mechanic_ids_new": "13,48,76,112,141,150,133,140,163",
+      "type_ids_old": "8",
+      "category_ids_old": "15,84",
+      "mechanic_ids_old": "62,140,155"
+    },
+    {
+      "id": "288",
+      "name": "Sherlock: Death on the 4th of July",
+      "type_ids_new": "3,9",
+      "category_ids_new": "3,26,29,61,62",
+      "mechanic_ids_new": "40,19,16,105,113,96,85,139",
+      "type_ids_old": "2",
+      "category_ids_old": "15,22,49",
+      "mechanic_ids_old": "36,40,62,93"
+    },
+    {
+      "id": "289",
+      "name": "Gravity Superstar",
+      "type_ids_new": "3,5,10",
+      "category_ids_new": "21,57,62,65",
+      "mechanic_ids_new": "1,30,35,76,143,29,84",
+      "type_ids_old": "5",
+      "category_ids_old": "78",
+      "mechanic_ids_old": "61,62,95"
+    },
+    {
+      "id": "290",
+      "name": "Miguel Strogoff",
+      "type_ids_new": "7,9",
+      "category_ids_new": "1,2,26,42,61",
+      "mechanic_ids_new": "40,19,66,112,114,115,16,138,71",
+      "type_ids_old": "2",
+      "category_ids_old": "55",
+      "mechanic_ids_old": "48,62,116,118,122,123,139"
+    },
+    {
+      "id": "291",
+      "name": "Twilight Imperium",
+      "type_ids_new": "1,7",
+      "category_ids_new": "12,19,23,47,64,75",
+      "mechanic_ids_new": "1,3,27,46,55,75,98,112,136,178",
+      "type_ids_old": "2",
+      "category_ids_old": "19,54,60,69,70,80",
+      "mechanic_ids_old": "48,63,95,160,175,178"
+    },
+    {
+      "id": "292",
+      "name": "BANG! The Duel",
+      "type_ids_new": "3,10",
+      "category_ids_new": "10,13,40,83",
+      "mechanic_ids_new": "1,48,77,87,158,159,162",
+      "type_ids_old": "1",
+      "category_ids_old": "8,15",
+      "mechanic_ids_old": "62"
+    },
+    {
+      "id": "293",
+      "name": "1920 Wall Street",
+      "type_ids_new": "1,3",
+      "category_ids_new": "17,32,47,61",
+      "mechanic_ids_new": "5,13,53,75,110,160,169,172",
+      "type_ids_old": "1",
+      "category_ids_old": "15,24",
+      "mechanic_ids_old": "75,140,152"
+    },
+    {
+      "id": "294",
+      "name": "El Frutal",
+      "type_ids_new": "8,9",
+      "category_ids_new": "26,62,66",
+      "mechanic_ids_new": "1,40,74,85,148",
+      "type_ids_old": "9",
+      "category_ids_old": "16,23",
+      "mechanic_ids_old": "40,48"
+    },
+    {
+      "id": "295",
+      "name": "Gardens",
+      "type_ids_new": "1,3",
+      "category_ids_new": "25,63,75",
+      "mechanic_ids_new": "61,63,83,110,122,164",
+      "type_ids_old": "5",
+      "category_ids_old": "27",
+      "mechanic_ids_old": "112,160"
+    },
+    {
+      "id": "296",
+      "name": "Frente a los Ascensores (In Front of the Elevators)",
+      "type_ids_new": "3,10",
+      "category_ids_new": "62,65",
+      "mechanic_ids_new": "9,44,54,63,80,175",
+      "type_ids_old": "5",
+      "category_ids_old": "15",
+      "mechanic_ids_old": "10,62"
+    },
+    {
+      "id": "297",
+      "name": "HMS Dolores",
+      "type_ids_new": "3,10",
+      "category_ids_new": "1,34,51,62",
+      "mechanic_ids_new": "1,29,77,92,140,175",
+      "type_ids_old": "8",
+      "category_ids_old": "15,54,59",
+      "mechanic_ids_old": "120,130,140,142"
+    },
+    {
+      "id": "298",
+      "name": "Dr. Jekyll & Mr. Hyde",
+      "type_ids_new": "1,7",
+      "category_ids_new": "11,29,61,64",
+      "mechanic_ids_new": "13,39,45,48,64,113,137,158",
+      "type_ids_old": "1",
+      "category_ids_old": "13,15",
+      "mechanic_ids_old": "165"
+    },
+    {
+      "id": "299",
+      "name": "Huida de Silver City",
+      "type_ids_new": "1,7,9",
+      "category_ids_new": "1,2,61,83",
+      "mechanic_ids_new": "9,40,66,96,114,115,138,141",
+      "type_ids_old": "2",
+      "category_ids_old": "33,35,84",
+      "mechanic_ids_old": "40,48,62,131,157,175"
+    },
+    {
+      "id": "300",
+      "name": "Brick Party",
+      "type_ids_new": "3,5,8",
+      "category_ids_new": "20,21,57,62,65,66",
+      "mechanic_ids_new": "30,32,38,63,89,143,175",
+      "type_ids_old": "8",
+      "category_ids_old": "2,57,66",
+      "mechanic_ids_old": "40,62"
+    },
+    {
+      "id": "301",
+      "name": "Sailing Toward Osiris",
+      "type_ids_new": "1",
+      "category_ids_new": "9,76,20,17,61",
+      "mechanic_ids_new": "54,82,66,51,63,76,98,117",
+      "type_ids_old": "2",
+      "category_ids_old": "9,54",
+      "mechanic_ids_old": "110,179"
+    },
+    {
+      "id": "302",
+      "name": "Black Stories 2",
+      "type_ids_new": "5",
+      "category_ids_new": "3,29,11,57",
+      "mechanic_ids_new": "40,85,16,88,64,113",
+      "type_ids_old": "8",
+      "category_ids_old": "15,22,35,36,49,57",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "303",
+      "name": "Zombies!!! 4: The End...",
+      "type_ids_new": "7,5",
+      "category_ids_new": "53,33,1",
+      "mechanic_ids_new": "1,9,26,46,36,162,77,158",
+      "type_ids_old": "2",
+      "category_ids_old": "29,33,35,46,48,84",
+      "mechanic_ids_old": "133,160"
+    },
+    {
+      "id": "304",
+      "name": "Scarab Lords",
+      "type_ids_new": "1",
+      "category_ids_new": "9,76,40,23",
+      "mechanic_ids_new": "98,27,159,87,63,80,44",
+      "type_ids_old": "1",
+      "category_ids_old": "9,15,31",
+      "mechanic_ids_old": "10,45,62"
+    },
+    {
+      "id": "305",
+      "name": "Silk",
+      "type_ids_new": "1,3",
+      "category_ids_new": "32,61,50,75",
+      "mechanic_ids_new": "82,176,66,63,106,53,117",
+      "type_ids_old": "1",
+      "category_ids_old": "10,32",
+      "mechanic_ids_old": "10,48,155,179"
+    },
+    {
+      "id": "306",
+      "name": "Sherlock: 13 Rehenes (Sherlock: 13 Hostages)",
+      "type_ids_new": "9,3",
+      "category_ids_new": "3,29,26,62",
+      "mechanic_ids_new": "40,19,16,3,113,137,85",
+      "type_ids_old": "2",
+      "category_ids_old": "15,22,49",
+      "mechanic_ids_old": "36,40,62,93"
+    },
+    {
+      "id": "307",
+      "name": "Tomb: Cryptmaster",
+      "type_ids_new": "1,7",
+      "category_ids_new": "1,2,76,17,23",
+      "mechanic_ids_new": "9,3,71,66,63,157,162,112,114",
+      "type_ids_old": "2",
+      "category_ids_old": "3,29,31,33,44",
+      "mechanic_ids_old": "48,93,95,137"
+    },
+    {
+      "id": "308",
+      "name": "Dobble 1,2,3",
+      "type_ids_new": "8,3,10",
+      "category_ids_new": "66,56,65,62",
+      "mechanic_ids_new": "89,29,143,85,91,35",
+      "type_ids_old": "9",
+      "category_ids_old": "10,15,16,25,57,66",
+      "mechanic_ids_old": "112,147"
+    },
+    {
+      "id": "309",
+      "name": "Kreus",
+      "type_ids_new": "1,3",
+      "category_ids_new": "19,8,17,32,20",
+      "mechanic_ids_new": "3,55,66,71,20,63,75,82",
+      "type_ids_old": "2",
+      "category_ids_old": "15,22,51",
+      "mechanic_ids_old": "36,40"
+    },
+    {
+      "id": "310",
+      "name": "Karuba: The Card Game",
+      "type_ids_new": "3,10",
+      "category_ids_new": "1,2,13,62",
+      "mechanic_ids_new": "36,82,84,61,173,63,144",
+      "type_ids_old": "5",
+      "category_ids_old": "3,15,64",
+      "mechanic_ids_old": "110,142,160"
+    },
+    {
+      "id": "311",
+      "name": "Costa Rica",
+      "type_ids_new": "3,1",
+      "category_ids_new": "1,2,39,62",
+      "mechanic_ids_new": "62,77,139,140,63",
+      "type_ids_old": "5",
+      "category_ids_old": "29",
+      "mechanic_ids_old": "88,122,140"
+    },
+    {
+      "id": "312",
+      "name": "Rattle, Battle, Grab the Loot",
+      "type_ids_new": "3,7",
+      "category_ids_new": "1,34,40,22",
+      "mechanic_ids_new": "1,9,159,11,63,80",
+      "type_ids_old": "5",
+      "category_ids_old": "23,36,53,59",
+      "mechanic_ids_old": "48,91"
+    },
+    {
+      "id": "313",
+      "name": "Harvest Island",
+      "type_ids_new": "1,3",
+      "category_ids_new": "17,71,20,62",
+      "mechanic_ids_new": "54,66,21,63,121,122",
+      "type_ids_old": "5",
+      "category_ids_old": "10,15",
+      "mechanic_ids_old": "62,140"
+    },
+    {
+      "id": "314",
+      "name": "Tesoros Inesperados",
+      "type_ids_new": "5,3",
+      "category_ids_new": "3,29,57,62",
+      "mechanic_ids_new": "85,89,88,65,175",
+      "type_ids_old": "5",
+      "category_ids_old": "",
+      "mechanic_ids_old": "140,142"
+    },
+    {
+      "id": "315",
+      "name": "Munchkin",
+      "type_ids_new": "5,7",
+      "category_ids_new": "6,8,22,13,40",
+      "mechanic_ids_new": "13,48,165,87,158,7,63",
+      "type_ids_old": "8",
+      "category_ids_old": "15,31,33,36",
+      "mechanic_ids_old": "62,155,175"
+    },
+    {
+      "id": "316",
+      "name": "The Hobbit",
+      "type_ids_new": "9,7,3",
+      "category_ids_new": "1,8,26,6,78,2",
+      "mechanic_ids_new": "40,1,3,113,10,112,19,114,115,158",
+      "type_ids_old": "5",
+      "category_ids_old": "3,15,31,55,76",
+      "mechanic_ids_old": "13,48,62,118,131,142"
+    },
+    {
+      "id": "317",
+      "name": "Kill The Unicorns",
+      "type_ids_new": "5,10",
+      "category_ids_new": "13,22,57,8,39,41",
+      "mechanic_ids_new": "13,48,7,44,165,26,78,131,39,149",
+      "type_ids_old": "8",
+      "category_ids_old": "10,13,15,57",
+      "mechanic_ids_old": "13,62,140,155,175"
+    },
+    {
+      "id": "318",
+      "name": "Pictionary",
+      "type_ids_new": "5,3",
+      "category_ids_new": "57,54,59,22,62",
+      "mechanic_ids_new": "88,38,89,29,92,85,143,65,74,153",
+      "type_ids_old": "8",
+      "category_ids_old": "57",
+      "mechanic_ids_old": "81,133,157"
+    },
+    {
+      "id": "319",
+      "name": "Micro Robots",
+      "type_ids_new": "10,5",
+      "category_ids_new": "25,48,57,63,21,12",
+      "mechanic_ids_new": "105,29,92,36,83,47,108,143,91,89",
+      "type_ids_old": "7",
+      "category_ids_old": "1,64,66",
+      "mechanic_ids_old": "48,61,95"
+    },
+    {
+      "id": "320",
+      "name": "Cards Against Humanity",
+      "type_ids_new": "5",
+      "category_ids_new": "13,57,22,54,59,62",
+      "mechanic_ids_new": "13,48,65,36,85,88,38,93,155,64",
+      "type_ids_old": "8",
+      "category_ids_old": "15,36,41,57,63",
+      "mechanic_ids_old": "62,117,142"
+    },
+    {
+      "id": "321",
+      "name": "Sopa de Bichos",
+      "type_ids_new": "3,8,10",
+      "category_ids_new": "39,62,65",
+      "mechanic_ids_new": "29,36,89,92,143",
+      "type_ids_old": "8",
+      "category_ids_old": "10,15,36,66",
+      "mechanic_ids_old": "112"
+    },
+    {
+      "id": "322",
+      "name": "Password",
+      "type_ids_new": "5,3",
+      "category_ids_new": "54,57,62",
+      "mechanic_ids_new": "16,38,88,130,175",
+      "type_ids_old": "5",
+      "category_ids_old": "48,57,81",
+      "mechanic_ids_old": "157"
+    },
+    {
+      "id": "323",
+      "name": "Checkpoint Charlie",
+      "type_ids_new": "5,7",
+      "category_ids_new": "46,47,61,80",
+      "mechanic_ids_new": "7,39,45,165,175",
+      "type_ids_old": "5",
+      "category_ids_old": "15,22,71",
+      "mechanic_ids_old": "93,112"
+    },
+    {
+      "id": "324",
+      "name": "Rumble in the House",
+      "type_ids_new": "3,5",
+      "category_ids_new": "3,22,40,62",
+      "mechanic_ids_new": "7,26,36,39,80",
+      "type_ids_old": "5",
+      "category_ids_old": "13,22,33,36,57",
+      "mechanic_ids_old": "61,95,137"
+    },
+    {
+      "id": "325",
+      "name": "So Clover!",
+      "type_ids_new": "9,3",
+      "category_ids_new": "26,54,62",
+      "mechanic_ids_new": "16,40,64,88,105",
+      "type_ids_old": "8",
+      "category_ids_old": "57,81",
+      "mechanic_ids_old": "40,156"
+    },
+    {
+      "id": "326",
+      "name": "Zen Master",
+      "type_ids_new": "3,10",
+      "category_ids_new": "62,66,57",
+      "mechanic_ids_new": "48,63,76,153,175",
+      "type_ids_old": "5",
+      "category_ids_old": "15",
+      "mechanic_ids_old": "62,140,165"
+    },
+    {
+      "id": "327",
+      "name": "Warehouse 51",
+      "type_ids_new": "1,3",
+      "category_ids_new": "12,41,29,59",
+      "mechanic_ids_new": "5,129,48,63,77,158,140",
+      "type_ids_old": "2",
+      "category_ids_old": "15,51",
+      "mechanic_ids_old": "13,140"
+    },
+    {
+      "id": "328",
+      "name": "Target Earth",
+      "type_ids_new": "1,7",
+      "category_ids_new": "12,40,33,60",
+      "mechanic_ids_new": "11,159,98,87,75,138,116,152",
+      "type_ids_old": "2",
+      "category_ids_old": "69",
+      "mechanic_ids_old": "40,48,141"
+    },
+    {
+      "id": "329",
+      "name": "La Cosa",
+      "type_ids_new": "5,7",
+      "category_ids_new": "11,12,3,53",
+      "mechanic_ids_new": "39,45,165,65,38,64,16,148",
+      "type_ids_old": "8",
+      "category_ids_old": "13,15,22,35,57",
+      "mechanic_ids_old": "28,40,116,131,153,157"
+    },
+    {
+      "id": "330",
+      "name": "Aye, Dark Overlord! The Red Box",
+      "type_ids_new": "5",
+      "category_ids_new": "22,57,8,54",
+      "mechanic_ids_new": "64,31,130,65,26,88,175",
+      "type_ids_old": "8",
+      "category_ids_old": "15,31,36,57",
+      "mechanic_ids_old": "1,131,144,153"
+    },
+    {
+      "id": "331",
+      "name": "Speed Cups²",
+      "type_ids_new": "3,10",
+      "category_ids_new": "21,57,62",
+      "mechanic_ids_new": "29,30,83,89,143",
+      "type_ids_old": "3,9,8",
+      "category_ids_old": "2,16,66",
+      "mechanic_ids_old": "110"
+    },
+    {
+      "id": "332",
+      "name": "Rory's Story Cubes: Enchanted",
+      "type_ids_new": "3,5,8",
+      "category_ids_new": "8,49,54,62,66",
+      "mechanic_ids_new": "1,64,85,113,175",
+      "type_ids_old": "7",
+      "category_ids_old": "23",
+      "mechanic_ids_old": "40,48,112,153"
+    },
+    {
+      "id": "333",
+      "name": "Cluedo",
+      "type_ids_new": "1,3",
+      "category_ids_new": "3,29,61,62",
+      "mechanic_ids_new": "9,47,48,63,74,85,139,175",
+      "type_ids_old": "5",
+      "category_ids_old": "13,22,49",
+      "mechanic_ids_old": "48,133"
+    },
+    {
+      "id": "334",
+      "name": "Adventure Time Card Wars: Finn vs. Jake",
+      "type_ids_new": "1,7",
+      "category_ids_new": "8,13,40",
+      "mechanic_ids_new": "13,15,48,63,158,164,175",
+      "type_ids_old": "2",
+      "category_ids_old": "15,36,48",
+      "mechanic_ids_old": "62"
+    },
+    {
+      "id": "335",
+      "name": "Rory's Story Cubes: Prehistoria",
+      "type_ids_new": "3,5,8",
+      "category_ids_new": "9,54,61,62,66",
+      "mechanic_ids_new": "1,64,85,113,175",
+      "type_ids_old": "7",
+      "category_ids_old": "23",
+      "mechanic_ids_old": "40,48,112,153"
+    },
+    {
+      "id": "336",
+      "name": "Guilds",
+      "type_ids_new": "1",
+      "category_ids_new": "17,18,32,45",
+      "mechanic_ids_new": "13,25,28,54,62,63,76,117,121",
+      "type_ids_old": "2",
+      "category_ids_old": "17,31,44",
+      "mechanic_ids_old": "4,13,160"
+    },
+    {
+      "id": "337",
+      "name": "Super Munchkin",
+      "type_ids_new": "5,7",
+      "category_ids_new": "1,13,22,40,57",
+      "mechanic_ids_new": "1,7,13,26,48,77,158,162,165",
+      "type_ids_old": "2",
+      "category_ids_old": "15,21,33,36",
+      "mechanic_ids_old": "48,163,175"
+    },
+    {
+      "id": "338",
+      "name": "Papua",
+      "type_ids_new": "1",
+      "category_ids_new": "1,2,61,66",
+      "mechanic_ids_new": "9,54,57,63,80,82,138,164,175",
+      "type_ids_old": "1",
+      "category_ids_old": "29",
+      "mechanic_ids_old": "13,48,140,179"
+    },
+    {
+      "id": "339",
+      "name": "Adventure Games: The Grand Hotel Abaddon",
+      "type_ids_new": "9,7",
+      "category_ids_new": "1,26,29",
+      "mechanic_ids_new": "40,64,65,105,113,114,138,139,175",
+      "type_ids_old": "2",
+      "category_ids_old": "",
+      "mechanic_ids_old": "40"
+    },
+    {
+      "id": "340",
+      "name": "Código Secreto 13+4",
+      "type_ids_new": "3,2",
+      "category_ids_new": "3,25,66",
+      "mechanic_ids_new": "3,35,74,85,105,143,153,162",
+      "type_ids_old": "10,3",
+      "category_ids_old": "25,40,71",
+      "mechanic_ids_old": "48"
+    },
+    {
+      "id": "341",
+      "name": "Chariot Race",
+      "type_ids_new": "3,7",
+      "category_ids_new": "9,52,61",
+      "mechanic_ids_new": "1,9,80,84,77,162",
+      "type_ids_old": "5",
+      "category_ids_old": "9,65",
+      "mechanic_ids_old": "48,123"
+    },
+    {
+      "id": "342",
+      "name": "Oilfield",
+      "type_ids_new": "1",
+      "category_ids_new": "17,70",
+      "mechanic_ids_new": "3,5,77,106,110,164,169",
+      "type_ids_old": "1",
+      "category_ids_old": "24,37,54",
+      "mechanic_ids_old": "10,13,142,179"
+    },
+    {
+      "id": "343",
+      "name": "Poule Poule",
+      "type_ids_new": "5",
+      "category_ids_new": "57,39,22,62",
+      "mechanic_ids_new": "29,89,85,36,74",
+      "type_ids_old": "9",
+      "category_ids_old": "10,45,57,66",
+      "mechanic_ids_old": "93"
+    },
+    {
+      "id": "344",
+      "name": "Prohis",
+      "type_ids_new": "5,7",
+      "category_ids_new": "3,57,46,61",
+      "mechanic_ids_new": "39,45,75,65,7,165",
+      "type_ids_old": "5",
+      "category_ids_old": "13,15,39",
+      "mechanic_ids_old": "26,62"
+    },
+    {
+      "id": "345",
+      "name": "Troika",
+      "type_ids_new": "10,3",
+      "category_ids_new": "13,62",
+      "mechanic_ids_new": "13,48,63,175",
+      "type_ids_old": "7",
+      "category_ids_old": "",
+      "mechanic_ids_old": "140"
+    },
+    {
+      "id": "346",
+      "name": "Mecanisburgo",
+      "type_ids_new": "1,7",
+      "category_ids_new": "17,20,45,70,12",
+      "mechanic_ids_new": "3,54,66,15,63,24,76,117,164",
+      "type_ids_old": "2",
+      "category_ids_old": "24,31,69",
+      "mechanic_ids_old": "10,28,137,179"
+    },
+    {
+      "id": "347",
+      "name": "Time's Up! Kids",
+      "type_ids_new": "5,8,3",
+      "category_ids_new": "57,66,56,62,59",
+      "mechanic_ids_new": "38,74,88,92,130,85,175",
+      "type_ids_old": "9",
+      "category_ids_old": "16,57",
+      "mechanic_ids_old": "1,36,93,157"
+    },
+    {
+      "id": "348",
+      "name": "Mixmo",
+      "type_ids_new": "10,3,5",
+      "category_ids_new": "54,57,25,62",
+      "mechanic_ids_new": "92,29,105,83,22,175,143",
+      "type_ids_old": "8",
+      "category_ids_old": "57,81",
+      "mechanic_ids_old": "160"
+    },
+    {
+      "id": "349",
+      "name": "El Monstruo de Colores",
+      "type_ids_new": "8,9,3",
+      "category_ids_new": "26,66,62,39",
+      "mechanic_ids_new": "40,1,148,102,74,16,19",
+      "type_ids_old": "9",
+      "category_ids_old": "16",
+      "mechanic_ids_old": "40,48,93,153"
+    },
+    {
+      "id": "350",
+      "name": "Dino Race",
+      "type_ids_new": "3,8",
+      "category_ids_new": "52,62,39,9,35",
+      "mechanic_ids_new": "1,84,60,9,80,162,175",
+      "type_ids_old": "9",
+      "category_ids_old": "15,65",
+      "mechanic_ids_old": "62,155"
+    },
+    {
+      "id": "351",
+      "name": "Carrera de Caracoles",
+      "type_ids_new": "8,3",
+      "category_ids_new": "52,39,62",
+      "mechanic_ids_new": "1,84,60,162,175",
+      "type_ids_old": "9",
+      "category_ids_old": "16,23",
+      "mechanic_ids_old": "48"
+    },
+    {
+      "id": "352",
+      "name": "A lo loco Retro",
+      "type_ids_new": "5,10",
+      "category_ids_new": "57,22,56",
+      "mechanic_ids_new": "92,29,143,85,36",
+      "type_ids_old": "7",
+      "category_ids_old": "15,66",
+      "mechanic_ids_old": "112"
+    },
+    {
+      "id": "353",
+      "name": "Pocket Invaders",
+      "type_ids_new": "1,10",
+      "category_ids_new": "12,40,61",
+      "mechanic_ids_new": "47,159,71,37,175",
+      "type_ids_old": "7",
+      "category_ids_old": "1,23",
+      "mechanic_ids_old": "61,133"
+    },
+    {
+      "id": "354",
+      "name": "Black Hills",
+      "type_ids_new": "1,7",
+      "category_ids_new": "83,2,17,61",
+      "mechanic_ids_new": "54,66,138,98,20,63",
+      "type_ids_old": "2",
+      "category_ids_old": "6,8,15",
+      "mechanic_ids_old": "174"
+    },
+    {
+      "id": "355",
+      "name": "Dragons",
+      "type_ids_new": "3,7",
+      "category_ids_new": "8,78,1,22",
+      "mechanic_ids_new": "1,87,159,39,75,63",
+      "type_ids_old": "2",
+      "category_ids_old": "15,31",
+      "mechanic_ids_old": "28,122,140"
+    },
+    {
+      "id": "356",
+      "name": "Cat Box",
+      "type_ids_new": "3,10",
+      "category_ids_new": "13,77,62",
+      "mechanic_ids_new": "13,48,62,78,150",
+      "type_ids_old": "5",
+      "category_ids_old": "1,10,15",
+      "mechanic_ids_old": "110"
+    },
+    {
+      "id": "357",
+      "name": "Zombies!!!",
+      "type_ids_new": "7,3",
+      "category_ids_new": "11,53,2,33",
+      "mechanic_ids_new": "1,9,46,61,26,159,112,157",
+      "type_ids_old": "2",
+      "category_ids_old": "29,33,35,46,48,84",
+      "mechanic_ids_old": "48,61,62,95,133"
+    },
+    {
+      "id": "358",
+      "name": "Los Impostores",
+      "type_ids_new": "5,3",
+      "category_ids_new": "3,57,46,59",
+      "mechanic_ids_new": "39,45,16,65,38,7,143,165",
+      "type_ids_old": "8",
+      "category_ids_old": "13,22,49,57",
+      "mechanic_ids_old": "93,178"
+    },
+    {
+      "id": "359",
+      "name": "Catan Dice Game",
+      "type_ids_new": "3,10",
+      "category_ids_new": "10,17,20,62",
+      "mechanic_ids_new": "1,96,63,37,25,117,170",
+      "type_ids_old": "5",
+      "category_ids_old": "23",
+      "mechanic_ids_old": "48,108,140"
+    },
+    {
+      "id": "360",
+      "name": "Mondrian: The Dice Game",
+      "type_ids_new": "2,3",
+      "category_ids_new": "63,25,66",
+      "mechanic_ids_new": "1,83,117,105,36,63,121",
+      "type_ids_old": "7",
+      "category_ids_old": "2,23",
+      "mechanic_ids_old": "62"
+    },
+    {
+      "id": "361",
+      "name": "Rory's Story Cubes: Intergalactic",
+      "type_ids_new": "5,3,8",
+      "category_ids_new": "12,54,57,66",
+      "mechanic_ids_new": "1,64,88,89,162",
+      "type_ids_old": "7",
+      "category_ids_old": "23",
+      "mechanic_ids_old": "40,48,112,153"
+    },
+    {
+      "id": "362",
+      "name": "Barcelona: The Rose of Fire",
+      "type_ids_new": "1,7",
+      "category_ids_new": "17,20,45,61,73",
+      "mechanic_ids_new": "3,13,48,54,63,66,122,124",
+      "type_ids_old": "1",
+      "category_ids_old": "17",
+      "mechanic_ids_old": "10,160"
+    },
+    {
+      "id": "363",
+      "name": "MOON",
+      "type_ids_new": "2,1",
+      "category_ids_new": "25,63",
+      "mechanic_ids_new": "61,80,98,122,175",
+      "type_ids_old": "7",
+      "category_ids_old": "1,25,40",
+      "mechanic_ids_old": "110,141"
+    },
+    {
+      "id": "364",
+      "name": "It's Mine",
+      "type_ids_new": "1",
+      "category_ids_new": "13,23,40",
+      "mechanic_ids_new": "13,20,27,48,95,98",
+      "type_ids_old": "7",
+      "category_ids_old": "15,17,39",
+      "mechanic_ids_old": "10,140,142,155,175"
+    },
+    {
+      "id": "365",
+      "name": "Pot de Vin",
+      "type_ids_new": "5,1",
+      "category_ids_new": "22,47,57,64",
+      "mechanic_ids_new": "7,39,65,75,129,137,153",
+      "type_ids_old": "2",
+      "category_ids_old": "60,68",
+      "mechanic_ids_old": "62,140,165"
+    },
+    {
+      "id": "366",
+      "name": "Excalibur",
+      "type_ids_new": "1,7",
+      "category_ids_new": "1,8,18,49,61",
+      "mechanic_ids_new": "9,37,48,63,80,114,138,158,175",
+      "type_ids_old": "1",
+      "category_ids_old": "33,44,80",
+      "mechanic_ids_old": "4,48,108,118,142"
+    },
+    {
+      "id": "367",
+      "name": "Time's Up! Party Edition",
+      "type_ids_new": "5,3",
+      "category_ids_new": "57,56,54,22",
+      "mechanic_ids_new": "16,38,74,88,92,113,130,175",
+      "type_ids_old": "8",
+      "category_ids_old": "36,57",
+      "mechanic_ids_old": "1,93,157"
+    },
+    {
+      "id": "368",
+      "name": "Spartacus",
+      "type_ids_new": "1,4",
+      "category_ids_new": "9,61,23,40",
+      "mechanic_ids_new": "1,9,47,87,98,104,111,115,159,175",
+      "type_ids_old": "4",
+      "category_ids_old": "9,18,60,80",
+      "mechanic_ids_old": "27,118,141"
+    },
+    {
+      "id": "369",
+      "name": "Junta: Las Cartas",
+      "type_ids_new": "1,7",
+      "category_ids_new": "13,47,64,75",
+      "mechanic_ids_new": "7,13,48,63,65,75,132,136,165,175",
+      "type_ids_old": "5",
+      "category_ids_old": "13,15,54,60",
+      "mechanic_ids_old": "62,137,141,142,155,178"
+    },
+    {
+      "id": "370",
+      "name": "Fast Food Fear!",
+      "type_ids_new": "3,10",
+      "category_ids_new": "11,22,62,72",
+      "mechanic_ids_new": "13,29,48,62,112,141,162,175",
+      "type_ids_old": "8",
+      "category_ids_old": "57,66",
+      "mechanic_ids_old": "40,140"
+    },
+    {
+      "id": "371",
+      "name": "Black Stories 3",
+      "type_ids_new": "5,3",
+      "category_ids_new": "3,11,29,57,59",
+      "mechanic_ids_new": "16,85,88,40,65,89,130",
+      "type_ids_old": "8",
+      "category_ids_old": "15,22,35,36,49,57",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "372",
+      "name": "Final Touch",
+      "type_ids_new": "10,3",
+      "category_ids_new": "25,63,65,21",
+      "mechanic_ids_new": "29,36,91,35,83,143,92",
+      "type_ids_old": "5",
+      "category_ids_old": "13,15",
+      "mechanic_ids_old": "62,157"
+    },
+    {
+      "id": "373",
+      "name": "What's Up",
+      "type_ids_new": "5,10",
+      "category_ids_new": "21,57,65,22",
+      "mechanic_ids_new": "30,143,29,92,91,63,175",
+      "type_ids_old": "5",
+      "category_ids_old": "10,22,45",
+      "mechanic_ids_old": "93,140"
+    },
+    {
+      "id": "374",
+      "name": "Mil Kilometros: Fun & Speed",
+      "type_ids_new": "3,5",
+      "category_ids_new": "13,52,42,62",
+      "mechanic_ids_new": "13,48,26,44,78,163,62,63",
+      "type_ids_old": "5",
+      "category_ids_old": "15,65",
+      "mechanic_ids_old": "62,155,157"
+    },
+    {
+      "id": "375",
+      "name": "Emporion",
+      "type_ids_new": "1,3",
+      "category_ids_new": "17,32,9,61",
+      "mechanic_ids_new": "3,66,75,53,106,17,63,110,164",
+      "type_ids_old": "2",
+      "category_ids_old": "9,15,19",
+      "mechanic_ids_old": "28,140"
+    },
+    {
+      "id": "376",
+      "name": "Ars Universalis",
+      "type_ids_new": "1,3",
+      "category_ids_new": "18,17,66,61",
+      "mechanic_ids_new": "13,48,24,63,66,121,117",
+      "type_ids_old": "5",
+      "category_ids_old": "1,25,44,64,68",
+      "mechanic_ids_old": "13,110"
+    },
+    {
+      "id": "377",
+      "name": "Karuba Junior",
+      "type_ids_new": "8,9",
+      "category_ids_new": "1,2,26,62",
+      "mechanic_ids_new": "40,61,36,138,148,115",
+      "type_ids_old": "9",
+      "category_ids_old": "3,16,64",
+      "mechanic_ids_old": "40,95,160"
+    },
+    {
+      "id": "378",
+      "name": "Unicornio Destello",
+      "type_ids_new": "8",
+      "category_ids_new": "13,62,8,39",
+      "mechanic_ids_new": "62,48,74,89,35,53",
+      "type_ids_old": "9",
+      "category_ids_old": "16",
+      "mechanic_ids_old": "48,133"
+    },
+    {
+      "id": "379",
+      "name": "Hands Up",
+      "type_ids_new": "5",
+      "category_ids_new": "57,21,22",
+      "mechanic_ids_new": "29,92,30,143,36,84,91",
+      "type_ids_old": "8",
+      "category_ids_old": "2,15",
+      "mechanic_ids_old": "110"
+    },
+    {
+      "id": "380",
+      "name": "Hombres Lobo de Castronegro",
+      "type_ids_new": "5",
+      "category_ids_new": "3,18,11,57,6",
+      "mechanic_ids_new": "39,45,7,26,65,38,88,165,130",
+      "type_ids_old": "8",
+      "category_ids_old": "13,22,35,49,57",
+      "mechanic_ids_old": "116,131,157,175,178"
+    },
+    {
+      "id": "381",
+      "name": "Ubongo Junior",
+      "type_ids_new": "8,3,10",
+      "category_ids_new": "25,66,62,21",
+      "mechanic_ids_new": "92,29,105,83,36,89,143",
+      "type_ids_old": "9",
+      "category_ids_old": "64,66",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "382",
+      "name": "Fire Team",
+      "type_ids_new": "4,1",
+      "category_ids_new": "60,33,40,61",
+      "mechanic_ids_new": "1,47,49,9,159,98,57,111,104,51",
+      "type_ids_old": "4",
+      "category_ids_old": "47,80",
+      "mechanic_ids_old": "3,32,48,61,63,82,95,135,141"
+    },
+    {
+      "id": "383",
+      "name": "Simon's Cat Card Game",
+      "type_ids_new": "5,3,10",
+      "category_ids_new": "13,22,77,39,57",
+      "mechanic_ids_new": "13,48,78,35,150,26,142,175",
+      "type_ids_old": "9",
+      "category_ids_old": "15,21,36,48,56,57",
+      "mechanic_ids_old": "62,93,144,165"
+    },
+    {
+      "id": "384",
+      "name": "Odyssey: La Ira de Poseidon (Odyssey: Wrath of Poseidon)",
+      "type_ids_new": "7,1,9",
+      "category_ids_new": "49,1,19,40,51",
+      "mechanic_ids_new": "87,40,9,66,138,115,38,158,147",
+      "type_ids_old": "2",
+      "category_ids_old": "22,53",
+      "mechanic_ids_old": "11,157"
+    },
+    {
+      "id": "385",
+      "name": "Upstream",
+      "type_ids_new": "2,1,3",
+      "category_ids_new": "63,39,25,62",
+      "mechanic_ids_new": "9,46,61,82,84,98,44,37,175",
+      "type_ids_old": "7",
+      "category_ids_old": "1,10,27,65",
+      "mechanic_ids_old": "3,61,95,160"
+    },
+    {
+      "id": "386",
+      "name": "Mi Primer Tesoro de Juegos",
+      "type_ids_new": "8,3",
+      "category_ids_new": "62,66,56,39",
+      "mechanic_ids_new": "74,89,62,40,175,143",
+      "type_ids_old": "9",
+      "category_ids_old": "10,16,32",
+      "mechanic_ids_old": "40,93,112"
+    },
+    {
+      "id": "387",
+      "name": "No Time For Heroes",
+      "type_ids_new": "9,1",
+      "category_ids_new": "1,26,2,12",
+      "mechanic_ids_new": "40,3,138,77,92,114,148,141,66,152",
+      "type_ids_old": "4",
+      "category_ids_old": "15,31,33",
+      "mechanic_ids_old": "28,62,175"
+    },
+    {
+      "id": "388",
+      "name": "Sidibaba",
+      "type_ids_new": "5,7",
+      "category_ids_new": "57,75,32,64,22",
+      "mechanic_ids_new": "75,7,39,48,13,65,137,153,158",
+      "type_ids_old": "5",
+      "category_ids_old": "9,11,42,51,63,66",
+      "mechanic_ids_old": "142,157,175,178"
+    },
+    {
+      "id": "389",
+      "name": "Cranium",
+      "type_ids_new": "5,3",
+      "category_ids_new": "57,55,21,54,22,66",
+      "mechanic_ids_new": "38,85,31,143,84,63,89,91,175",
+      "type_ids_old": "8",
+      "category_ids_old": "57,64,77,81",
+      "mechanic_ids_old": "1,81,108,133,143,157"
+    },
+    {
+      "id": "390",
+      "name": "Co-Mix",
+      "type_ids_new": "5,3",
+      "category_ids_new": "57,22,54,66",
+      "mechanic_ids_new": "64,13,31,40,155,175,135,158",
+      "type_ids_old": "8",
+      "category_ids_old": "21,36,57",
+      "mechanic_ids_old": "153,178"
+    },
+    {
+      "id": "391",
+      "name": "¡Cobardes!",
+      "type_ids_new": "1,10",
+      "category_ids_new": "3,13,57,64",
+      "mechanic_ids_new": "7,8,36,77,95,127,143,153,165",
+      "type_ids_old": "3,10",
+      "category_ids_old": "15,44",
+      "mechanic_ids_old": "62,142,175"
+    },
+    {
+      "id": "392",
+      "name": "Rory's Story Cubes: Mythic",
+      "type_ids_new": "3,7,8",
+      "category_ids_new": "8,49,54,62,66",
+      "mechanic_ids_new": "1,16,64,85,89,96,113,139",
+      "type_ids_old": "7",
+      "category_ids_old": "23",
+      "mechanic_ids_old": "40,48,112,153"
+    },
+    {
+      "id": "393",
+      "name": "Rory's Story Cubes: Animalia",
+      "type_ids_new": "3,8",
+      "category_ids_new": "39,54,62,66",
+      "mechanic_ids_new": "1,16,64,85,89,96,113",
+      "type_ids_old": "7",
+      "category_ids_old": "23",
+      "mechanic_ids_old": "40,48,112,153"
+    },
+    {
+      "id": "394",
+      "name": "Hippo",
+      "type_ids_new": "3,5,8",
+      "category_ids_new": "21,39,57,62,65",
+      "mechanic_ids_new": "29,30,36,62,84,91,92,143",
+      "type_ids_old": "9",
+      "category_ids_old": "",
+      "mechanic_ids_old": "48,95"
+    },
+    {
+      "id": "395",
+      "name": "Rally de Zanahorias",
+      "type_ids_new": "3,8",
+      "category_ids_new": "39,52,62,66",
+      "mechanic_ids_new": "1,9,60,80,84,89,175",
+      "type_ids_old": "9",
+      "category_ids_old": "10,16",
+      "mechanic_ids_old": "48,98,118"
+    },
+    {
+      "id": "396",
+      "name": "Galactic Warlords: Battle for Dominion",
+      "type_ids_new": "1,4",
+      "category_ids_new": "12,19,23,33,40,60",
+      "mechanic_ids_new": "3,11,20,27,40,66,98,116,159,178",
+      "type_ids_old": "4",
+      "category_ids_old": "70,71,80",
+      "mechanic_ids_old": "10,28,48,95,175"
+    },
+    {
+      "id": "397",
+      "name": "Air Show",
+      "type_ids_new": "1,7",
+      "category_ids_new": "52,65,68",
+      "mechanic_ids_new": "1,36,63,77,81,143,153",
+      "type_ids_old": "2",
+      "category_ids_old": "12",
+      "mechanic_ids_old": "13,140"
+    },
+    {
+      "id": "398",
+      "name": "Alice",
+      "type_ids_new": "3,7",
+      "category_ids_new": "1,8,62",
+      "mechanic_ids_new": "9,47,62,80,112,114,138",
+      "type_ids_old": "2",
+      "category_ids_old": "3,31,55",
+      "mechanic_ids_old": "28,140"
+    },
+    {
+      "id": "399",
+      "name": "Fuerza de Dragón",
+      "type_ids_new": "8,10",
+      "category_ids_new": "8,21,78",
+      "mechanic_ids_new": "1,29,30,84,91,143",
+      "type_ids_old": "3,9",
+      "category_ids_old": "16,45,65",
+      "mechanic_ids_old": "93"
+    },
+    {
+      "id": "400",
+      "name": "Palabrea",
+      "type_ids_new": "5,10",
+      "category_ids_new": "54,57,62,66",
+      "mechanic_ids_new": "29,36,85,92,153",
+      "type_ids_old": "8",
+      "category_ids_old": "15,57,66,81",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "401",
+      "name": "Basketball Age",
+      "type_ids_new": "1,7",
+      "category_ids_new": "68,55,61",
+      "mechanic_ids_new": "1,28,48,54,63,80,117,141,159",
+      "type_ids_old": "2",
+      "category_ids_old": "72",
+      "mechanic_ids_old": "4,11,48,141,175"
+    },
+    {
+      "id": "402",
+      "name": "Fluxx",
+      "type_ids_new": "3,5,10",
+      "category_ids_new": "13,22,57,62",
+      "mechanic_ids_new": "13,48,53,112,140,142,150,155,163",
+      "type_ids_old": "5",
+      "category_ids_old": "15",
+      "mechanic_ids_old": "62,140"
+    },
+    {
+      "id": "403",
+      "name": "Trivial Pursuit: Classic Edition",
+      "type_ids_new": "3,5",
+      "category_ids_new": "55,62,66",
+      "mechanic_ids_new": "1,60,85,93,162,175",
+      "type_ids_old": "5",
+      "category_ids_old": "57,77",
+      "mechanic_ids_old": "133,140"
+    },
+    {
+      "id": "404",
+      "name": "Aye, Dark Overlord! The Green Box",
+      "type_ids_new": "5,3",
+      "category_ids_new": "6,22,57,11",
+      "mechanic_ids_new": "39,64,86,88,113,130,158,165",
+      "type_ids_old": "8",
+      "category_ids_old": "15,31,36,57",
+      "mechanic_ids_old": "1,131,144,153"
+    },
+    {
+      "id": "405",
+      "name": "Ladrillazo",
+      "type_ids_new": "5,10",
+      "category_ids_new": "22,57,62",
+      "mechanic_ids_new": "1,48,77,85,96,162",
+      "type_ids_old": "5",
+      "category_ids_old": "24,54,60",
+      "mechanic_ids_old": "28"
+    },
+    {
+      "id": "406",
+      "name": "Humans!!!",
+      "type_ids_new": "7,9",
+      "category_ids_new": "53,1,11",
+      "mechanic_ids_new": "1,40,9,80,114,115,46,159,138",
+      "type_ids_old": "2",
+      "category_ids_old": "33,35,36,84",
+      "mechanic_ids_old": "62,160,175"
+    },
+    {
+      "id": "407",
+      "name": "El Mortal",
+      "type_ids_new": "5,10",
+      "category_ids_new": "13,40,57",
+      "mechanic_ids_new": "13,26,48,15,175,158,162",
+      "type_ids_old": "8",
+      "category_ids_old": "15,36",
+      "mechanic_ids_old": "155"
+    },
+    {
+      "id": "408",
+      "name": "SecuenzooS",
+      "type_ids_new": "8,3",
+      "category_ids_new": "39,66,25,62",
+      "mechanic_ids_new": "83,89,29,143,85,74",
+      "type_ids_old": "5",
+      "category_ids_old": "10,45,65",
+      "mechanic_ids_old": "93,95,175"
+    },
+    {
+      "id": "409",
+      "name": "Manos ¡Arriba! (Hands)",
+      "type_ids_new": "5",
+      "category_ids_new": "57,21,65",
+      "mechanic_ids_new": "30,29,36,26,143,91,92",
+      "type_ids_old": "10,3",
+      "category_ids_old": "15,57,66",
+      "mechanic_ids_old": "1,112"
+    },
+    {
+      "id": "410",
+      "name": "Matterhorn",
+      "type_ids_new": "3,10",
+      "category_ids_new": "1,62,52,42",
+      "mechanic_ids_new": "84,9,80,82,1,71,175",
+      "type_ids_old": "5",
+      "category_ids_old": "23,72",
+      "mechanic_ids_old": "48,122"
+    },
+    {
+      "id": "411",
+      "name": "Provincia Romana",
+      "type_ids_new": "1",
+      "category_ids_new": "9,19,17,23,61",
+      "mechanic_ids_new": "3,54,66,63,98,20,178,164",
+      "type_ids_old": "1",
+      "category_ids_old": "9,15",
+      "mechanic_ids_old": "28,62"
+    },
+    {
+      "id": "412",
+      "name": "1,2,3! Now you see me...",
+      "type_ids_new": "5,10,3",
+      "category_ids_new": "57,62,65",
+      "mechanic_ids_new": "36,89,29,143,85,74",
+      "type_ids_old": "8",
+      "category_ids_old": "15,45,57",
+      "mechanic_ids_old": "93"
+    },
+    {
+      "id": "413",
+      "name": "Entern!",
+      "type_ids_new": "1,2",
+      "category_ids_new": "51,40,61",
+      "mechanic_ids_new": "9,47,159,80,98,57",
+      "type_ids_old": "2",
+      "category_ids_old": "15,53,59,63",
+      "mechanic_ids_old": "10,28,130,142,175"
+    },
+    {
+      "id": "414",
+      "name": "Misterio",
+      "type_ids_new": "3",
+      "category_ids_new": "3,29,62",
+      "mechanic_ids_new": "40,48,113,139,137,76",
+      "type_ids_old": "2",
+      "category_ids_old": "22,31,35,49",
+      "mechanic_ids_old": "62,133"
+    },
+    {
+      "id": "415",
+      "name": "El Soneto",
+      "type_ids_new": "1,3",
+      "category_ids_new": "54,62",
+      "mechanic_ids_new": "13,25,48,62,135,63",
+      "type_ids_old": "2",
+      "category_ids_old": "81",
+      "mechanic_ids_old": "108,140"
+    },
+    {
+      "id": "416",
+      "name": "Sector 6",
+      "type_ids_new": "1,3,7",
+      "category_ids_new": "12,2,20,62",
+      "mechanic_ids_new": "3,63,54,76,57,138",
+      "type_ids_old": "7",
+      "category_ids_old": "1,42",
+      "mechanic_ids_old": "53,61,95"
+    },
+    {
+      "id": "417",
+      "name": "Rick and Morty: 100 Días",
+      "type_ids_new": "5,7",
+      "category_ids_new": "1,12,22,57,66",
+      "mechanic_ids_new": "13,64,77,112,141,162",
+      "type_ids_old": "10,3",
+      "category_ids_old": "",
+      "mechanic_ids_old": "4,28,179"
+    },
+    {
+      "id": "418",
+      "name": "Cubulus",
+      "type_ids_new": "2,10",
+      "category_ids_new": "25,63,65",
+      "mechanic_ids_new": "61,83,105,62,37,89",
+      "type_ids_old": "7",
+      "category_ids_old": "1",
+      "mechanic_ids_old": "110"
+    },
+    {
+      "id": "419",
+      "name": "What's Missing?",
+      "type_ids_new": "5,8",
+      "category_ids_new": "56,57,59,66",
+      "mechanic_ids_new": "74,89,29,38,85",
+      "type_ids_old": "8",
+      "category_ids_old": "36,57,66",
+      "mechanic_ids_old": "81,108"
+    },
+    {
+      "id": "420",
+      "name": "Jenga",
+      "type_ids_new": "5,3",
+      "category_ids_new": "21,57,65",
+      "mechanic_ids_new": "30,26,32,91,175",
+      "type_ids_old": "8",
+      "category_ids_old": "2,57",
+      "mechanic_ids_old": "113,144,149"
+    },
+    {
+      "id": "421",
+      "name": "Doggy Bag",
+      "type_ids_new": "3,8,10",
+      "category_ids_new": "39,62,13",
+      "mechanic_ids_new": "62,63,48,174,175",
+      "type_ids_old": "8",
+      "category_ids_old": "10,13,57",
+      "mechanic_ids_old": "23,122"
+    },
+    {
+      "id": "422",
+      "name": "Alakazum!: Witches and Traditions",
+      "type_ids_new": "3,7",
+      "category_ids_new": "8,49,16,62",
+      "mechanic_ids_new": "66,62,48,63,174,175",
+      "type_ids_old": "5",
+      "category_ids_old": "15,23,31,33",
+      "mechanic_ids_old": "48,62,140"
+    },
+    {
+      "id": "423",
+      "name": "Catan Junior Madagascar",
+      "type_ids_new": "3,1",
+      "category_ids_new": "39,20,62,2",
+      "mechanic_ids_new": "1,66,20,75,63,9,80",
+      "type_ids_old": "9",
+      "category_ids_old": "10,16,23,48",
+      "mechanic_ids_old": "48,104,163"
+    },
+    {
+      "id": "424",
+      "name": "Mascotas",
+      "type_ids_new": "3,8",
+      "category_ids_new": "39,62",
+      "mechanic_ids_new": "62,74,89,63,175",
+      "type_ids_old": "9",
+      "category_ids_old": "10,15,16",
+      "mechanic_ids_old": "1"
+    },
+    {
+      "id": "425",
+      "name": "Help Me!",
+      "type_ids_new": "5,10",
+      "category_ids_new": "57,21",
+      "mechanic_ids_new": "92,29,36,40,175",
+      "type_ids_old": "7",
+      "category_ids_old": "1,10,13,57",
+      "mechanic_ids_old": "157,160"
+    },
+    {
+      "id": "426",
+      "name": "Eureka",
+      "type_ids_new": "3,10",
+      "category_ids_new": "3,25,29,62",
+      "mechanic_ids_new": "85,88,89,105,175",
+      "type_ids_old": "5",
+      "category_ids_old": "8,29",
+      "mechanic_ids_old": "48,61,114,122,133"
+    },
+    {
+      "id": "427",
+      "name": "Alchemical Crystal Quest (Second Edition)",
+      "type_ids_new": "1,7",
+      "category_ids_new": "1,2,8,17,32",
+      "mechanic_ids_new": "3,9,54,62,63,66,71,102,138",
+      "type_ids_old": "2",
+      "category_ids_old": "3,31,33,46",
+      "mechanic_ids_old": "40,48,95,153,175"
+    },
+    {
+      "id": "428",
+      "name": "15 Dias: The Spanish Golden Age",
+      "type_ids_new": "1,7",
+      "category_ids_new": "17,23,32,47,61,73",
+      "mechanic_ids_new": "3,20,27,53,63,75,98,132,178",
+      "type_ids_old": "1",
+      "category_ids_old": "15,54,60,68",
+      "mechanic_ids_old": "62,174"
+    },
+    {
+      "id": "429",
+      "name": "Rory's Story Cubes: Medieval",
+      "type_ids_new": "5,8",
+      "category_ids_new": "18,22,54,62,66",
+      "mechanic_ids_new": "1,29,64,88,113",
+      "type_ids_old": "7",
+      "category_ids_old": "23,44",
+      "mechanic_ids_old": "153"
+    },
+    {
+      "id": "430",
+      "name": "El Valle Secreto",
+      "type_ids_new": "3,8",
+      "category_ids_new": "1,2,8,29,62",
+      "mechanic_ids_new": "9,62,63,80,138,139",
+      "type_ids_old": "2",
+      "category_ids_old": "15",
+      "mechanic_ids_old": "51,62,95"
+    },
+    {
+      "id": "431",
+      "name": "Time's Up! Family 2",
+      "type_ids_new": "5,3",
+      "category_ids_new": "57,62,59,66",
+      "mechanic_ids_new": "38,92,74,85,88,89,175",
+      "type_ids_old": "8",
+      "category_ids_old": "57",
+      "mechanic_ids_old": "1,36,157"
+    },
+    {
+      "id": "432",
+      "name": "Total Rumble",
+      "type_ids_new": "5,7",
+      "category_ids_new": "40,57,33,22",
+      "mechanic_ids_new": "13,36,26,159,165,136,175,158",
+      "type_ids_old": "2",
+      "category_ids_old": "15,33",
+      "mechanic_ids_old": "28"
+    },
+    {
+      "id": "433",
+      "name": "Mia",
+      "type_ids_new": "5,10",
+      "category_ids_new": "10,57,35",
+      "mechanic_ids_new": "1,7,26,74,77,175,162",
+      "type_ids_old": "5",
+      "category_ids_old": "13,23",
+      "mechanic_ids_old": "23,48"
+    },
+    {
+      "id": "434",
+      "name": "Cortex Challenge KIDS",
+      "type_ids_new": "8,3",
+      "category_ids_new": "25,66,56,62",
+      "mechanic_ids_new": "36,74,29,89,143,85,175,105",
+      "type_ids_old": "8",
+      "category_ids_old": "15,57",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "435",
+      "name": "Black Stories: Shit Happens Edition",
+      "type_ids_new": "5,3",
+      "category_ids_new": "3,29,22,59",
+      "mechanic_ids_new": "85,64,40,130,88,175",
+      "type_ids_old": "8",
+      "category_ids_old": "15,22,35,36,49,57",
+      "mechanic_ids_old": "153"
+    },
+    {
+      "id": "436",
+      "name": "Aliens: Hadley's Hope",
+      "type_ids_new": "7,9",
+      "category_ids_new": "1,11,12,26,33",
+      "mechanic_ids_new": "40,46,111,114,115,126,138,139,158,175",
+      "type_ids_old": "5",
+      "category_ids_old": "13,35,48,69",
+      "mechanic_ids_old": "3,40,95,164,175"
+    },
+    {
+      "id": "437",
+      "name": "Waterloo 1815",
+      "type_ids_new": "4,1",
+      "category_ids_new": "61,73,82",
+      "mechanic_ids_new": "9,57,80,108,111,128,159,169,175,180",
+      "type_ids_old": "4",
+      "category_ids_old": "52,80",
+      "mechanic_ids_old": "63"
+    },
+    {
+      "id": "438",
+      "name": "El Ministerio del Tiempo",
+      "type_ids_new": "9,7,3",
+      "category_ids_new": "1,3,26,61,83",
+      "mechanic_ids_new": "40,76,112,113,114,138,139,148,158,175",
+      "type_ids_old": "2",
+      "category_ids_old": "3,48",
+      "mechanic_ids_old": "3,140"
+    },
+    {
+      "id": "439",
+      "name": "Contrast",
+      "type_ids_new": "5,3",
+      "category_ids_new": "22,57,59,66",
+      "mechanic_ids_new": "16,88,89,130,143,153,175",
+      "type_ids_old": "8",
+      "category_ids_old": "15,57",
+      "mechanic_ids_old": "112,142,178"
+    },
+    {
+      "id": "440",
+      "name": "¡MÍA!",
+      "type_ids_new": "5,10,3",
+      "category_ids_new": "21,56,62",
+      "mechanic_ids_new": "29,36,83,89,91,92,96,143,175",
+      "type_ids_old": "3,10",
+      "category_ids_old": "15,16,25,40,56,64",
+      "mechanic_ids_old": "28,62,93,108"
+    },
+    {
+      "id": "441",
+      "name": "Dragons & Chickens",
+      "type_ids_new": "3,10",
+      "category_ids_new": "8,13,22,39,62,78",
+      "mechanic_ids_new": "13,48,62,63,78,158,162,175",
+      "type_ids_old": "5",
+      "category_ids_old": "2,3,15,29,31,36",
+      "mechanic_ids_old": "112,142,155"
+    },
+    {
+      "id": "442",
+      "name": "La Familia Hort",
+      "type_ids_new": "3",
+      "category_ids_new": "13,39,62,71",
+      "mechanic_ids_new": "13,25,44,48,62,63,155,175",
+      "type_ids_old": "5",
+      "category_ids_old": "10,15,24,32,35",
+      "mechanic_ids_old": "89,107,175"
+    },
+    {
+      "id": "443",
+      "name": "Chairs",
+      "type_ids_new": "5,8",
+      "category_ids_new": "21,57",
+      "mechanic_ids_new": "26,29,30,74,85,143,175",
+      "type_ids_old": "8",
+      "category_ids_old": "2,16",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "444",
+      "name": "Home Sweet Home",
+      "type_ids_new": "3",
+      "category_ids_new": "20,62",
+      "mechanic_ids_new": "13,48,63,105,117,175",
+      "type_ids_old": "5",
+      "category_ids_old": "10,15",
+      "mechanic_ids_old": "62"
+    },
+    {
+      "id": "445",
+      "name": "Pandemic: Hot Zone – Europe",
+      "type_ids_new": "1,9",
+      "category_ids_new": "26,43,75",
+      "mechanic_ids_new": "3,40,58,87,114,148,175",
+      "type_ids_old": "3,10",
+      "category_ids_old": "43",
+      "mechanic_ids_old": "3,40,62,118"
+    },
+    {
+      "id": "446",
+      "name": "Seven Swords",
+      "type_ids_new": "1,7",
+      "category_ids_new": "13,18,40,75",
+      "mechanic_ids_new": "13,36,48,87,127,153,159,163,177",
+      "type_ids_old": "2",
+      "category_ids_old": "33",
+      "mechanic_ids_old": "3,48,114,175"
+    },
+    {
+      "id": "447",
+      "name": "Quest Stories",
+      "type_ids_new": "3,9",
+      "category_ids_new": "1,8,26,62",
+      "mechanic_ids_new": "40,64,113,114,138,141,148",
+      "type_ids_old": "8",
+      "category_ids_old": "31,36,44",
+      "mechanic_ids_old": "1,131,153"
+    },
+    {
+      "id": "448",
+      "name": "Bitoku",
+      "type_ids_new": "1",
+      "category_ids_new": "8,49,75",
+      "mechanic_ids_new": "3,54,63,66,87,98,116,117,122,140",
+      "type_ids_old": "1",
+      "category_ids_old": "31,51",
+      "mechanic_ids_old": "140,180"
+    },
+    {
+      "id": "449",
+      "name": "Los tesoros de Castellina",
+      "type_ids_new": "3,10",
+      "category_ids_new": "1,62",
+      "mechanic_ids_new": "62,77,85,139,162",
+      "type_ids_old": "9",
+      "category_ids_old": "2,16",
+      "mechanic_ids_old": "93,140"
+    },
+    {
+      "id": "450",
+      "name": "Ray Master",
+      "type_ids_new": "1,2",
+      "category_ids_new": "12,25,63",
+      "mechanic_ids_new": "47,80,83,96,98,105,143",
+      "type_ids_old": "7",
+      "category_ids_old": "1,48,63",
+      "mechanic_ids_old": "3,62,179"
+    },
+    {
+      "id": "451",
+      "name": "Candy Time",
+      "type_ids_new": "8,3",
+      "category_ids_new": "62,13,35,56",
+      "mechanic_ids_new": "1,62,84,89,175",
+      "type_ids_old": "9",
+      "category_ids_old": "16,64",
+      "mechanic_ids_old": "160"
+    },
+    {
+      "id": "452",
+      "name": "Covenant",
+      "type_ids_new": "1,7",
+      "category_ids_new": "8,18,64,23",
+      "mechanic_ids_new": "75,132,136,165,137,38",
+      "type_ids_old": "2",
+      "category_ids_old": "49",
+      "mechanic_ids_old": "62,93"
+    },
+    {
+      "id": "453",
+      "name": "Pescar Peces",
+      "type_ids_new": "8",
+      "category_ids_new": "62,39,65,66",
+      "mechanic_ids_new": "30,143,84,175",
+      "type_ids_old": "9",
+      "category_ids_old": "2,10,16,25,53",
+      "mechanic_ids_old": "48,140"
+    },
+    {
+      "id": "454",
+      "name": "Bellaflor",
+      "type_ids_new": "8,3",
+      "category_ids_new": "62,39,66",
+      "mechanic_ids_new": "62,61,134,175",
+      "type_ids_old": "9",
+      "category_ids_old": "16",
+      "mechanic_ids_old": "133"
+    },
+    {
+      "id": "455",
+      "name": "Omerta",
+      "type_ids_new": "7,3",
+      "category_ids_new": "61,23,3,46",
+      "mechanic_ids_new": "39,45,75,165,26,137",
+      "type_ids_old": "5",
+      "category_ids_old": "15,39",
+      "mechanic_ids_old": "62,93,155"
+    },
+    {
+      "id": "456",
+      "name": "Zombie Tsunami",
+      "type_ids_new": "5,10",
+      "category_ids_new": "13,53,22,57",
+      "mechanic_ids_new": "13,48,63,20,78,37,141",
+      "type_ids_old": "5",
+      "category_ids_old": "13,15,22,54,57,78,84",
+      "mechanic_ids_old": "48,122,155,157,178"
+    },
+    {
+      "id": "457",
+      "name": "¡Desplumados!",
+      "type_ids_new": "5,10",
+      "category_ids_new": "13,8,39,57",
+      "mechanic_ids_new": "7,8,13,48,36,77,65,129",
+      "type_ids_old": "10,3",
+      "category_ids_old": "10,15,57",
+      "mechanic_ids_old": "155"
+    },
+    {
+      "id": "458",
+      "name": "Macbeth",
+      "type_ids_new": "1,7",
+      "category_ids_new": "18,47,61,46,64",
+      "mechanic_ids_new": "27,75,132,136,98,165,11,80,159",
+      "type_ids_old": "8",
+      "category_ids_old": "23,36,44,55,57",
+      "mechanic_ids_old": "48,122,155"
+    },
+    {
+      "id": "459",
+      "name": "LIXO?",
+      "type_ids_new": "3,10",
+      "category_ids_new": "13,66,62,25",
+      "mechanic_ids_new": "13,48,78,29,35,83,150",
+      "type_ids_old": "9",
+      "category_ids_old": "15,16,25,27",
+      "mechanic_ids_old": "13,62"
+    },
+    {
+      "id": "460",
+      "name": "Ticket to Mars",
+      "type_ids_new": "3,10",
+      "category_ids_new": "13,12,50,62",
+      "mechanic_ids_new": "13,48,62,82,137,76,44,63",
+      "type_ids_old": "5",
+      "category_ids_old": "69",
+      "mechanic_ids_old": "62,179"
+    },
+    {
+      "id": "461",
+      "name": "Rory's Story Cubes: Rescue",
+      "type_ids_new": "3,5",
+      "category_ids_new": "1,13,57,66",
+      "mechanic_ids_new": "1,64,85,96,113",
+      "type_ids_old": "7",
+      "category_ids_old": "23",
+      "mechanic_ids_old": "153"
+    },
+    {
+      "id": "462",
+      "name": "CONEX",
+      "type_ids_new": "1,2,10",
+      "category_ids_new": "23,63,25",
+      "mechanic_ids_new": "9,44,98,122,173,176",
+      "type_ids_old": "7",
+      "category_ids_old": "1,15,23",
+      "mechanic_ids_old": "48,79,110,160"
+    },
+    {
+      "id": "463",
+      "name": "Rolit",
+      "type_ids_new": "2,3,10",
+      "category_ids_new": "63,62",
+      "mechanic_ids_new": "9,20,32,80,83,122",
+      "type_ids_old": "7",
+      "category_ids_old": "1",
+      "mechanic_ids_old": "10"
+    },
+    {
+      "id": "464",
+      "name": "Trappist One",
+      "type_ids_new": "1,7",
+      "category_ids_new": "2,12,17,19,20",
+      "mechanic_ids_new": "3,54,13,27,66,116,138,63,76",
+      "type_ids_old": "1",
+      "category_ids_old": "15,69,70",
+      "mechanic_ids_old": "28,62,140"
+    },
+    {
+      "id": "465",
+      "name": "Globe Twister",
+      "type_ids_new": "3,5",
+      "category_ids_new": "42,55,66,57,62",
+      "mechanic_ids_new": "85,74,9,63,93,77,84",
+      "type_ids_old": "5",
+      "category_ids_old": "29,64,76",
+      "mechanic_ids_old": "4,110"
+    },
+    {
+      "id": "466",
+      "name": "Dark Matter",
+      "type_ids_new": "1,7",
+      "category_ids_new": "12,2,17,32",
+      "mechanic_ids_new": "3,66,82,138,98,63,57,178",
+      "type_ids_old": "1",
+      "category_ids_old": "15,69,70",
+      "mechanic_ids_old": "3,62"
+    },
+    {
+      "id": "467",
+      "name": "Rory's Story Cubes: Explore",
+      "type_ids_new": "5,3",
+      "category_ids_new": "1,2,57,66",
+      "mechanic_ids_new": "1,64,85,91,88",
+      "type_ids_old": "7",
+      "category_ids_old": "23",
+      "mechanic_ids_old": "40,48,153"
+    },
+    {
+      "id": "468",
+      "name": "Back to the Future: An Adventure Through Time",
+      "type_ids_new": "9,3",
+      "category_ids_new": "1,26,42,62",
+      "mechanic_ids_new": "40,9,114,112,175,19,148",
+      "type_ids_old": "2",
+      "category_ids_old": "48",
+      "mechanic_ids_old": "62"
+    },
+    {
+      "id": "469",
+      "name": "StoryLine: Scary Tales",
+      "type_ids_new": "5,3",
+      "category_ids_new": "11,57,29,49",
+      "mechanic_ids_new": "64,13,19,155,158",
+      "type_ids_old": "9",
+      "category_ids_old": "15,16,31",
+      "mechanic_ids_old": "142,153,178"
+    },
+    {
+      "id": "470",
+      "name": "La Abeja Adela",
+      "type_ids_new": "8,9",
+      "category_ids_new": "39,26,62,66",
+      "mechanic_ids_new": "1,40,9,62,148,74",
+      "type_ids_old": "9",
+      "category_ids_old": "10,16,25",
+      "mechanic_ids_old": "48"
+    },
+    {
+      "id": "471",
+      "name": "Time's Up! Green Edition",
+      "type_ids_new": "5",
+      "category_ids_new": "57,59,62,66",
+      "mechanic_ids_new": "38,85,88,92,175",
+      "type_ids_old": "8",
+      "category_ids_old": "57",
+      "mechanic_ids_old": "1,93,157"
+    },
+    {
+      "id": "472",
+      "name": "Cortex + Challenge",
+      "type_ids_new": "3,10",
+      "category_ids_new": "25,56,62,65",
+      "mechanic_ids_new": "29,36,74,91,92,93,143",
+      "type_ids_old": "8",
+      "category_ids_old": "15,25,45,57",
+      "mechanic_ids_old": "93,112"
+    },
+    {
+      "id": "473",
+      "name": "Town of Salem: The Card Game",
+      "type_ids_new": "5",
+      "category_ids_new": "3,13,29,46,57",
+      "mechanic_ids_new": "7,39,45,65,126,165",
+      "type_ids_old": "8",
+      "category_ids_old": "13,15,22,39,78",
+      "mechanic_ids_old": "178"
+    },
+    {
+      "id": "474",
+      "name": "Flap Flap",
+      "type_ids_new": "3,8",
+      "category_ids_new": "13,39,62",
+      "mechanic_ids_new": "13,48,53,62,78,158",
+      "type_ids_old": "9",
+      "category_ids_old": "10,16,66",
+      "mechanic_ids_old": "112"
+    },
+    {
+      "id": "475",
+      "name": "Black Stories: Holiday Edition",
+      "type_ids_new": "5",
+      "category_ids_new": "3,11,29,57",
+      "mechanic_ids_new": "16,64,85,88,139",
+      "type_ids_old": "8",
+      "category_ids_old": "15,22,35,36,49,57",
+      "mechanic_ids_old": "153"
+    },
+    {
+      "id": "476",
+      "name": "Hexcalibur",
+      "type_ids_new": "1,2",
+      "category_ids_new": "40,63",
+      "mechanic_ids_new": "9,47,49,80,98,126,159",
+      "type_ids_old": "2",
+      "category_ids_old": "23,31,33,44,80",
+      "mechanic_ids_old": "10,48,104,160,175"
+    },
+    {
+      "id": "477",
+      "name": "Hatflings!",
+      "type_ids_new": "3,10",
+      "category_ids_new": "22,39,62",
+      "mechanic_ids_new": "9,37,63,80,87,175",
+      "type_ids_old": "5",
+      "category_ids_old": "1,31",
+      "mechanic_ids_old": "10,61,160"
+    },
+    {
+      "id": "478",
+      "name": "Vampir Mau Mau",
+      "type_ids_new": "3,5",
+      "category_ids_new": "11,13,57,62",
+      "mechanic_ids_new": "13,26,48,78,158,175",
+      "type_ids_old": "5",
+      "category_ids_old": "15",
+      "mechanic_ids_old": "62"
+    },
+    {
+      "id": "479",
+      "name": "Fast Flip",
+      "type_ids_new": "5,10",
+      "category_ids_new": "57,62,65",
+      "mechanic_ids_new": "29,36,74,89,92,143",
+      "type_ids_old": "8",
+      "category_ids_old": "66",
+      "mechanic_ids_old": "112"
+    },
+    {
+      "id": "480",
+      "name": "Rush Hour Shift",
+      "type_ids_new": "2,3",
+      "category_ids_new": "25,52,63",
+      "mechanic_ids_new": "36,84,105,175",
+      "type_ids_old": "7",
+      "category_ids_old": "",
+      "mechanic_ids_old": "62"
+    },
+    {
+      "id": "481",
+      "name": "Magic Mandala",
+      "type_ids_new": "3,10",
+      "category_ids_new": "25,63,39,65",
+      "mechanic_ids_new": "29,89,35,26,143,92",
+      "type_ids_old": "5",
+      "category_ids_old": "2,66",
+      "mechanic_ids_old": "110"
+    },
+    {
+      "id": "482",
+      "name": "Tortilla de Patatas: The Game",
+      "type_ids_new": "3,5",
+      "category_ids_new": "22,72,57,62",
+      "mechanic_ids_new": "13,65,62,63,85,153",
+      "type_ids_old": "5",
+      "category_ids_old": "15,45",
+      "mechanic_ids_old": "62,93"
+    },
+    {
+      "id": "483",
+      "name": "Arcanya: Magic Academy",
+      "type_ids_new": "3,7",
+      "category_ids_new": "8,6,66,62",
+      "mechanic_ids_new": "13,58,144,63,36,65,112",
+      "type_ids_old": "5",
+      "category_ids_old": "15,31",
+      "mechanic_ids_old": "62"
+    },
+    {
+      "id": "484",
+      "name": "Cortex Challenge GEO",
+      "type_ids_new": "3,10",
+      "category_ids_new": "55,66,42,56,62",
+      "mechanic_ids_new": "29,85,89,92,143,26,74",
+      "type_ids_old": "8",
+      "category_ids_old": "15,57",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "485",
+      "name": "Little Fox",
+      "type_ids_new": "8,9",
+      "category_ids_new": "39,1,2,62,26",
+      "mechanic_ids_new": "40,80,9,113,114,148,62",
+      "type_ids_old": "9",
+      "category_ids_old": "10,16,23,43,78",
+      "mechanic_ids_old": "48"
+    },
+    {
+      "id": "486",
+      "name": "Black Stories: Mittelalter Edition",
+      "type_ids_new": "5,3",
+      "category_ids_new": "3,18,29,55,59,61",
+      "mechanic_ids_new": "16,40,85,88,89,113,130,153,175",
+      "type_ids_old": "8",
+      "category_ids_old": "15,22,35,36,44,49,57",
+      "mechanic_ids_old": "153"
+    },
+    {
+      "id": "487",
+      "name": "Crazy Clack!",
+      "type_ids_new": "5,8,10",
+      "category_ids_new": "57,62,65,66",
+      "mechanic_ids_new": "29,30,35,89,91,92,143,153,175",
+      "type_ids_old": "9",
+      "category_ids_old": "16,66",
+      "mechanic_ids_old": "48,112"
+    },
+    {
+      "id": "488",
+      "name": "Escape Pods",
+      "type_ids_new": "1,9,7",
+      "category_ids_new": "12,26",
+      "mechanic_ids_new": "40,47,71,80,96,114,115,138,148,175",
+      "type_ids_old": "2",
+      "category_ids_old": "65,69,70",
+      "mechanic_ids_old": "3,61,93,114"
+    },
+    {
+      "id": "489",
+      "name": "Penalties: Animal Cup",
+      "type_ids_new": "3,10",
+      "category_ids_new": "39,62,68",
+      "mechanic_ids_new": "1,7,38,68,127,128,143,153,175",
+      "type_ids_old": "5",
+      "category_ids_old": "15,22,72",
+      "mechanic_ids_old": "29,62,141"
+    },
+    {
+      "id": "490",
+      "name": "Predator: Partida de Caza",
+      "type_ids_new": "7,9",
+      "category_ids_new": "1,12,33",
+      "mechanic_ids_new": "40,47,80,87,103,114,115,126,128,148",
+      "type_ids_old": "2",
+      "category_ids_old": "15,23,48,69,80",
+      "mechanic_ids_old": "48,122,139"
+    },
+    {
+      "id": "491",
+      "name": "Tweegles",
+      "type_ids_new": "3,10",
+      "category_ids_new": "13,62",
+      "mechanic_ids_new": "13,48,62,35,175",
+      "type_ids_old": "9",
+      "category_ids_old": "15,16,66",
+      "mechanic_ids_old": "1,112"
+    },
+    {
+      "id": "492",
+      "name": "Populi Turolii",
+      "type_ids_new": "5,3",
+      "category_ids_new": "57,9,55,61",
+      "mechanic_ids_new": "85,65,36,88,175",
+      "type_ids_old": "5",
+      "category_ids_old": "15,44",
+      "mechanic_ids_old": "62,175,178"
+    },
+    {
+      "id": "493",
+      "name": "La Ruta del Tesoro",
+      "type_ids_new": "7,3",
+      "category_ids_new": "1,2,34,42",
+      "mechanic_ids_new": "9,138,1,112,57,77,115",
+      "type_ids_old": "5",
+      "category_ids_old": "24,54",
+      "mechanic_ids_old": "133,140,163"
+    },
+    {
+      "id": "494",
+      "name": "Bugs",
+      "type_ids_new": "3,7",
+      "category_ids_new": "13,39,66,62",
+      "mechanic_ids_new": "13,48,62,35,175",
+      "type_ids_old": "5",
+      "category_ids_old": "10,15",
+      "mechanic_ids_old": "78"
+    },
+    {
+      "id": "495",
+      "name": "El Monstruo de los Calcetines",
+      "type_ids_new": "8,3",
+      "category_ids_new": "56,62,66",
+      "mechanic_ids_new": "74,35,89,62,175",
+      "type_ids_old": "9",
+      "category_ids_old": "16",
+      "mechanic_ids_old": "112,140"
+    },
+    {
+      "id": "496",
+      "name": "Ajo y Agua",
+      "type_ids_new": "3,10",
+      "category_ids_new": "13,62",
+      "mechanic_ids_new": "13,48,62,78,150,175",
+      "type_ids_old": "5",
+      "category_ids_old": "13,15,22,36,49,55,69",
+      "mechanic_ids_old": "62,131,157,175"
+    },
+    {
+      "id": "497",
+      "name": "No Game Over",
+      "type_ids_new": "3,9",
+      "category_ids_new": "13,26,62",
+      "mechanic_ids_new": "13,40,48,76,148,175",
+      "type_ids_old": "5",
+      "category_ids_old": "33,36,78",
+      "mechanic_ids_old": "48,62,116,155"
+    },
+    {
+      "id": "498",
+      "name": "Black Stories: El Interrogatorio",
+      "type_ids_new": "5,3",
+      "category_ids_new": "3,29,57",
+      "mechanic_ids_new": "16,40,64,85,88,175",
+      "type_ids_old": "8",
+      "category_ids_old": "49",
+      "mechanic_ids_old": "153"
+    },
+    {
+      "id": "499",
+      "name": "¡Tocado, Encontrado!",
+      "type_ids_new": "8,10",
+      "category_ids_new": "21,57,62,66",
+      "mechanic_ids_new": "29,30,89,143,175",
+      "type_ids_old": "3,9",
+      "category_ids_old": "2,16,31",
+      "mechanic_ids_old": "112"
+    },
+    {
+      "id": "500",
+      "name": "Triominos Deluxe",
+      "type_ids_new": "3,2",
+      "category_ids_new": "25,35,62,63",
+      "mechanic_ids_new": "32,35,63,83,96,105,119,175",
+      "type_ids_old": "7",
+      "category_ids_old": "1",
+      "mechanic_ids_old": "160"
+    },
+    {
+      "id": "501",
+      "name": "Tangram",
+      "type_ids_new": "2,3,8",
+      "category_ids_new": "25,63,66",
+      "mechanic_ids_new": "25,36,83,89,105,143",
+      "type_ids_old": "7",
+      "category_ids_old": "64,66",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "502",
+      "name": "Colorpop",
+      "type_ids_new": "3,5,10",
+      "category_ids_new": "57,62,65",
+      "mechanic_ids_new": "29,35,36,89,143,154",
+      "type_ids_old": "7",
+      "category_ids_old": "1,22,64",
+      "mechanic_ids_old": "110"
+    },
+    {
+      "id": "503",
+      "name": "Karibou Camp",
+      "type_ids_new": "5,3,9",
+      "category_ids_new": "39,57,62",
+      "mechanic_ids_new": "16,38,40,64,65,158",
+      "type_ids_old": "8",
+      "category_ids_old": "2,57",
+      "mechanic_ids_old": "157"
+    },
+    {
+      "id": "504",
+      "name": "En tu casa o donde sea",
+      "type_ids_new": "5",
+      "category_ids_new": "22,57",
+      "mechanic_ids_new": "16,64,65,85,88,158",
+      "type_ids_old": "8",
+      "category_ids_old": "15,36,41,57",
+      "mechanic_ids_old": "62,131,155"
+    },
+    {
+      "id": "505",
+      "name": "Baby Blues",
+      "type_ids_new": "3,7",
+      "category_ids_new": "22,62,69",
+      "mechanic_ids_new": "40,71,112,141,158,175",
+      "type_ids_old": "8",
+      "category_ids_old": "15,36",
+      "mechanic_ids_old": "62,155"
+    },
+    {
+      "id": "506",
+      "name": "Trivial Pursuit: The Big Bang Theory Edition",
+      "type_ids_new": "3,5",
+      "category_ids_new": "55,57,62",
+      "mechanic_ids_new": "1,60,85,93,175",
+      "type_ids_old": "5",
+      "category_ids_old": "48,57,77",
+      "mechanic_ids_old": "48,93"
+    },
+    {
+      "id": "507",
+      "name": "Adventure Time: Aventuras en el mundo de Ooo",
+      "type_ids_new": "3,7,9",
+      "category_ids_new": "1,8,26,62",
+      "mechanic_ids_new": "9,40,87,111,114,138,175",
+      "type_ids_old": "2",
+      "category_ids_old": "3,29,31,48",
+      "mechanic_ids_old": "28,62,118,155,175"
+    },
+    {
+      "id": "508",
+      "name": "Soplar el pastel",
+      "type_ids_new": "8,5",
+      "category_ids_new": "21,57,66",
+      "mechanic_ids_new": "30,143,29,175",
+      "type_ids_old": "9",
+      "category_ids_old": "2,16",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "509",
+      "name": "Alquerque",
+      "type_ids_new": "1,2",
+      "category_ids_new": "9,63",
+      "mechanic_ids_new": "9,26,47,80,98,159",
+      "type_ids_old": "7",
+      "category_ids_old": "1",
+      "mechanic_ids_old": "61"
+    },
+    {
+      "id": "510",
+      "name": "Miau Miau",
+      "type_ids_new": "3,5,10",
+      "category_ids_new": "13,39,57,77",
+      "mechanic_ids_new": "13,29,92,143,153",
+      "type_ids_old": "9",
+      "category_ids_old": "15,16",
+      "mechanic_ids_old": "28,112"
+    },
+    {
+      "id": "511",
+      "name": "Tira al Cuervo",
+      "type_ids_new": "8,10",
+      "category_ids_new": "21,65,68",
+      "mechanic_ids_new": "30,77,143,84",
+      "type_ids_old": "9",
+      "category_ids_old": "10,16,22",
+      "mechanic_ids_old": "48,137"
+    },
+    {
+      "id": "512",
+      "name": "Conejito Burbuja",
+      "type_ids_new": "8,3",
+      "category_ids_new": "39,62,66",
+      "mechanic_ids_new": "35,89,74,84",
+      "type_ids_old": "9",
+      "category_ids_old": "16",
+      "mechanic_ids_old": "112"
+    },
+    {
+      "id": "513",
+      "name": "PRRRT...",
+      "type_ids_new": "5,10",
+      "category_ids_new": "22,57,62",
+      "mechanic_ids_new": "16,64,88,143,65",
+      "type_ids_old": "5",
+      "category_ids_old": "13,15",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "514",
+      "name": "Doodle Dice",
+      "type_ids_new": "3,5",
+      "category_ids_new": "62,22,66",
+      "mechanic_ids_new": "1,31,92,65,89,162",
+      "type_ids_old": "5",
+      "category_ids_old": "15,23",
+      "mechanic_ids_old": "48,140,155"
+    },
+    {
+      "id": "515",
+      "name": "Jenga Quake",
+      "type_ids_new": "3,10",
+      "category_ids_new": "21,62,65",
+      "mechanic_ids_new": "30,32,77,26,92,143",
+      "type_ids_old": "7",
+      "category_ids_old": "2,26",
+      "mechanic_ids_old": "144"
+    },
+    {
+      "id": "516",
+      "name": "The Lord of the P.I.G.S.",
+      "type_ids_new": "5,7,3",
+      "category_ids_new": "8,22,1,57",
+      "mechanic_ids_new": "9,80,37,63,159,174",
+      "type_ids_old": "5",
+      "category_ids_old": "15,25,36,54,60",
+      "mechanic_ids_old": "62,141,157,178"
+    },
+    {
+      "id": "517",
+      "name": "Poc!",
+      "type_ids_new": "5,10,3",
+      "category_ids_new": "13,57",
+      "mechanic_ids_new": "36,29,89,143,35,92",
+      "type_ids_old": "5",
+      "category_ids_old": "2",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "518",
+      "name": "Black Stories: Medizin Edition",
+      "type_ids_new": "5,9",
+      "category_ids_new": "3,29,43,57,11",
+      "mechanic_ids_new": "88,85,64,65,19,16,113",
+      "type_ids_old": "8",
+      "category_ids_old": "15,22,35,36,43,49,57",
+      "mechanic_ids_old": "153"
+    },
+    {
+      "id": "519",
+      "name": "Pamplona: Viva San Fermín!",
+      "type_ids_new": "1,7",
+      "category_ids_new": "52,83,42,61",
+      "mechanic_ids_new": "1,9,80,84,77,162,47,98",
+      "type_ids_old": "3,10",
+      "category_ids_old": "10,65",
+      "mechanic_ids_old": "61,62,155,175"
+    },
+    {
+      "id": "520",
+      "name": "Explorers of the Lost Valley",
+      "type_ids_new": "3,10",
+      "category_ids_new": "1,2,62,61,9",
+      "mechanic_ids_new": "9,138,139,62,37,63,157,108",
+      "type_ids_old": "5",
+      "category_ids_old": "10,15,23,29,33,61,62",
+      "mechanic_ids_old": "28,48,122,140"
+    },
+    {
+      "id": "521",
+      "name": "Guau, Guau, La Oreja Colgante",
+      "type_ids_new": "8,3",
+      "category_ids_new": "39,62,66,13",
+      "mechanic_ids_new": "35,62,89,74,175",
+      "type_ids_old": "9",
+      "category_ids_old": "10,15,16,36,45",
+      "mechanic_ids_old": "62,93"
+    },
+    {
+      "id": "522",
+      "name": "La Pandilla Hámster",
+      "type_ids_new": "8,3,9",
+      "category_ids_new": "39,62,66,26",
+      "mechanic_ids_new": "40,89,74,9,96,175",
+      "type_ids_old": "3,10",
+      "category_ids_old": "10,16,23",
+      "mechanic_ids_old": "40,114,133,161"
+    },
+    {
+      "id": "523",
+      "name": "Forest",
+      "type_ids_new": "3,10",
+      "category_ids_new": "2,62,25,39",
+      "mechanic_ids_new": "61,83,62,63,175,138",
+      "type_ids_old": "5",
+      "category_ids_old": "15",
+      "mechanic_ids_old": "140"
+    },
+    {
+      "id": "524",
+      "name": "Fruit Ninja: Combo Party",
+      "type_ids_new": "5,3",
+      "category_ids_new": "57,21,65,62",
+      "mechanic_ids_new": "29,92,36,143,35,15,175",
+      "type_ids_old": "8",
+      "category_ids_old": "2,15,28,57",
+      "mechanic_ids_old": "28,112,122"
+    },
+    {
+      "id": "525",
+      "name": "Alcatraz",
+      "type_ids_new": "7,1",
+      "category_ids_new": "1,3,46,61",
+      "mechanic_ids_new": "9,7,77,75,3,115,137,175",
+      "type_ids_old": "7",
+      "category_ids_old": "1",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "526",
+      "name": "\"La Garde recule!\"",
+      "type_ids_new": "4,1",
+      "category_ids_new": "61,60,81,9",
+      "mechanic_ids_new": "1,9,47,49,159,111,96,37,63",
+      "type_ids_old": "4",
+      "category_ids_old": "52,80",
+      "mechanic_ids_old": "63"
+    },
+    {
+      "id": "527",
+      "name": "Cards Against Downtime",
+      "type_ids_new": "5",
+      "category_ids_new": "22,57,62",
+      "mechanic_ids_new": "153,13,65,85,22,88,16,175",
+      "type_ids_old": "8",
+      "category_ids_old": "15,36,57,63",
+      "mechanic_ids_old": "28"
+    },
+    {
+      "id": "528",
+      "name": "Quizoo",
+      "type_ids_new": "3,8",
+      "category_ids_new": "39,66,55,62",
+      "mechanic_ids_new": "85,93,74,175,37,63,143",
+      "type_ids_old": "5",
+      "category_ids_old": "10,45",
+      "mechanic_ids_old": "93"
+    },
+    {
+      "id": "529",
+      "name": "Café Race",
+      "type_ids_new": "3,10",
+      "category_ids_new": "52,62,42",
+      "mechanic_ids_new": "84,13,9,80,60,44,141,77,175",
+      "type_ids_old": "3,10",
+      "category_ids_old": "63,65",
+      "mechanic_ids_old": "13,48,142"
+    },
+    {
+      "id": "530",
+      "name": "Rick and Morty: Tráfico de Megasemillas",
+      "type_ids_new": "5,3",
+      "category_ids_new": "12,22,62,57",
+      "mechanic_ids_new": "13,77,26,141,112,158,75,53,63,175",
+      "type_ids_old": "3,10",
+      "category_ids_old": "15,20,36",
+      "mechanic_ids_old": "62,140"
+    },
+    {
+      "id": "531",
+      "name": "Junior Cluedo",
+      "type_ids_new": "3,8",
+      "category_ids_new": "3,29,62",
+      "mechanic_ids_new": "9,48,74,85,137,139,175",
+      "type_ids_old": "5",
+      "category_ids_old": "45,49",
+      "mechanic_ids_old": "93,95"
+    },
+    {
+      "id": "532",
+      "name": "Fantasía S.A.",
+      "type_ids_new": "1,7",
+      "category_ids_new": "8,17,22",
+      "mechanic_ids_new": "13,48,54,63,66,121,134",
+      "type_ids_old": "3,10",
+      "category_ids_old": "3,15,23,31,33,36",
+      "mechanic_ids_old": "131,175"
+    },
+    {
+      "id": "533",
+      "name": "Taki",
+      "type_ids_new": "3,5",
+      "category_ids_new": "13,57,62",
+      "mechanic_ids_new": "13,48,78,118,131,141,175",
+      "type_ids_old": "5",
+      "category_ids_old": "15,56",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "534",
+      "name": "Party & Co",
+      "type_ids_new": "5",
+      "category_ids_new": "21,22,55,57,67",
+      "mechanic_ids_new": "30,38,65,85,88,89,113,143",
+      "type_ids_old": "8",
+      "category_ids_old": "57",
+      "mechanic_ids_old": "108,131,143,153,157"
+    },
+    {
+      "id": "535",
+      "name": "Party & Co: Junior",
+      "type_ids_new": "5,8",
+      "category_ids_new": "21,22,57,62,66",
+      "mechanic_ids_new": "30,38,65,85,88,89,113,143",
+      "type_ids_old": "9",
+      "category_ids_old": "16,40,45,57",
+      "mechanic_ids_old": "40,81,93,131,133,143"
+    },
+    {
+      "id": "536",
+      "name": "¿Por qué no te callas? (Taggle)",
+      "type_ids_new": "5",
+      "category_ids_new": "22,57,59",
+      "mechanic_ids_new": "16,65,88,113,175",
+      "type_ids_old": "3,10",
+      "category_ids_old": "15,41,57",
+      "mechanic_ids_old": "178"
+    },
+    {
+      "id": "537",
+      "name": "Guatafac",
+      "type_ids_new": "5",
+      "category_ids_new": "22,57,59",
+      "mechanic_ids_new": "16,65,88,113,175",
+      "type_ids_old": "8",
+      "category_ids_old": "15,36,57",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "538",
+      "name": "El Palé",
+      "type_ids_new": "3,10",
+      "category_ids_new": "62,20,35",
+      "mechanic_ids_new": "1,9,63,175",
+      "type_ids_old": "3,10",
+      "category_ids_old": "24",
+      "mechanic_ids_old": "13,28,48,133"
+    },
+    {
+      "id": "539",
+      "name": "El último banquete (The Last Banquet)",
+      "type_ids_new": "5,7",
+      "category_ids_new": "6,29,3,46,57",
+      "mechanic_ids_new": "39,45,64,137,38,16,165,75",
+      "type_ids_old": "8,3",
+      "category_ids_old": "13,31,36,44,57",
+      "mechanic_ids_old": "1,131,153,157,175"
+    },
+    {
+      "id": "540",
+      "name": "Trivial Pursuit: Family Edition",
+      "type_ids_new": "3,5",
+      "category_ids_new": "55,62,66",
+      "mechanic_ids_new": "1,60,85,84,63,175",
+      "type_ids_old": "9",
+      "category_ids_old": "16,57,77",
+      "mechanic_ids_old": "133"
+    },
+    {
+      "id": "541",
+      "name": "Operation",
+      "type_ids_new": "3,8",
+      "category_ids_new": "43,62,65,21",
+      "mechanic_ids_new": "30,143,29,91,77,74",
+      "type_ids_old": "9",
+      "category_ids_old": "2,16,43",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "542",
+      "name": "Donkey Kong",
+      "type_ids_new": "3,8",
+      "category_ids_new": "1,62,52,39",
+      "mechanic_ids_new": "1,60,84,9,77,162",
+      "type_ids_old": "9",
+      "category_ids_old": "16,78",
+      "mechanic_ids_old": "118,133"
+    },
+    {
+      "id": "543",
+      "name": "Crisis: Tokyo",
+      "type_ids_new": "1,7,9",
+      "category_ids_new": "69,26,47,61",
+      "mechanic_ids_new": "40,66,3,75,64,148,53,112",
+      "type_ids_old": "2",
+      "category_ids_old": "15",
+      "mechanic_ids_old": "62"
+    },
+    {
+      "id": "544",
+      "name": "Yo Fui a EGB: El Juego Oficial",
+      "type_ids_new": "5,3",
+      "category_ids_new": "55,57,61,62,22",
+      "mechanic_ids_new": "85,74,63,9,175,93,89",
+      "type_ids_old": "5",
+      "category_ids_old": "25,57,77",
+      "mechanic_ids_old": "48,133"
+    },
+    {
+      "id": "545",
+      "name": "¡Camarero!",
+      "type_ids_new": "5,10",
+      "category_ids_new": "57,22,62,72",
+      "mechanic_ids_new": "92,74,36,29,35,144,62,91",
+      "type_ids_old": "10,3",
+      "category_ids_old": "15,24,45",
+      "mechanic_ids_old": "93"
+    },
+    {
+      "id": "546",
+      "name": "Preguntas de Mierda",
+      "type_ids_new": "5",
+      "category_ids_new": "22,54,57,62",
+      "mechanic_ids_new": "31,65,88,85,93,113",
+      "type_ids_old": "8",
+      "category_ids_old": "15,41,57",
+      "mechanic_ids_old": "178"
+    },
+    {
+      "id": "547",
+      "name": "Risk",
+      "type_ids_new": "1,4",
+      "category_ids_new": "23,47,60,61,64",
+      "mechanic_ids_new": "1,9,20,27,75,98,137,159,178",
+      "type_ids_old": "4",
+      "category_ids_old": "73,80",
+      "mechanic_ids_old": "11,48,116,140"
+    },
+    {
+      "id": "548",
+      "name": "Monos Locos",
+      "type_ids_new": "3,8",
+      "category_ids_new": "21,39,62,65",
+      "mechanic_ids_new": "30,1,77,162,143",
+      "type_ids_old": "9",
+      "category_ids_old": "2,16",
+      "mechanic_ids_old": "48,113"
+    },
+    {
+      "id": "549",
+      "name": "Pictureka!",
+      "type_ids_new": "3,5",
+      "category_ids_new": "25,55,62,65",
+      "mechanic_ids_new": "29,36,89,74,143,85",
+      "type_ids_old": "5",
+      "category_ids_old": "1,45,57,64",
+      "mechanic_ids_old": "13,93,95"
+    },
+    {
+      "id": "550",
+      "name": "Kabaleo",
+      "type_ids_new": "3,8",
+      "category_ids_new": "21,25,62,65",
+      "mechanic_ids_new": "30,32,77,143,144,26",
+      "type_ids_old": "7",
+      "category_ids_old": "1,13,22",
+      "mechanic_ids_old": "160"
+    },
+    {
+      "id": "551",
+      "name": "Dominoes",
+      "type_ids_new": "3,8,10",
+      "category_ids_new": "9,62,63,66",
+      "mechanic_ids_new": "35,48,60,63,78,144,162,175",
+      "type_ids_old": "7",
+      "category_ids_old": "1,34,78",
+      "mechanic_ids_old": "110,112,157,160"
+    },
+    {
+      "id": "552",
+      "name": "Conan: el juego de cartas",
+      "type_ids_new": "7,3",
+      "category_ids_new": "1,8,13,40,61",
+      "mechanic_ids_new": "13,48,11,26,37,63,76,158,159",
+      "type_ids_old": "2",
+      "category_ids_old": "15,31",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "553",
+      "name": "Jenga: Tetris",
+      "type_ids_new": "5,10",
+      "category_ids_new": "21,57,25,65",
+      "mechanic_ids_new": "30,32,26,143,175,91,144,154",
+      "type_ids_old": "7",
+      "category_ids_old": "2,57,78",
+      "mechanic_ids_old": "122"
+    },
+    {
+      "id": "554",
+      "name": "The Game of Life Junior",
+      "type_ids_new": "8,3",
+      "category_ids_new": "62,66,42,39",
+      "mechanic_ids_new": "60,80,9,37,63,1,175,162",
+      "type_ids_old": "9",
+      "category_ids_old": "16",
+      "mechanic_ids_old": "133"
+    },
+    {
+      "id": "555",
+      "name": "Alguien ha probado este juego?",
+      "type_ids_new": "5,10",
+      "category_ids_new": "57,55,59,62",
+      "mechanic_ids_new": "85,65,88,29,175,36,93",
+      "type_ids_old": "8",
+      "category_ids_old": "15,36,57",
+      "mechanic_ids_old": "62,93,116,130,155"
+    },
+    {
+      "id": "556",
+      "name": "Monopoly Tramposo",
+      "type_ids_new": "3,5",
+      "category_ids_new": "17,22,57,62",
+      "mechanic_ids_new": "1,9,60,75,103,158,165",
+      "type_ids_old": "5",
+      "category_ids_old": "24",
+      "mechanic_ids_old": "133,140,163"
+    },
+    {
+      "id": "557",
+      "name": "DogFight WW1",
+      "type_ids_new": "1,4",
+      "category_ids_new": "40,61,82",
+      "mechanic_ids_new": "36,47,81,153,159",
+      "type_ids_old": "2",
+      "category_ids_old": "12,15,33,80,82",
+      "mechanic_ids_old": "62,137"
+    },
+    {
+      "id": "558",
+      "name": "The Hobbit Card Game",
+      "type_ids_new": "3,9",
+      "category_ids_new": "1,8,13,26",
+      "mechanic_ids_new": "13,19,40,48,114,148",
+      "type_ids_old": "5",
+      "category_ids_old": "15,31,55",
+      "mechanic_ids_old": "62,116,165"
+    },
+    {
+      "id": "559",
+      "name": "Cthulhu Dice",
+      "type_ids_new": "5,10",
+      "category_ids_new": "10,11,35,57",
+      "mechanic_ids_new": "1,26,162",
+      "type_ids_old": "8",
+      "category_ids_old": "23,35,36,57",
+      "mechanic_ids_old": "48,116"
+    },
+    {
+      "id": "560",
+      "name": "Trivial Pursuit: Genus Edition",
+      "type_ids_new": "3,5",
+      "category_ids_new": "55,57,62,66",
+      "mechanic_ids_new": "1,60,62,85,175",
+      "type_ids_old": "5",
+      "category_ids_old": "57,77",
+      "mechanic_ids_old": "133,140"
+    },
+    {
+      "id": "561",
+      "name": "El Ahorcado (Hangman)",
+      "type_ids_new": "5,8",
+      "category_ids_new": "54,66,57",
+      "mechanic_ids_new": "3,88,85,74,39,143",
+      "type_ids_old": "5",
+      "category_ids_old": "22,81",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "562",
+      "name": "Damas (Checkers)",
+      "type_ids_new": "1,2",
+      "category_ids_new": "63,9",
+      "mechanic_ids_new": "9,47,26,87,98,37,44",
+      "type_ids_old": "7",
+      "category_ids_old": "1,21",
+      "mechanic_ids_old": "61,111,148,151"
+    },
+    {
+      "id": "563",
+      "name": "Guess Who?",
+      "type_ids_new": "3,8",
+      "category_ids_new": "3,66,57",
+      "mechanic_ids_new": "3,85,26,74,39,137,143",
+      "type_ids_old": "9",
+      "category_ids_old": "16,22,48",
+      "mechanic_ids_old": "46"
+    },
+    {
+      "id": "564",
+      "name": "The Game of Life",
+      "type_ids_new": "3,5",
+      "category_ids_new": "62,57,66",
+      "mechanic_ids_new": "1,60,84,112,77,63,175,140",
+      "type_ids_old": "5",
+      "category_ids_old": "16,24,26",
+      "mechanic_ids_old": "133,141"
+    },
+    {
+      "id": "565",
+      "name": "Monopoly",
+      "type_ids_new": "1,3",
+      "category_ids_new": "17,64,32,62",
+      "mechanic_ids_new": "1,60,5,75,106,26,63,169,112,141",
+      "type_ids_old": "5",
+      "category_ids_old": "24,54",
+      "mechanic_ids_old": "13,48,71,83,84,107,116,133,140,152,162,163"
+    },
+    {
+      "id": "566",
+      "name": "Catan: 5-6 Player Extension",
+      "type_ids_new": "1,3",
+      "category_ids_new": "17,32,62,64",
+      "mechanic_ids_new": "1,20,75,106,110,162,169",
+      "type_ids_old": "5",
+      "category_ids_old": "28,54",
+      "mechanic_ids_old": "48,62,93,95,104,163"
+    },
+    {
+      "id": "567",
+      "name": "Carcassonne: Expansion 1 – Inns & Cathedrals",
+      "type_ids_new": "1,3",
+      "category_ids_new": "18,20,45,62",
+      "mechanic_ids_new": "61,63,77,102,122,123,124",
+      "type_ids_old": "3,5",
+      "category_ids_old": "17,28,44,73",
+      "mechanic_ids_old": "10,160"
+    },
+    {
+      "id": "568",
+      "name": "Carcassonne: Expansion 2 – Traders & Builders",
+      "type_ids_new": "1,3",
+      "category_ids_new": "17,18,20,32,45,62",
+      "mechanic_ids_new": "61,63,77,102,106,121,122,175",
+      "type_ids_old": "5,1,3",
+      "category_ids_old": "17,28,44,73",
+      "mechanic_ids_old": "10,140,160"
+    },
+    {
+      "id": "569",
+      "name": "Picar?",
+      "type_ids_new": "5,8,10",
+      "category_ids_new": "57,62,65",
+      "mechanic_ids_new": "29,36,89,92,143",
+      "type_ids_old": "2",
+      "category_ids_old": "8",
+      "mechanic_ids_old": "9"
+    },
+    {
+      "id": "570",
+      "name": "Monopoly : Money Heist Edition",
+      "type_ids_new": "3,7",
+      "category_ids_new": "46,47,62,69",
+      "mechanic_ids_new": "1,60,75,77,80,102,107",
+      "type_ids_old": "9",
+      "category_ids_old": "36",
+      "mechanic_ids_old": "17"
+    },
+    {
+      "id": "571",
+      "name": "BANG! The Bullet!",
+      "type_ids_new": "5,7",
+      "category_ids_new": "13,39,46,83",
+      "mechanic_ids_new": "13,39,48,85,87,158,165",
+      "type_ids_old": "8",
+      "category_ids_old": "8,13,15,22,33,36",
+      "mechanic_ids_old": "62,65,116,155,157,175"
+    },
+    {
+      "id": "572",
+      "name": "Dixit: Origins",
+      "type_ids_new": "3,5",
+      "category_ids_new": "13,22,57",
+      "mechanic_ids_new": "13,48,85,88,89,130,153,65",
+      "type_ids_old": "8",
+      "category_ids_old": "13,15,28,36,57",
+      "mechanic_ids_old": "142,153,178"
+    },
+    {
+      "id": "573",
+      "name": "Carcassonne: Expansion 4 – The Tower",
+      "type_ids_new": "1,3",
+      "category_ids_new": "18,20,23,61",
+      "mechanic_ids_new": "9,61,54,75,11,44,138,176",
+      "type_ids_old": "3,1,5",
+      "category_ids_old": "17,28,44,73",
+      "mechanic_ids_old": "10,160"
+    },
+    {
+      "id": "574",
+      "name": "Black Stories: Scary Music Edition",
+      "type_ids_new": "5",
+      "category_ids_new": "3,11,29,57,67",
+      "mechanic_ids_new": "3,16,85,88,130",
+      "type_ids_old": "8",
+      "category_ids_old": "15,22,35,36,49,57",
+      "mechanic_ids_old": "153"
+    },
+    {
+      "id": "575",
+      "name": "Black Stories Junior: Purple Stories",
+      "type_ids_new": "3,8",
+      "category_ids_new": "3,29,62,66",
+      "mechanic_ids_new": "3,16,85,88,130",
+      "type_ids_old": "8",
+      "category_ids_old": "16,22,31,57",
+      "mechanic_ids_old": "153"
+    },
+    {
+      "id": "576",
+      "name": "Black Stories: Uni Edition",
+      "type_ids_new": "5",
+      "category_ids_new": "3,29,57,66",
+      "mechanic_ids_new": "16,40,85,88,113,130,175",
+      "type_ids_old": "8",
+      "category_ids_old": "15,22,35,49,57",
+      "mechanic_ids_old": "153"
+    },
+    {
+      "id": "577",
+      "name": "Black Stories: Science-Fiction Edition",
+      "type_ids_new": "5",
+      "category_ids_new": "3,12,29,57",
+      "mechanic_ids_new": "16,40,85,88,113,130,175",
+      "type_ids_old": "8",
+      "category_ids_old": "",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "578",
+      "name": "Black Stories: Office Edition",
+      "type_ids_new": "5",
+      "category_ids_new": "3,22,29,57",
+      "mechanic_ids_new": "16,40,85,88,113,130,175",
+      "type_ids_old": "8",
+      "category_ids_old": "",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "579",
+      "name": "Carcassonne: 20th Anniversary Edition",
+      "type_ids_new": "1,3",
+      "category_ids_new": "18,20,45,62",
+      "mechanic_ids_new": "9,20,54,61,63,80,117,175",
+      "type_ids_old": "5",
+      "category_ids_old": "",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "580",
+      "name": "Carcassonne: Expansion 3 – The Princess & The Dragon",
+      "type_ids_new": "1,3,7",
+      "category_ids_new": "8,18,20,45,78",
+      "mechanic_ids_new": "9,20,26,54,61,63,80,117,158,175",
+      "type_ids_old": "",
+      "category_ids_old": "",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "581",
+      "name": "Carcassonne: Expansion 8 – Bridges, Castles and Bazaars",
+      "type_ids_new": "1,3",
+      "category_ids_new": "18,20,63",
+      "mechanic_ids_new": "5,61,80,121,137,163",
+      "type_ids_old": "",
+      "category_ids_old": "",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "582",
+      "name": "Carcassonne: Expansion 5 – Abbey & Mayor",
+      "type_ids_new": "1,3",
+      "category_ids_new": "18,20,63",
+      "mechanic_ids_new": "9,61,80,121,158,163",
+      "type_ids_old": "",
+      "category_ids_old": "",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "583",
+      "name": "Cards Against Humanity: Green Box",
+      "type_ids_new": "5",
+      "category_ids_new": "22,57,62",
+      "mechanic_ids_new": "13,48,65,85,153",
+      "type_ids_old": "8",
+      "category_ids_old": "",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "584",
+      "name": "Dobble: Star Wars",
+      "type_ids_new": "3,10",
+      "category_ids_new": "12,21,62",
+      "mechanic_ids_new": "29,30,35,74,89,91",
+      "type_ids_old": "5",
+      "category_ids_old": "",
+      "mechanic_ids_old": ""
+    },
+    {
+      "id": "585",
+      "name": "Dobble Star Wars: Mandalorian",
+      "type_ids_new": "3,10",
+      "category_ids_new": "12,21,62",
+      "mechanic_ids_new": "29,30,35,74,89,91",
+      "type_ids_old": "5",
+      "category_ids_old": "",
+      "mechanic_ids_old": ""
+    }
+  ]
+}

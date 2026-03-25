@@ -802,7 +802,8 @@ function DexterChat() {
     const history = messages.slice(-6).map(m => ({ role: m.role, content: m.content }));
     const result = await api.chat(msg.trim(), history);
     const gamesData = result?.games ?? null;
-    setMessages(prev => [...prev, { role: "assistant", content: result?.reply || "Lo siento, no puedo responder ahora. Contacta con nosotros en hola@elbunker.es.", games: gamesData }]);
+    const qr = result?.quickReplies ?? null;
+    setMessages(prev => [...prev, { role: "assistant", content: result?.reply || "Lo siento, no puedo responder ahora. Contacta con nosotros en hola@elbunker.es.", games: gamesData, quickReplies: qr }]);
     setLoading(false);
   };
   if (!open) return (<button className="dexter-fab" onClick={() => setOpen(true)} title="Habla con Dexter"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 2C7.4 2 2 6.6 2 12.2c0 3.2 1.7 6.1 4.4 8L5 25l5.6-2.8c1.1.3 2.2.4 3.4.4 6.6 0 12-4.6 12-10.2S20.6 2 14 2z" fill="#FFD60A"/><circle cx="9" cy="12" r="1.5" fill="#1A1A2E"/><circle cx="14" cy="12" r="1.5" fill="#1A1A2E"/><circle cx="19" cy="12" r="1.5" fill="#1A1A2E"/></svg></button>);
@@ -815,7 +816,10 @@ function DexterChat() {
         <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", color: "rgba(255,255,255,.7)", fontSize: "1.3rem", cursor: "pointer" }}>×</button>
       </div>
       <div className="dexter-messages">
-        {messages.map((m, i) => (<div key={i} className={"dexter-msg dexter-" + m.role}>{m.role === "assistant" && <div className="dexter-avatar">{I.dice(18, "#FFD60A")}</div>}<div className="dexter-bubble">{m.content}{m.games?.length > 0 && <div style={{ display: "flex", flexDirection: "column", gap: ".3rem", marginTop: ".6rem" }}>{m.games.map((g, gi) => <button key={gi} onClick={() => setGameCard(g)} style={{ background: "var(--yellow)", color: "#1A1A2E", border: "none", borderRadius: "8px", padding: ".35rem .8rem", fontWeight: 700, fontSize: ".8rem", cursor: "pointer", textAlign: "left" }}>🎲 {g.name}</button>)}</div>}</div></div>))}
+        {messages.map((m, i) => {
+          const isLastAssistant = m.role === "assistant" && i === messages.map((x, xi) => x.role === "assistant" ? xi : -1).filter(x => x >= 0).pop();
+          return (<div key={i} className={"dexter-msg dexter-" + m.role}>{m.role === "assistant" && <div className="dexter-avatar">{I.dice(18, "#FFD60A")}</div>}<div className="dexter-bubble">{m.content}{m.games?.length > 0 && <div style={{ display: "flex", flexDirection: "column", gap: ".3rem", marginTop: ".6rem" }}>{m.games.map((g, gi) => <button key={gi} onClick={() => setGameCard(g)} style={{ background: "var(--yellow)", color: "#1A1A2E", border: "none", borderRadius: "8px", padding: ".35rem .8rem", fontWeight: 700, fontSize: ".8rem", cursor: "pointer", textAlign: "left" }}>🎲 {g.name}</button>)}</div>}{isLastAssistant && m.quickReplies?.length > 0 && <div className="dexter-quick" style={{ marginTop: ".6rem" }}>{m.quickReplies.map((qr, qi) => <button key={qi} onClick={() => sendMsg(qr)}>{qr}</button>)}</div>}</div></div>);
+        })}
         {loading && <div className="dexter-msg dexter-assistant"><div className="dexter-avatar">{I.dice(18, "#FFD60A")}</div><div className="dexter-bubble dexter-typing"><span/><span/><span/></div></div>}
         <div ref={bottomRef} />
         {messages.length <= 1 && <div className="dexter-quick">{quickOptions.map((q, i) => <button key={i} onClick={() => sendMsg(q.msg)}>{q.label}</button>)}</div>}
